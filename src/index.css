@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Warm, calm palette; dark mode for night feedings. Values are RGB channels for Tailwind opacity. */
+  :root {
+    --bg: 251 247 244;
+    --card: 255 255 255;
+    --ink: 58 51 53;
+    --mute: 138 128 131;
+    --line: 239 230 225;
+    --accent: 214 106 131;
+    --feed: 214 106 131;
+    --diaper: 214 156 52;
+    --sleep: 104 117 196;
+    --note: 98 150 132;
+    --health: 62 146 160;
+    --danger: 205 72 72;
+    --pump: 150 108 186;
+    color-scheme: light;
+  }
+  .dark {
+    --bg: 22 19 26;
+    --card: 34 30 38;
+    --ink: 242 236 238;
+    --mute: 166 156 162;
+    --line: 51 45 54;
+    --accent: 240 144 159;
+    --feed: 240 144 159;
+    --diaper: 232 182 92;
+    --sleep: 150 160 230;
+    --note: 132 190 168;
+    --health: 104 190 204;
+    --danger: 240 110 110;
+    --pump: 190 150 225;
+    color-scheme: dark;
+  }
+
+  html, body { @apply bg-bg text-ink; }
+  body {
+    font-family: 'Heebo', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  input, textarea, select { font-size: 16px; } /* no iOS zoom on focus */
+}
