@@ -15,7 +15,7 @@ import { archived, isOverdue, upcoming, whenText } from './appointmentUtils';
 
 function addToCalendar(a, babyName) {
   const ics = appointmentIcs({
-    id: a.id, title: `${babyName} · ${a.doctor_type}`, date: a.date, time: a.time,
+    id: a.id, title: `${babyName}-${a.doctor_type}`, // "תום-טיפת חלב": the import reads this prefix back date: a.date, time: a.time,
     location: a.location, description: a.note ? `לשאול: ${a.note}` : '',
   });
   downloadIcs(ics, `${a.doctor_type}-${a.date}.ics`);

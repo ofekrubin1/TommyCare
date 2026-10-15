@@ -39,6 +39,7 @@ async function api(token, path) {
   return res.json();
 }
 
+// Kept for a possible "choose calendar" option later.
 export async function listCalendars(token) {
   const { items = [] } = await api(token, '/users/me/calendarList?minAccessRole=reader');
   return items.map((c) => ({ id: c.id, name: c.summaryOverride || c.summary, primary: !!c.primary }));
@@ -46,8 +47,19 @@ export async function listCalendars(token) {
 
 const plainText = (html) => (html || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
 
-// Events from a month ago to a year ahead, as appointment fields.
-export async function fetchEvents(token, calendarId) {
+// "תום-טיפת חלב" / "תום - טיפת חלב" / "תום טיפת חלב" → "טיפת חלב". Other events → null (not Tom's).
+export function doctorFromTitle(title, babyName) {
+  const t = (title || '').trim(), name = (babyName || '').trim();
+  if (!name || !t.startsWith(name)) return null;
+  const rest = t.slice(name.length).replace(/^[\s\-–—:·]+/, '').trim();
+  return rest || 'תור';
+}
+
+// The app's own exported events carry UID "<appointment id>@tommycare".
+export const appIdFromUid = (uid) => (uid?.endsWith('@tommycare') ? uid.slice(0, -'@tommycare'.length) : null);
+
+// Events titled "<baby name>-…", from a month ago to a year ahead, as appointment fields.
+export async function fetchEvents(token, babyName, calendarId = 'primary') {
   const min = new Date(Date.now() - 30 * 864e5).toISOString();
   const max = new Date(Date.now() + 365 * 864e5).toISOString();
   const events = [];
@@ -58,12 +70,13 @@ export async function fetchEvents(token, calendarId) {
     events.push(...(body.items || []));
     pageToken = body.nextPageToken || '';
   } while (pageToken);
-  return events.filter((e) => e.status !== 'cancelled' && e.start).map((e) => {
+  return events.filter((e) => e.status !== 'cancelled' && e.start && doctorFromTitle(e.summary, babyName)).map((e) => {
     const start = e.start.dateTime ? parseISO(e.start.dateTime) : null;
     return {
       google_event_id: e.id,
       google_updated: e.updated,
-      doctor_type: (e.summary || 'תור').trim(),
+      ical_uid: e.iCalUID || '',
+      doctor_type: doctorFromTitle(e.summary, babyName),
       date: start ? format(start, 'yyyy-MM-dd') : e.start.date,
       time: start ? format(start, 'HH:mm') : '',
       location: (e.location || '').trim(),
@@ -76,11 +89,14 @@ export async function fetchEvents(token, calendarId) {
 // Returns { add: [...], update: [{ id, data }], remove: [id] }.
 export function planSync(appointments, events) {
   const byEvent = new Map(appointments.filter((a) => a.google_event_id).map((a) => [a.google_event_id, a]));
+  const byId = new Map(appointments.map((a) => [a.id, a]));
   const seen = new Set(events.map((e) => e.google_event_id));
   const add = [], update = [], remove = [];
   for (const e of events) {
     const existing = byEvent.get(e.google_event_id);
-    if (!existing) add.push({ ...e, summary: '', done: false });
+    const exported = !existing && byId.get(appIdFromUid(e.ical_uid));
+    if (exported) update.push({ id: exported.id, data: { google_event_id: e.google_event_id, google_updated: e.google_updated } }); // just link it
+    else if (!existing) add.push({ ...e, summary: '', done: false });
     else if (existing.google_updated !== e.google_updated) update.push({ id: existing.id, data: e });
   }
   const windowStart = format(new Date(Date.now() - 30 * 864e5), 'yyyy-MM-dd');
