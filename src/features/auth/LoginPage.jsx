@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Baby } from 'lucide-react';
 import { auth } from '@/data';
 import { Card } from '@/components/ui/Card';
 import { Field, Input } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
+import { greeting } from './greeting';
 
 const ERRORS = {
   'auth/invalid-credential': 'אימייל או סיסמה שגויים',
@@ -36,9 +36,9 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center p-5" dir="rtl">
       <Card className="w-full max-w-sm p-6">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 text-accent"><Baby className="h-7 w-7" /></div>
-          <h1 className="text-2xl font-bold">TommyCare</h1>
-          <p className="text-sm text-mute">היומן של תום</p>
+          <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-accent/10 text-5xl">🐣</div>
+          <h1 className="text-2xl font-bold">{greeting()}</h1>
+          <p className="mt-1 text-sm text-mute">כל הרגעים של Tommy במקום אחד</p>
         </div>
         <form onSubmit={submit} className="space-y-4">
           <Field label="אימייל"><Input type="email" dir="ltr" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>

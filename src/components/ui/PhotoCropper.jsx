@@ -3,11 +3,10 @@ import { createPortal } from 'react-dom';
 import { ZoomIn, ZoomOut } from 'lucide-react';
 
 const VIEW = 280; // px, the circle on screen
-const OUT = 320; // px, saved image size
 const MAX_ZOOM = 4;
 
 // Drag to move, pinch (or the slider) to zoom, inside a circle. Saves a small square JPEG data URL.
-export function PhotoCropper({ file, onCancel, onSave }) {
+export function PhotoCropper({ file, onCancel, onSave, size = 320 }) {
   const [img, setImg] = useState(null);
   const [zoom, setZoom] = useState(1);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -65,9 +64,9 @@ export function PhotoCropper({ file, onCancel, onSave }) {
 
   const save = () => {
     const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = OUT;
+    canvas.width = canvas.height = size;
     const side = VIEW / scale;
-    canvas.getContext('2d').drawImage(img, -pos.x / scale, -pos.y / scale, side, side, 0, 0, OUT, OUT);
+    canvas.getContext('2d').drawImage(img, -pos.x / scale, -pos.y / scale, side, side, 0, 0, size, size);
     onSave(canvas.toDataURL('image/jpeg', 0.85));
   };
 

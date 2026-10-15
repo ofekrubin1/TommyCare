@@ -25,9 +25,9 @@ export default function MorePage() {
           </Link>
         ))}
       </Card>
-      {/* Signing out returns to the login screen (the app shows it whenever no one is signed in). */}
+      {/* Sign out, then reload so live data subscriptions start fresh for the next login. */}
       <Card className="p-0">
-        <button onClick={() => auth.signOut()} className="flex w-full items-center gap-3 px-4 py-3.5 text-right">
+        <button onClick={async () => { await auth.signOut(); window.location.replace('/'); }} className="flex w-full items-center gap-3 px-4 py-3.5 text-right">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-danger/10 text-danger"><LogOut className="h-5 w-5" /></span>
           <span className="flex-1">
             <span className="block font-medium text-danger">התנתקות</span>
