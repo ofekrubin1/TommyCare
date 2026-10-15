@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { format } from 'date-fns';
+import { Link } from 'react-router-dom';
 import { Camera, ImagePlus, Trash2 } from 'lucide-react';
 import { ageText } from '@/lib/time';
 import { Sheet } from '@/components/ui/Sheet';
@@ -41,8 +42,10 @@ export function BabyHeader({ settings, save, now }) {
 
       <h1 className="mt-2 text-2xl font-bold tracking-tight">{settings.baby_name}</h1>
       <p className="text-sm">
-        {age && <span className="font-medium text-accent">{age}</span>}
-        {age && <span className="text-mute"> · </span>}
+        {age
+          ? <span className="font-medium text-accent">{age}</span>
+          : <Link to="/settings" className="font-medium text-accent underline">הוספת תאריך לידה</Link>}
+        <span className="text-mute"> · </span>
         <span className="text-mute">יום {HE_DAYS[now.getDay()]} · {format(now, 'dd/MM')}</span>
       </p>
 
