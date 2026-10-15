@@ -12,7 +12,7 @@ export function buildSampleData(now = new Date()) {
   const put = (col, data) => { const k = id(); db[col][k] = { created_at: iso(now), updated_at: iso(now), created_by: LOCAL_USER.uid, ...data }; return k; };
   const birth = subDays(now, 38);
 
-  db.settings.app = { baby_name: 'תום', birth_date: format(birth, 'yyyy-MM-dd'), default_feeding_type: 'breast', feeding_alert_hours: 3 };
+  db.settings.app = { baby_name: 'Tommy', birth_date: format(birth, 'yyyy-MM-dd'), default_feeding_type: 'breast', feeding_alert_hours: 3 };
   db.profiles[LOCAL_USER.uid] = { name: 'אופק' };
   const vitD = put('meds', { name: 'ויטמין D', dose: '400 יחב״ל (טיפות)', daily: true, active: true });
 

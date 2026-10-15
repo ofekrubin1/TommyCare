@@ -2,7 +2,7 @@
 export const DAY_START_HOUR = 6;
 
 export const DEFAULT_SETTINGS = {
-  baby_name: 'תום',
+  baby_name: 'Tommy',
   birth_date: '',
   default_feeding_type: 'breast',
   feeding_alert_hours: 3,
