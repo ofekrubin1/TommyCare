@@ -6,5 +6,12 @@ export async function sendMail({ to, subject, html, text }) {
   const pass = process.env.GMAIL_APP_PASSWORD;
   if (!user || !pass) throw new Error('Email is not configured: set GMAIL_USER and GMAIL_APP_PASSWORD in Netlify environment variables.');
   const transport = nodemailer.createTransport({ service: 'gmail', auth: { user, pass: pass.replace(/\s+/g, '') } });
-  await transport.sendMail({ from: `"TommyCare" <${user}>`, to, subject, html, text });
+  try {
+    await transport.sendMail({ from: `"TommyCare" <${user}>`, to, subject, html, text });
+  } catch (err) {
+    if (err.responseCode === 535 || err.code === 'EAUTH') {
+      throw new Error('Gmail דחה את פרטי ההתחברות: GMAIL_USER או GMAIL_APP_PASSWORD ב-Netlify לא נכונים (בדקו עם npm run check-gmail)');
+    }
+    throw err;
+  }
 }

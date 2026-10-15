@@ -7,7 +7,8 @@
     "dev": "vite --host",
     "dev:local": "vite --mode localdb --host",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check-gmail": "node scripts/check-gmail.mjs"
   },
   "dependencies": {
     "clsx": "2.1.1",

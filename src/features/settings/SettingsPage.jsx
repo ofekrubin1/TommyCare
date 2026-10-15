@@ -53,8 +53,15 @@ function SummaryEmailCard({ settings, save }) {
       if (dirty) await persist();
       const res = await fetch('/api/send-test-summary', { method: 'POST', headers: { Authorization: `Bearer ${await auth.getToken()}` } });
       const body = await res.json().catch(() => ({}));
+      const ROBOT = {
+        missing: 'אבל המייל היומי לא יישלח: חסרים TC_ROBOT_EMAIL / TC_ROBOT_PASSWORD ב-Netlify.',
+        bad_login: 'אבל המייל היומי לא יישלח: משתמש המערכת (TC_ROBOT_EMAIL / TC_ROBOT_PASSWORD) לא מצליח להתחבר.',
+        error: 'אבל בדיקת משתמש המערכת נכשלה.',
+      };
       setState(res.ok && body.ok
-        ? { status: 'ok', message: `נשלח מייל בדיקה אל ${body.to}` }
+        ? body.robot === 'ok'
+          ? { status: 'ok', message: `נשלח מייל בדיקה אל ${body.to}. המייל היומי ב-06:00 מוכן ✓` }
+          : { status: 'error', message: `נשלח מייל בדיקה אל ${body.to}, ${ROBOT[body.robot] || ROBOT.error}` }
         : { status: 'error', message: TEST_ERRORS[body.error] || `השליחה נכשלה: ${body.error || res.status}` });
     } catch {
       setState({ status: 'error', message: 'השליחה נכשלה. בדקו את החיבור לאינטרנט.' });
