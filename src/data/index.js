@@ -1,16 +1,7 @@
-// Picks the data backend once at startup.
-//   npm run dev        → Firebase (real data, login)
-//   npm run dev:local  → local test environment (data in this browser, no login)
-//
-// Both backends expose the same shape:
+// The data layer. Every screen reads and writes through here; the backend is Firebase (Auth + Firestore).
 //   collection(name) → { subscribe(onData, onError), add(data), update(id, data), set(id, data), remove(id) }
 //   auth             → { subscribe(onUser), signIn(email, password), signOut(), getToken() }
-const backend = import.meta.env.VITE_BACKEND === 'local'
-  ? await import('./local/localBackend.js')
-  : await import('./firebase/firebaseBackend.js');
-
-export const { collection, auth } = backend;
-export const isLocalBackend = import.meta.env.VITE_BACKEND === 'local';
+export { collection, auth } from './firebase/firebaseBackend.js';
 
 // Collection names, in one place.
 export const C = {

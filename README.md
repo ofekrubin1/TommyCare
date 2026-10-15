@@ -6,12 +6,12 @@ Tom's daily log (Hebrew, RTL, mobile-first): feedings, diapers, sleep, notes, sh
 
 ```
 npm install
-npm run dev:local   # test environment: sample data in this browser, no login, no Firebase
-npm run dev         # real Firebase (needs src/config/firebaseConfig.js + login)
+npm run dev         # dev server against the real Firebase (login required)
+npm run check-gmail # verify Gmail credentials locally before putting them in Netlify
 npm run build       # production build → dist/
 ```
 
-`dev:local` also listens on the local network, so a phone on the same Wi-Fi can open `http://<computer-ip>:5173`. In the test environment, Settings → "טעינת נתוני דוגמה" loads ~5 days of sample data.
+`npm run dev` also listens on the local network, so a phone on the same Wi-Fi can open `http://<computer-ip>:<port>`.
 
 ## Structure
 
@@ -19,9 +19,8 @@ npm run build       # production build → dist/
 src/
   app/           App (routes, login gate)
   config/        firebaseConfig, appConfig (day start hour, default settings)
-  data/          backend selection + collection names
+  data/          data layer (collection names, Firebase backend)
     firebase/    Firestore + Firebase Auth backend
-    local/       localStorage backend for the test environment, sample data
   hooks/         useCollection (shared live subscriptions), useBabyData, useSettings, useNow
   lib/           time (06:00 day boundary), summary (daily totals), vaccines (schedule), theme, utils
   components/
@@ -33,7 +32,7 @@ src/
   pages/         Home, Journal, Health, More
 ```
 
-Both backends expose the same API (`collection(name).subscribe/add/update/set/remove`, `auth.subscribe/signIn/signOut`), chosen by `VITE_BACKEND` (`.env.localdb`).
+The data layer exposes `collection(name).subscribe/add/update/set/remove` and `auth.subscribe/signIn/signOut/getToken`; all screens go through it.
 
 ## Firebase setup (production)
 

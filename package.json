@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host",
-    "dev:local": "vite --mode localdb --host",
     "build": "vite build",
     "preview": "vite preview",
     "check-gmail": "node scripts/check-gmail.mjs"

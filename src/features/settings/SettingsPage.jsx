@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { LogOut, Send } from 'lucide-react';
-import { auth, C, collection, isLocalBackend } from '@/data';
+import { Send } from 'lucide-react';
+import { auth, C, collection } from '@/data';
 import { useSettings } from '@/hooks/useSettings';
 import { getTheme, setTheme } from '@/lib/theme';
 import { Card, SectionTitle } from '@/components/ui/Card';
@@ -12,24 +12,6 @@ import { FEEDING_OPTIONS } from '@/features/feeding/feedingTypes';
 import { useAuth, useProfiles } from '@/features/auth/AuthProvider';
 
 const THEMES = [{ value: 'auto', label: 'אוטומטי' }, { value: 'light', label: 'בהיר' }, { value: 'dark', label: 'כהה' }];
-
-function LocalTools() {
-  const load = async () => {
-    const [{ buildSampleData }, { replaceAll }] = await Promise.all([import('@/data/local/seed'), import('@/data/local/localBackend')]);
-    replaceAll(buildSampleData());
-  };
-  const clear = async () => (await import('@/data/local/localBackend')).replaceAll({});
-  return (
-    <Card className="border-dashed border-accent/50">
-      <SectionTitle>סביבת בדיקה</SectionTitle>
-      <p className="mb-3 text-sm text-mute">הנתונים כאן נשמרים רק בדפדפן הזה ולא מגיעים ל-Firebase.</p>
-      <div className="grid grid-cols-2 gap-2">
-        <Button variant="soft" onClick={load}>טעינת נתוני דוגמה</Button>
-        <Button variant="danger" onClick={clear}>מחיקת הכל</Button>
-      </div>
-    </Card>
-  );
-}
 
 const TEST_ERRORS = {
   no_email: 'שמרו קודם כתובת אימייל',
@@ -44,7 +26,7 @@ function SummaryEmailCard({ settings, save }) {
   useEffect(() => { setEmail(settings.summary_email || ''); setEnabled(!!settings.summary_enabled); }, [settings.summary_email, settings.summary_enabled]);
   const dirty = email.trim() !== (settings.summary_email || '') || enabled !== !!settings.summary_enabled;
   // Functions only exist on the deployed site (not in the local dev server).
-  const canTest = !isLocalBackend && !import.meta.env.DEV;
+  const canTest = !import.meta.env.DEV;
 
   const persist = () => save({ summary_email: email.trim(), summary_enabled: enabled });
   const sendTest = async () => {
@@ -131,12 +113,7 @@ export default function SettingsPage() {
         <Segmented options={THEMES} value={theme} onChange={(v) => { setTheme(v); setThemeState(v); }} />
       </Card>
 
-      {isLocalBackend ? <LocalTools /> : (
-        <Card className="flex items-center justify-between">
-          <span className="text-sm text-mute">{user?.email}</span>
-          <Button variant="ghost" className="py-2" onClick={() => auth.signOut()}><LogOut className="w-4 h-4" />התנתקות</Button>
-        </Card>
-      )}
+      <p className="text-center text-xs text-mute">מחובר/ת כ-{user?.email}</p>
     </div>
   );
 }

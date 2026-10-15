@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
-import { ChevronLeft, FileText, FlaskConical, Settings } from 'lucide-react';
+import { ChevronLeft, FileText, FlaskConical, LogOut, Settings } from 'lucide-react';
+import { auth } from '@/data';
 import { Card } from '@/components/ui/Card';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { useAuth } from '@/features/auth/AuthProvider';
 
 const ITEMS = [
   { to: '/pumping', label: 'שאיבה ומלאי חלב', icon: FlaskConical, tone: 'text-pump bg-pump/10' },
@@ -10,6 +12,7 @@ const ITEMS = [
 ];
 
 export default function MorePage() {
+  const { user } = useAuth();
   return (
     <div className="space-y-4">
       <PageHeader title="עוד" />
@@ -21,6 +24,16 @@ export default function MorePage() {
             <ChevronLeft className="h-5 w-5 text-mute" />
           </Link>
         ))}
+      </Card>
+      {/* Signing out returns to the login screen (the app shows it whenever no one is signed in). */}
+      <Card className="p-0">
+        <button onClick={() => auth.signOut()} className="flex w-full items-center gap-3 px-4 py-3.5 text-right">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-danger/10 text-danger"><LogOut className="h-5 w-5" /></span>
+          <span className="flex-1">
+            <span className="block font-medium text-danger">התנתקות</span>
+            {user?.email && <span className="block text-xs text-mute" dir="ltr">{user.email}</span>}
+          </span>
+        </button>
       </Card>
     </div>
   );
