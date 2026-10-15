@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { C, collection } from '@/data';
 import { Sheet } from '@/components/ui/Sheet';
 import { Field, Input, Optional, Textarea } from '@/components/ui/Field';
-import { TimePicker } from '@/components/ui/DateTime';
+import { TimeSelect } from '@/components/ui/DateTime';
 import { Chip, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
 import { DOCTOR_TYPES } from './appointmentUtils';
@@ -57,9 +57,11 @@ export default function AppointmentSheet({ record, mode, onClose }) {
           <Input className="mt-2" placeholder="איזה רופא?" value={doctor === 'אחר' ? '' : doctor} onChange={(e) => setDoctor(e.target.value || 'אחר')} />
         )}
       </Field>
-      <Field label="תאריך"><Input type="date" className="h-12" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
-      <Field as="div" label="שעה">
-        <TimePicker value={time} onChange={setTime} step={5} allowEmpty />
+      <Field as="div" label="תאריך ושעה">
+        <div className="grid grid-cols-2 gap-3">
+          <Input type="date" className="h-12 text-center text-lg font-medium" value={date} onChange={(e) => setDate(e.target.value)} />
+          <TimeSelect value={time} onChange={setTime} allowEmpty />
+        </div>
       </Field>
       <Field label={<>מקום<Optional /></>}><Input value={location} onChange={(e) => setLocation(e.target.value)} /></Field>
       <Field label="הערה / שאלות לשאול"><Textarea rows={3} placeholder="מה חשוב לשאול בתור?" value={note} onChange={(e) => setNote(e.target.value)} /></Field>

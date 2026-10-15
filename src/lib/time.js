@@ -18,8 +18,14 @@ export function dayLabel(key) {
   return `יום ${HE_DAYS[parseISO(key).getDay()]} · ${dm(key)}`;
 }
 
-// Value for <input type="datetime-local"> and back.
-export const toLocalInput = (iso) => format(iso ? parseISO(iso) : new Date(), "yyyy-MM-dd'T'HH:mm");
+// Form value "yyyy-MM-ddTHH:mm" and back. New entries start at now, rounded to the nearest 5 minutes.
+export function roundTo5(d = new Date()) {
+  const r = new Date(d);
+  r.setSeconds(0, 0);
+  r.setMinutes(Math.round(r.getMinutes() / 5) * 5);
+  return r;
+}
+export const toLocalInput = (iso) => format(iso ? parseISO(iso) : roundTo5(), "yyyy-MM-dd'T'HH:mm");
 export const fromLocalInput = (v) => new Date(v).toISOString();
 
 export function sinceText(iso, now = new Date()) {

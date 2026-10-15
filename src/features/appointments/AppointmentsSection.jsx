@@ -10,6 +10,7 @@ import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import AppointmentSheet from './AppointmentSheet';
+import GoogleCalendarImport from './GoogleCalendarImport';
 import { archived, isOverdue, upcoming, whenText } from './appointmentUtils';
 
 function addToCalendar(a, babyName) {
@@ -84,6 +85,7 @@ export default function AppointmentsSection() {
           {showArchive && <div className="divide-y divide-line">{past.map((a) => <AppointmentRow key={a.id} {...rowProps(a)} />)}</div>}
         </div>
       )}
+      <GoogleCalendarImport appointments={data} />
       {sheet && <AppointmentSheet key={sheet.record?.id || 'new'} record={sheet.record} mode={sheet.mode} onClose={() => setSheet(null)} />}
     </Card>
   );

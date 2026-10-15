@@ -13,8 +13,8 @@ export const BREAST_SIDES = [
   { value: 'left', label: 'שמאל' },
 ];
 
+// Both sides is the normal case, so only a one-sided feeding gets a label.
 export function sidesText(sides) {
-  if (!sides?.length) return '';
-  if (sides.length === 2) return 'ימין + שמאל';
+  if (sides?.length !== 1) return '';
   return sides[0] === 'right' ? 'ימין בלבד' : 'שמאל בלבד';
 }

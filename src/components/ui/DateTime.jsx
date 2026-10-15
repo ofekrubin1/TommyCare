@@ -2,41 +2,38 @@ import { cn } from '@/lib/utils';
 import { Field, Input } from './Field';
 
 const pad = (n) => String(n).padStart(2, '0');
-const HOURS = Array.from({ length: 24 }, (_, h) => pad(h));
+// Every 5 minutes, 00:00 → 23:55.
+const TIMES = Array.from({ length: 24 * 12 }, (_, i) => `${pad(Math.floor(i / 12))}:${pad((i % 12) * 5)}`);
 
-const wheel = 'h-12 w-[4.25rem] appearance-none rounded-xl border border-line bg-bg/60 text-center text-xl font-semibold tabular-nums text-ink focus:outline-none focus:border-accent/60';
+const half = 'h-12 w-full text-center text-lg font-medium tabular-nums';
 
-// Hour + minute pickers (native wheels on iPhone, much bigger than the built-in time field).
-// value/onChange use "HH:mm". `step` = minute increments (5 for appointments).
-export function TimePicker({ value, onChange, step = 1, allowEmpty = false }) {
-  const [h, m] = value ? value.split(':') : ['', ''];
-  const minutes = Array.from({ length: 60 / step }, (_, i) => pad(i * step));
-  if (m && !minutes.includes(m)) minutes.push(m); // keep an existing off-step value visible
-  minutes.sort();
-  const set = (nh, nm) => onChange(nh === '' && nm === '' ? '' : `${nh || '00'}:${nm || '00'}`);
+// One time button (native wheel on iPhone) in 5-minute steps. value/onChange use "HH:mm".
+// An existing off-grid time (e.g. 19:57 from older data) stays selectable.
+export function TimeSelect({ value, onChange, allowEmpty = false, className }) {
+  const options = value && !TIMES.includes(value) ? [...TIMES, value].sort() : TIMES;
   return (
-    <div className="flex items-center gap-1.5" dir="ltr">
-      <select aria-label="שעה" className={wheel} value={h} onChange={(e) => set(e.target.value, m)}>
-        {allowEmpty && <option value="">--</option>}
-        {HOURS.map((x) => <option key={x} value={x}>{x}</option>)}
-      </select>
-      <span className="text-xl font-semibold text-mute">:</span>
-      <select aria-label="דקות" className={wheel} value={m} onChange={(e) => set(h, e.target.value)}>
-        {allowEmpty && <option value="">--</option>}
-        {minutes.map((x) => <option key={x} value={x}>{x}</option>)}
-      </select>
-    </div>
+    <select
+      aria-label="שעה"
+      dir="ltr"
+      className={cn('w-full min-w-0 appearance-none rounded-xl border border-line bg-bg/60 text-ink focus:outline-none focus:border-accent/60', half, className)}
+      style={{ textAlignLast: 'center' }}
+      value={value || ''}
+      onChange={(e) => onChange(e.target.value)}
+    >
+      {allowEmpty && <option value="">ללא שעה</option>}
+      {options.map((t) => <option key={t} value={t}>{t}</option>)}
+    </select>
   );
 }
 
-// Date + time for logs. value/onChange use "yyyy-MM-ddTHH:mm" (same as toLocalInput / fromLocalInput).
-export function DateTimeField({ label, value, onChange, min, step = 1, className }) {
+// Half date, half time. value/onChange use "yyyy-MM-ddTHH:mm" (same as toLocalInput / fromLocalInput).
+export function DateTimeField({ label, value, onChange, min, className }) {
   const [date, time] = (value || 'T').split('T');
   return (
     <Field as="div" label={label} className={className}>
-      <div className="flex items-center gap-2">
-        <Input type="date" className={cn('h-12 flex-1 text-base')} value={date} min={min?.split('T')[0]} onChange={(e) => e.target.value && onChange(`${e.target.value}T${time}`)} />
-        <TimePicker value={time} step={step} onChange={(t) => onChange(`${date}T${t}`)} />
+      <div className="grid grid-cols-2 gap-3">
+        <Input type="date" className={half} value={date} min={min?.split('T')[0]} onChange={(e) => e.target.value && onChange(`${e.target.value}T${time}`)} />
+        <TimeSelect value={time} onChange={(t) => onChange(`${date}T${t}`)} />
       </div>
     </Field>
   );
