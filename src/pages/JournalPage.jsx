@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, X } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useBabyData } from '@/hooks/useBabyData';
 import { useNow } from '@/hooks/useNow';
 import { daysWithData, summarizeDay } from '@/lib/summary';
@@ -7,7 +7,7 @@ import { dayKey, dayLabel, todayKey } from '@/lib/time';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Field';
+import { DayPicker } from '@/components/ui/DayPicker';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useProfiles } from '@/features/auth/AuthProvider';
 import { EventList } from '@/features/timeline/EventRow';
@@ -50,8 +50,7 @@ export default function JournalPage() {
       <PageHeader title="יומן" subtitle="כל יום מתחיל ב-06:00" />
       <Card className="flex items-center gap-2 p-3">
         <span className="flex-none text-sm font-medium text-mute">חיפוש תאריך</span>
-        <Input type="date" className="h-11 flex-1" value={search} max={todayKey()} onChange={(e) => setSearch(e.target.value)} />
-        {search && <button onClick={() => setSearch('')} aria-label="ניקוי חיפוש" className="p-2 text-mute"><X className="h-5 w-5" /></button>}
+        <DayPicker value={search} onChange={setSearch} enabledDays={new Set(daysWithData(data))} />
       </Card>
 
       {search ? (
