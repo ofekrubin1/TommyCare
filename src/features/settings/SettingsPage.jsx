@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { FEEDING_OPTIONS } from '@/features/feeding/feedingTypes';
 import { useAuth, useProfiles } from '@/features/auth/AuthProvider';
+import { displayUser } from '@/features/auth/username';
 
 const THEMES = [{ value: 'auto', label: 'אוטומטי' }, { value: 'light', label: 'בהיר' }, { value: 'dark', label: 'כהה' }];
 
@@ -113,7 +114,7 @@ export default function SettingsPage() {
         <Segmented options={THEMES} value={theme} onChange={(v) => { setTheme(v); setThemeState(v); }} />
       </Card>
 
-      <p className="text-center text-xs text-mute">מחובר/ת כ-{user?.email}</p>
+      <p className="text-center text-xs text-mute">מחובר/ת כ-{displayUser(user?.email)}</p>
     </div>
   );
 }

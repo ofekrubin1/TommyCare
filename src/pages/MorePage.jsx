@@ -4,6 +4,7 @@ import { auth } from '@/data';
 import { Card } from '@/components/ui/Card';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { displayUser } from '@/features/auth/username';
 
 const ITEMS = [
   { to: '/pumping', label: 'שאיבה ומלאי חלב', icon: FlaskConical, tone: 'text-pump bg-pump/10' },
@@ -31,7 +32,7 @@ export default function MorePage() {
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-danger/10 text-danger"><LogOut className="h-5 w-5" /></span>
           <span className="flex-1">
             <span className="block font-medium text-danger">התנתקות</span>
-            {user?.email && <span className="block text-xs text-mute" dir="ltr">{user.email}</span>}
+            {user?.email && <span className="block text-xs text-mute" dir="ltr">{displayUser(user.email)}</span>}
           </span>
         </button>
       </Card>
