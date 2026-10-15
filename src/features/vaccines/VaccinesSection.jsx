@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { SwipeRow } from '@/components/ui/SwipeRow';
 import VaccineSheet from './VaccineSheet';
 import { buildVaccineList, statusOf } from './vaccineList';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 const fmt = (d) => format(parseISO(d), 'dd/MM/yyyy');
 
@@ -40,6 +41,7 @@ export default function VaccinesSection() {
   const { settings } = useSettings();
   const { data } = useCollection(C.vaccinations);
   const [editing, setEditing] = useState(null); // vaccine | 'new'
+  const canEdit = useCanEdit();
   const all = buildVaccineList(settings.birth_date, data);
   const visible = all.filter((v) => !v.hidden);
   const hidden = all.filter((v) => v.hidden);
@@ -50,11 +52,11 @@ export default function VaccinesSection() {
         חיסונים
       </SectionTitle>
       {!settings.birth_date && <p className="mb-2 rounded-xl bg-diaper/10 px-3 py-2 text-sm text-diaper">הוסיפו תאריך לידה בהגדרות כדי לראות מתי כל חיסון.</p>}
-      <p className="mb-1 text-xs text-mute">החליקו שורה הצידה לעריכה או מחיקה, או לחצו עליה.</p>
+      {canEdit && <p className="mb-1 text-xs text-mute">החליקו שורה הצידה לעריכה או מחיקה, או לחצו עליה.</p>}
       <div className="divide-y divide-line">
         {visible.map((v) => <VaccineRow key={v.key} v={v} onEdit={() => setEditing(v)} />)}
       </div>
-      {hidden.length > 0 && (
+      {canEdit && hidden.length > 0 && (
         <button onClick={() => hidden.forEach((v) => collection(C.vaccinations).set(v.key, { hidden: false }))} className="mt-2 text-xs text-accent">
           החזרת {hidden.length} חיסונים שהוסרו מהלוח
         </button>

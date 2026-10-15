@@ -20,4 +20,5 @@ export const C = {
   pumping: 'pumping',
   settings: 'settings',
   profiles: 'profiles',
+  roles: 'roles',
 };

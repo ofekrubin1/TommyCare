@@ -8,8 +8,16 @@ service cloud.firestore {
       return request.auth != null && request.auth.token.firebase.sign_in_provider == 'password';
     }
 
+    // View-only users (e.g. grandparents): roles/{uid} = { role: 'viewer' }, set in the app (Settings → users).
+    function isViewer() {
+      return exists(/databases/$(database)/documents/roles/$(request.auth.uid))
+        && get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role == 'viewer';
+    }
+
     match /{collection}/{id} {
-      allow read, write: if signedIn();
+      allow read: if signedIn();
+      // Viewers can't change anything, except their own display name.
+      allow write: if signedIn() && (!isViewer() || (collection == 'profiles' && id == request.auth.uid));
     }
   }
 }

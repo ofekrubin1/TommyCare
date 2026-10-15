@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 export function Card({ className, children, ...props }) {
   return (
@@ -9,10 +10,11 @@ export function Card({ className, children, ...props }) {
 }
 
 export function SectionTitle({ children, action, className }) {
+  const canEdit = useCanEdit(); // section actions are add / archive buttons
   return (
     <div className={cn('flex items-center justify-between mb-2', className)}>
       <h2 className="text-sm font-semibold text-mute">{children}</h2>
-      {action}
+      {canEdit && action}
     </div>
   );
 }

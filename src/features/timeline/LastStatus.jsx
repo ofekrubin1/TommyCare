@@ -5,6 +5,7 @@ import { durationText, hm, sinceText } from '@/lib/time';
 import { byTimeDesc, cn } from '@/lib/utils';
 import { FEEDING_TYPES } from '@/features/feeding/feedingTypes';
 import { diaperTitle } from '@/features/diapers/diaperOptions';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 function Tile({ icon: Icon, tone, title, value, sub, alert, children }) {
   return (
@@ -21,6 +22,7 @@ function Tile({ icon: Icon, tone, title, value, sub, alert, children }) {
 
 // "When was the last...?" — the most common question at 3am.
 export function LastStatus({ data, now, alertHours }) {
+  const canEdit = useCanEdit();
   const lastFeed = [...data.feedings].sort(byTimeDesc())[0];
   const lastDiaper = [...data.diapers].sort(byTimeDesc())[0];
   const sleeps = [...data.sleeps].sort(byTimeDesc('start'));
@@ -38,8 +40,8 @@ export function LastStatus({ data, now, alertHours }) {
         sub={lastDiaper ? `${hm(lastDiaper.time)} · ${diaperTitle(lastDiaper)}` : 'עוד לא נרשם'} />
       {sleepingNow ? (
         <Tile icon={Moon} tone="text-sleep" title="ישנה" value={durationText(differenceInMinutes(now, parseISO(sleepingNow.start)))} sub={`מ-${hm(sleepingNow.start)}`}>
-          <button onClick={() => collection(C.sleeps).update(sleepingNow.id, { end: new Date().toISOString() })}
-            className="mt-1.5 w-full rounded-lg bg-sleep/15 py-1 text-xs font-semibold text-sleep">התעוררה</button>
+          {canEdit && <button onClick={() => collection(C.sleeps).update(sleepingNow.id, { end: new Date().toISOString() })}
+            className="mt-1.5 w-full rounded-lg bg-sleep/15 py-1 text-xs font-semibold text-sleep">התעוררה</button>}
         </Tile>
       ) : (
         <Tile icon={Sun} tone="text-sleep" title="ערה"

@@ -7,10 +7,12 @@ import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import MedSheet from './MedSheet';
 import { VITAMIN_D } from './TodayMeds';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 export default function MedsSection() {
   const { data: meds } = useCollection(C.meds);
   const [editing, setEditing] = useState(null); // record | 'new'
+  const canEdit = useCanEdit();
 
   return (
     <Card>
@@ -19,7 +21,7 @@ export default function MedsSection() {
       </SectionTitle>
       {!meds.length ? (
         <EmptyState icon={Pill} text="אין תרופות קבועות">
-          <Button variant="soft" className="mt-3 py-2 text-sm" onClick={() => collection(C.meds).add(VITAMIN_D)}>הוספת ויטמין D</Button>
+          {canEdit && <Button variant="soft" className="mt-3 py-2 text-sm" onClick={() => collection(C.meds).add(VITAMIN_D)}>הוספת ויטמין D</Button>}
         </EmptyState>
       ) : (
         <div className="divide-y divide-line">

@@ -6,6 +6,7 @@ import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import ShoppingItemSheet from './ShoppingItemSheet';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 const shop = () => collection(C.shopping);
 const byName = (a, b) => (a.name || '').localeCompare(b.name || '', 'he');
@@ -25,6 +26,7 @@ export default function ShoppingList() {
   const { data } = useCollection(C.shopping);
   const [editing, setEditing] = useState(null); // record | 'new'
   const [showArchive, setShowArchive] = useState(false);
+  const canEdit = useCanEdit();
 
   const open = data.filter((i) => i.status === 'open').sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
   const bought = data.filter((i) => i.status === 'bought').sort(byName);
@@ -41,7 +43,7 @@ export default function ShoppingList() {
           <div className="divide-y divide-line">
             {open.map((i) => (
               <div key={i.id} className="flex items-center gap-3 py-2">
-                <button onClick={() => setStatus(i, 'bought')} aria-label={`סימון ${i.name} כנקנה`} className="h-6 w-6 flex-none rounded-md border-2 border-line" />
+                <button onClick={() => setStatus(i, 'bought')} disabled={!canEdit} aria-label={`סימון ${i.name} כנקנה`} className="h-6 w-6 flex-none rounded-md border-2 border-line" />
                 <ItemText item={i} />
                 <RowActions onEdit={() => setEditing(i)} onDelete={() => shop().remove(i.id)} />
               </div>
@@ -60,11 +62,11 @@ export default function ShoppingList() {
           <div className="divide-y divide-line">
             {bought.map((i) => (
               <div key={i.id} className="flex items-center gap-3 py-2">
-                <button onClick={() => setStatus(i, 'open')} aria-label={`ביטול סימון ${i.name}`} className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-note text-white">
+                <button onClick={() => setStatus(i, 'open')} disabled={!canEdit} aria-label={`ביטול סימון ${i.name}`} className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-note text-white">
                   <Check className="h-4 w-4" strokeWidth={3} />
                 </button>
                 <ItemText item={i} muted />
-                <Button variant="ghost" className="px-2 py-1 text-sm" onClick={() => setStatus(i, 'archived')}><Archive className="h-4 w-4" />לארכיון</Button>
+                {canEdit && <Button variant="ghost" className="px-2 py-1 text-sm" onClick={() => setStatus(i, 'archived')}><Archive className="h-4 w-4" />לארכיון</Button>}
               </div>
             ))}
           </div>
@@ -81,7 +83,7 @@ export default function ShoppingList() {
               {archived.map((i) => (
                 <div key={i.id} className="flex items-center gap-3 py-2">
                   <ItemText item={i} muted />
-                  <Button variant="soft" className="px-2 py-1 text-sm" onClick={() => setStatus(i, 'open')}><ArchiveRestore className="h-4 w-4" />שוב לרשימה</Button>
+                  {canEdit && <Button variant="soft" className="px-2 py-1 text-sm" onClick={() => setStatus(i, 'open')}><ArchiveRestore className="h-4 w-4" />שוב לרשימה</Button>}
                   <RowActions onDelete={() => shop().remove(i.id)} />
                 </div>
               ))}

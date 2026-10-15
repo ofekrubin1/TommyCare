@@ -1,6 +1,7 @@
 import { Droplets, FlaskConical, Milk, Moon, StickyNote, Thermometer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuickAdd } from './QuickAddProvider';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 const MAIN = [
   { kind: 'feeding', label: 'האכלה', icon: Milk, tone: 'bg-feed text-white' },
@@ -16,6 +17,8 @@ const MORE = [
 // Big, thumb-sized buttons for the most common logs.
 export function QuickActions() {
   const openSheet = useQuickAdd();
+  const canEdit = useCanEdit();
+  if (!canEdit) return null;
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-4 gap-2">

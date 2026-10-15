@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 // Edit + delete (with a second tap to confirm) for list rows.
 export function RowActions({ onEdit, onDelete }) {
   const [confirming, setConfirming] = useState(false);
+  const canEdit = useCanEdit();
+  if (!canEdit) return null;
   return (
     <div className="flex items-center gap-1 flex-none">
       {onEdit && (

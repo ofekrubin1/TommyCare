@@ -31,3 +31,4 @@ export function EnsureProfile() {
   }, [user, loading, has]);
   return null;
 }
+

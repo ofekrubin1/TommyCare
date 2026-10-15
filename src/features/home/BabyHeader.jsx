@@ -6,6 +6,7 @@ import { ageText } from '@/lib/time';
 import { Sheet } from '@/components/ui/Sheet';
 import { Button } from '@/components/ui/Button';
 import { PhotoCropper } from '@/components/ui/PhotoCropper';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 const HE_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 
@@ -13,6 +14,7 @@ const HE_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי
 // The photo is a small cropped JPEG kept in settings/app in Firestore, so it syncs to every phone.
 export function BabyHeader({ settings, save, now }) {
   const fileRef = useRef(null);
+  const canEdit = useCanEdit();
   const [menu, setMenu] = useState(false);
   const [file, setFile] = useState(null);
 
@@ -27,16 +29,19 @@ export function BabyHeader({ settings, save, now }) {
 
       <button
         type="button"
-        onClick={() => (settings.baby_photo ? setMenu(true) : pick())}
+        onClick={() => canEdit && (settings.baby_photo ? setMenu(true) : pick())}
+        disabled={!canEdit}
         aria-label={settings.baby_photo ? 'שינוי התמונה' : 'הוספת תמונה'}
         className="relative mx-auto block h-20 w-20 rounded-full bg-card p-0.5 shadow-soft ring-4 ring-accent/20"
       >
         {settings.baby_photo
           ? <img src={settings.baby_photo} alt={settings.baby_name} className="h-full w-full rounded-full object-cover" />
           : <span className="flex h-full w-full items-center justify-center rounded-full bg-accent/10 text-4xl">🐣</span>}
-        <span className="absolute -bottom-0.5 -left-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-accent text-white shadow-soft">
-          <Camera className="h-3.5 w-3.5" />
-        </span>
+        {canEdit && (
+          <span className="absolute -bottom-0.5 -left-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-accent text-white shadow-soft">
+            <Camera className="h-3.5 w-3.5" />
+          </span>
+        )}
       </button>
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
 

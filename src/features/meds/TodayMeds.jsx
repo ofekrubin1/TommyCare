@@ -4,15 +4,18 @@ import { dayKey, hm, todayKey } from '@/lib/time';
 import { cn } from '@/lib/utils';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 export const VITAMIN_D = { name: 'ויטמין D', dose: 'לפי הנחיית טיפת חלב', daily: true, active: true };
 
 // "Given today?" checklist for daily meds; avoids giving a dose twice (or not at all).
 export function TodayMeds({ meds, medDoses, nameOf }) {
+  const canEdit = useCanEdit();
   const daily = meds.filter((m) => m.daily && m.active !== false);
   const today = todayKey();
 
   if (!meds.length) {
+    if (!canEdit) return null;
     return (
       <Card className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm text-mute"><Pill className="w-4 h-4 text-health" />ויטמין D יומי?</div>
@@ -35,6 +38,7 @@ export function TodayMeds({ meds, medDoses, nameOf }) {
             <button
               key={m.id}
               onClick={toggle}
+              disabled={!canEdit}
               className={cn('flex w-full items-center gap-3 rounded-xl border p-3 text-right transition', dose ? 'border-health/40 bg-health/10' : 'border-line')}
             >
               <span className={cn('flex h-6 w-6 flex-none items-center justify-center rounded-md border-2', dose ? 'border-health bg-health text-white' : 'border-line')}>

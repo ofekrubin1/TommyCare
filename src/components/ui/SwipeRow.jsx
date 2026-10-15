@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 const OPEN = 132; // px revealed: room for two buttons
 const SNAP = 50;
@@ -11,6 +12,7 @@ export function SwipeRow({ children, onEdit, onDelete, onClick, className }) {
   const [x, setX] = useState(0);
   const [confirm, setConfirm] = useState(false);
   const drag = useRef(null); // { startX, startY, base, horizontal }
+  const canEdit = useCanEdit();
 
   const settle = (dx) => setX(Math.abs(dx) > SNAP ? Math.sign(dx) * OPEN : 0);
 
@@ -31,6 +33,7 @@ export function SwipeRow({ children, onEdit, onDelete, onClick, className }) {
   };
   const close = () => { setX(0); setConfirm(false); };
 
+  if (!canEdit) return <div className={className}>{children}</div>;
   return (
     <div className={cn('relative overflow-hidden', className)}>
       {/* buttons sit on the side the row moved away from */}

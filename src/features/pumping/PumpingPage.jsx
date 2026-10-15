@@ -9,10 +9,12 @@ import { RowActions } from '@/components/ui/RowActions';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useQuickAdd } from '@/features/timeline/QuickAddProvider';
 import { STORAGE } from './PumpingSheet';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 export default function PumpingPage() {
   const { data } = useCollection(C.pumping);
   const openSheet = useQuickAdd();
+  const canEdit = useCanEdit();
   const stash = data.filter((p) => p.stored && !p.used).sort(byTimeAsc()); // oldest first: use these first
   const recent = [...data].sort(byTimeDesc()).slice(0, 30);
 
@@ -40,7 +42,7 @@ export default function PumpingPage() {
                   <span className="font-medium">{p.amount_ml} מ״ל</span>
                   <span className="text-mute"> · {p.storage === 'freezer' ? 'מקפיא' : 'מקרר'} · {format(parseISO(p.time), 'dd/MM HH:mm')}</span>
                 </span>
-                <Button variant="soft" className="py-1 px-2 text-sm" onClick={() => collection(C.pumping).update(p.id, { used: true })}>השתמשנו</Button>
+                {canEdit && <Button variant="soft" className="py-1 px-2 text-sm" onClick={() => collection(C.pumping).update(p.id, { used: true })}>השתמשנו</Button>}
               </div>
             ))}
           </div>

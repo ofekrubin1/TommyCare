@@ -7,13 +7,16 @@ import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import GiftSheet from './GiftSheet';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 function GiftRow({ gift, onEdit }) {
+  const canEdit = useCanEdit();
   const toggle = () => collection(C.gifts).update(gift.id, { used: !gift.used, used_at: gift.used ? null : new Date().toISOString() });
   return (
     <div className="flex items-center gap-3 py-2.5">
       <button
         onClick={toggle}
+        disabled={!canEdit}
         role="checkbox"
         aria-checked={!!gift.used}
         aria-label={gift.used ? `ביטול סימון ${gift.name} כנוצל` : `סימון ${gift.name} כנוצל`}
@@ -21,7 +24,7 @@ function GiftRow({ gift, onEdit }) {
       >
         {gift.used && <Check className="h-4 w-4" strokeWidth={3} />}
       </button>
-      <button onClick={onEdit} className="min-w-0 flex-1 text-right">
+      <button onClick={onEdit} disabled={!canEdit} className="min-w-0 flex-1 text-right">
         <span className={cn('font-medium', gift.used && 'text-mute line-through')}>{gift.name}</span>
         {gift.value != null && <span dir="ltr" className="mr-2 inline-block text-sm text-mute">₪{num(gift.value, 0)}</span>}
         <span className="block text-xs text-mute">{[gift.from && `מ${gift.from}`, gift.note].filter(Boolean).join(' · ')}</span>

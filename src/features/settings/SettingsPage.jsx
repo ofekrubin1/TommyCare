@@ -11,6 +11,8 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { FEEDING_OPTIONS } from '@/features/feeding/feedingTypes';
 import { useAuth, useProfiles } from '@/features/auth/AuthProvider';
 import { displayUser } from '@/features/auth/username';
+import { useCanEdit } from '@/hooks/useCanEdit';
+import { UsersCard } from './UsersCard';
 
 const THEMES = [{ value: 'auto', label: 'אוטומטי' }, { value: 'light', label: 'בהיר' }, { value: 'dark', label: 'כהה' }];
 
@@ -77,6 +79,7 @@ export default function SettingsPage() {
   const [myName, setMyName] = useState('');
   const [theme, setThemeState] = useState(getTheme());
   const [saved, setSaved] = useState(false);
+  const canEdit = useCanEdit();
 
   useEffect(() => setForm(settings), [JSON.stringify(settings)]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => setMyName(nameOf(user?.uid)), [nameOf(user?.uid)]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -87,6 +90,33 @@ export default function SettingsPage() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
+
+  const saveMyName = async () => {
+    if (user && myName.trim()) await collection(C.profiles).set(user.uid, { name: myName.trim(), email: user.email });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+  const themeCard = (
+    <Card className="space-y-3">
+      <SectionTitle>תצוגה</SectionTitle>
+      <Segmented options={THEMES} value={theme} onChange={(v) => { setTheme(v); setThemeState(v); }} />
+    </Card>
+  );
+
+  // View-only users: just their own name and the display theme.
+  if (!canEdit) {
+    return (
+      <div className="space-y-4">
+        <PageHeader title="הגדרות" />
+        <Card className="space-y-3">
+          <Field label="השם שלי"><Input value={myName} onChange={(e) => setMyName(e.target.value)} /></Field>
+          <Button className="w-full" onClick={saveMyName}>{saved ? 'נשמר ✓' : 'שמירה'}</Button>
+        </Card>
+        {themeCard}
+        <p className="text-center text-xs text-mute">מחובר/ת כ-{displayUser(user?.email)} · מצב צפייה</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -109,10 +139,9 @@ export default function SettingsPage() {
 
       <SummaryEmailCard settings={settings} save={save} />
 
-      <Card className="space-y-3">
-        <SectionTitle>תצוגה</SectionTitle>
-        <Segmented options={THEMES} value={theme} onChange={(v) => { setTheme(v); setThemeState(v); }} />
-      </Card>
+      <UsersCard />
+
+      {themeCard}
 
       <p className="text-center text-xs text-mute">מחובר/ת כ-{displayUser(user?.email)}</p>
     </div>

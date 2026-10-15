@@ -12,6 +12,7 @@ import { RowActions } from '@/components/ui/RowActions';
 import AppointmentSheet from './AppointmentSheet';
 import GoogleCalendarImport from './GoogleCalendarImport';
 import { archived, isOverdue, upcoming, whenText } from './appointmentUtils';
+import { useCanEdit } from '@/hooks/useCanEdit';
 
 function addToCalendar(a, babyName) {
   const ics = appointmentIcs({
@@ -23,10 +24,12 @@ function addToCalendar(a, babyName) {
 
 function AppointmentRow({ a, now, onEdit, onToggleDone, babyName }) {
   const overdue = isOverdue(a, now);
+  const canEdit = useCanEdit();
   return (
     <div className="flex items-start gap-3 py-3">
       <button
         onClick={onToggleDone}
+        disabled={!canEdit}
         role="checkbox"
         aria-checked={!!a.done}
         aria-label={a.done ? 'ביטול סימון בוצע' : 'סימון שהתור בוצע'}
@@ -34,7 +37,7 @@ function AppointmentRow({ a, now, onEdit, onToggleDone, babyName }) {
       >
         {a.done && <Check className="h-4 w-4" strokeWidth={3} />}
       </button>
-      <button onClick={onEdit} className="min-w-0 flex-1 text-right">
+      <button onClick={onEdit} disabled={!canEdit} className="min-w-0 flex-1 text-right">
         <div className="flex flex-wrap items-baseline gap-x-2">
           <span className="font-semibold">{a.doctor_type}</span>
           <span className={cn('text-sm', a.done ? 'text-mute' : 'font-medium text-health')}>{whenText(a, now)}</span>
@@ -57,6 +60,7 @@ function AppointmentRow({ a, now, onEdit, onToggleDone, babyName }) {
 export default function AppointmentsSection() {
   const { data } = useCollection(C.appointments);
   const { settings } = useSettings();
+  const canEdit = useCanEdit();
   const now = useNow(60_000);
   const [sheet, setSheet] = useState(null); // { record, mode }
   const [showArchive, setShowArchive] = useState(false);
@@ -85,7 +89,7 @@ export default function AppointmentsSection() {
           {showArchive && <div className="divide-y divide-line">{past.map((a) => <AppointmentRow key={a.id} {...rowProps(a)} />)}</div>}
         </div>
       )}
-      <GoogleCalendarImport appointments={data} />
+      {canEdit && <GoogleCalendarImport appointments={data} />}
       {sheet && <AppointmentSheet key={sheet.record?.id || 'new'} record={sheet.record} mode={sheet.mode} onClose={() => setSheet(null)} />}
     </Card>
   );
