@@ -46,6 +46,7 @@ export const auth = {
   subscribe(onUser) { queueMicrotask(() => onUser(LOCAL_USER)); return () => {}; },
   async signIn() {},
   async signOut() {},
+  async getToken() { return null; },
 };
 
 // Replaces all local data (used by the "load sample data" button in the test environment).

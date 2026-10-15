@@ -1,7 +1,7 @@
 import { differenceInMinutes, parseISO } from 'date-fns';
 import { Milk, Droplets, Moon, StickyNote, Thermometer, Pill, FlaskConical } from 'lucide-react';
 import { dayKey, durationText, hm } from '@/lib/time';
-import { FEEDING_TYPES, isBottle } from '@/features/feeding/feedingTypes';
+import { FEEDING_TYPES, isBottle, sidesText } from '@/features/feeding/feedingTypes';
 import { colorLabel, diaperTitle, textureLabel } from '@/features/diapers/diaperOptions';
 
 // Each kind: how it looks and which sheet edits it.
@@ -23,7 +23,7 @@ export function toEvents(data, now = new Date()) {
   const ev = [];
   for (const f of data.feedings || []) {
     ev.push({ kind: 'feeding', record: f, time: f.time, title: FEEDING_TYPES[f.type]?.label || 'האכלה',
-      detail: join(isBottle(f.type) && f.amount_ml ? `${f.amount_ml} מ״ל` : '', f.note) });
+      detail: join(f.type === 'breast' && sidesText(f.sides), isBottle(f.type) && f.amount_ml ? `${f.amount_ml} מ״ל` : '', f.note) });
   }
   for (const d of data.diapers || []) {
     ev.push({ kind: 'diaper', record: d, time: d.time, title: diaperTitle(d),

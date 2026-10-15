@@ -1,5 +1,5 @@
 import { addDays, differenceInCalendarDays, differenceInMinutes, format, parseISO, subHours } from 'date-fns';
-import { DAY_START_HOUR } from '@/config/appConfig';
+import { DAY_START_HOUR } from '../config/appConfig.js';
 
 const HE_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 

@@ -1,17 +1,15 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Only signed-in family members. Accounts are created by the owner in
-    // Firebase Console → Authentication → Users (public sign-up is disabled there).
+    // Only signed-in family members (email + password accounts). Accounts are created by the owner in
+    // Firebase Console → Authentication → Users; public sign-up is disabled there.
+    // Any collection is allowed, so new app features don't need a rules change.
     function signedIn() {
       return request.auth != null && request.auth.token.firebase.sign_in_provider == 'password';
     }
 
     match /{collection}/{id} {
-      allow read, write: if signedIn() && collection in [
-        'feedings', 'diapers', 'sleeps', 'notes', 'shopping', 'appointments', 'meds', 'med_doses',
-        'growth', 'vaccinations', 'fever', 'pumping', 'settings', 'profiles'
-      ];
+      allow read, write: if signedIn();
     }
   }
 }

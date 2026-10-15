@@ -6,4 +6,6 @@ export const DEFAULT_SETTINGS = {
   birth_date: '',
   default_feeding_type: 'breast',
   feeding_alert_hours: 3,
+  summary_email: '',
+  summary_enabled: false,
 };

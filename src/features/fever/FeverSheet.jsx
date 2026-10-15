@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { C, collection } from '@/data';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
 import { Sheet } from '@/components/ui/Sheet';
+import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Input, Textarea } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
 
@@ -32,9 +33,7 @@ export default function FeverSheet({ record, onClose }) {
 
   return (
     <Sheet open onClose={onClose} title={record ? 'עריכת מדידה' : 'חום ומחלה'}>
-      <Field label="שעה">
-        <Input type="datetime-local" value={time} onChange={(e) => setTime(e.target.value)} />
-      </Field>
+      <DateTimeField label="שעה" value={time} onChange={setTime} />
       <Field label="חום (°C)">
         <Input type="number" inputMode="decimal" step="0.1" min="34" max="43" placeholder="37.5" value={temp} onChange={(e) => setTemp(e.target.value)} />
       </Field>

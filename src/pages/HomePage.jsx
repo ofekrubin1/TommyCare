@@ -18,12 +18,11 @@ import { toEvents } from '@/features/timeline/events';
 import { DaySummary } from '@/features/summary/DaySummary';
 import { TodayMeds } from '@/features/meds/TodayMeds';
 import { upcoming, whenText } from '@/features/appointments/appointmentUtils';
-import { dueVaccines } from '@/features/vaccines/VaccinesSection';
+import { dueVaccines } from '@/features/vaccines/vaccineList';
 
 function Reminders({ appointments, vaccinations, birthDate, now }) {
-  const soon = upcoming(appointments, now).filter((a) => differenceInCalendarDays(parseISO(a.date), now) <= 1);
-  const done = Object.fromEntries(vaccinations.map((v) => [v.id, v]));
-  const vaccines = dueVaccines(birthDate, done, 7, now);
+  const soon = upcoming(appointments).filter((a) => differenceInCalendarDays(parseISO(a.date), now) <= 1);
+  const vaccines = dueVaccines(birthDate, vaccinations, 7, now);
   if (!soon.length && !vaccines.length) return null;
   return (
     <div className="space-y-2">
@@ -55,7 +54,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title={settings.baby_name} subtitle={ageText(settings.birth_date, now) || 'היומן של'} />
+      <PageHeader title={<>{settings.baby_name} <span aria-hidden="true">🐣</span></>} subtitle={ageText(settings.birth_date, now) || 'היומן של'} />
       <LastStatus data={data} now={now} alertHours={Number(settings.feeding_alert_hours) || 3} />
       <QuickActions />
       <Reminders appointments={appointments} vaccinations={vaccinations} birthDate={settings.birth_date} now={now} />

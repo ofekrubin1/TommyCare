@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { TabChips } from '@/components/ui/TabChips';
 import AppointmentsSection from '@/features/appointments/AppointmentsSection';
 import MedsSection from '@/features/meds/MedsSection';
 import GrowthSection from '@/features/growth/GrowthSection';
@@ -22,17 +22,7 @@ export default function HealthPage() {
   return (
     <div className="space-y-4">
       <PageHeader title="בריאות" />
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
-        {TABS.map((t) => (
-          <button
-            key={t.value}
-            onClick={() => setParams({ tab: t.value }, { replace: true })}
-            className={cn('flex-none rounded-full px-4 py-2 text-sm font-medium transition', t.value === tab.value ? 'bg-health text-white' : 'bg-card border border-line text-mute')}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <TabChips tabs={TABS} value={tab.value} onChange={(v) => setParams({ tab: v }, { replace: true })} />
       <tab.Section />
       <ReportCard />
     </div>

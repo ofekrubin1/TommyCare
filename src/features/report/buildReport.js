@@ -38,7 +38,7 @@ export function buildReportHtml({ settings, data, growth, appointments }) {
     const given = days.filter((k) => data.medDoses.some((d) => d.med_id === m.id && dayKey(d.time) === k)).length;
     return [esc(m.name), esc(m.dose) || '-', m.daily ? `${given}/7 ימים` : '-'];
   });
-  const nextAppts = appointments.filter((a) => a.date >= format(new Date(), 'yyyy-MM-dd')).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5)
+  const nextAppts = appointments.filter((a) => !a.done).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5)
     .map((a) => [format(parseISO(a.date), 'dd/MM/yyyy') + (a.time ? ` ${a.time}` : ''), esc(a.doctor_type), esc(a.note) || '-']);
 
   return `<div style="font-family:Arial,Helvetica,sans-serif;direction:rtl;width:794px;background:#fff;padding:32px 36px;box-sizing:border-box;color:#333;">

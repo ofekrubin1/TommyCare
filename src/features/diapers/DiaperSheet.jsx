@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { C, collection } from '@/data';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
 import { Sheet } from '@/components/ui/Sheet';
-import { Field, Input, Textarea } from '@/components/ui/Field';
+import { DateTimeField } from '@/components/ui/DateTime';
+import { Field, Optional, Textarea } from '@/components/ui/Field';
 import { CheckTile, Chip, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
 import { POOP_COLORS, POOP_TEXTURES } from './diaperOptions';
@@ -37,9 +38,7 @@ export default function DiaperSheet({ record, onClose }) {
 
   return (
     <Sheet open onClose={onClose} title={record ? 'עריכת החתלה' : 'החלפת חיתול'}>
-      <Field label="שעה">
-        <Input type="datetime-local" value={time} onChange={(e) => setTime(e.target.value)} />
-      </Field>
+      <DateTimeField label="שעה" value={time} onChange={setTime} />
       <div>
         <div className="grid grid-cols-2 gap-3">
           <CheckTile emoji="💧" label="פיפי" checked={pee} onChange={setPee} />
@@ -49,7 +48,7 @@ export default function DiaperSheet({ record, onClose }) {
       </div>
       {poop && (
         <>
-          <Field label="צבע הקקי">
+          <Field as="div" label={<>צבע הקקי<Optional /></>}>
             <div className="flex flex-wrap gap-2">
               {POOP_COLORS.map((c) => (
                 <Chip key={c.value} selected={color === c.value} onClick={() => setColor(color === c.value ? '' : c.value)}>
@@ -60,7 +59,7 @@ export default function DiaperSheet({ record, onClose }) {
             </div>
           </Field>
           {flagged && <p className="rounded-xl bg-danger/10 text-danger text-sm px-3 py-2">צבע כזה כדאי לבדוק מול רופא/ת ילדים.</p>}
-          <Field label="מרקם">
+          <Field as="div" label={<>מרקם<Optional /></>}>
             <div className="flex flex-wrap gap-2">
               {POOP_TEXTURES.map((t) => (
                 <Chip key={t.value} selected={texture === t.value} onClick={() => setTexture(texture === t.value ? '' : t.value)}>{t.label}</Chip>

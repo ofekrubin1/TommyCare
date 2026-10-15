@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { C, collection } from '@/data';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
 import { Sheet } from '@/components/ui/Sheet';
+import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Input, Textarea } from '@/components/ui/Field';
 import { Segmented, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
@@ -34,9 +35,7 @@ export default function PumpingSheet({ record, onClose }) {
 
   return (
     <Sheet open onClose={onClose} title={record ? 'עריכת שאיבה' : 'שאיבה'}>
-      <Field label="שעה">
-        <Input type="datetime-local" value={time} onChange={(e) => setTime(e.target.value)} />
-      </Field>
+      <DateTimeField label="שעה" value={time} onChange={setTime} />
       <Field label="כמות (מ״ל)">
         <Input type="number" inputMode="numeric" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
       </Field>

@@ -4,7 +4,7 @@
 //
 // Both backends expose the same shape:
 //   collection(name) → { subscribe(onData, onError), add(data), update(id, data), set(id, data), remove(id) }
-//   auth             → { subscribe(onUser), signIn(email, password), signOut() }
+//   auth             → { subscribe(onUser), signIn(email, password), signOut(), getToken() }
 const backend = import.meta.env.VITE_BACKEND === 'local'
   ? await import('./local/localBackend.js')
   : await import('./firebase/firebaseBackend.js');
@@ -19,6 +19,7 @@ export const C = {
   sleeps: 'sleeps',
   notes: 'notes',
   shopping: 'shopping',
+  gifts: 'gifts',
   appointments: 'appointments',
   meds: 'meds',
   medDoses: 'med_doses',

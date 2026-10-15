@@ -50,4 +50,5 @@ export const auth = {
   },
   signIn: (email, password) => signInWithEmailAndPassword(fbAuth, email.trim(), password),
   signOut: () => fbSignOut(fbAuth),
+  getToken: () => fbAuth.currentUser?.getIdToken() ?? null,
 };

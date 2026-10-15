@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { C, collection } from '@/data';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
 import { Sheet } from '@/components/ui/Sheet';
+import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Input, Textarea } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
 
@@ -28,9 +29,7 @@ export default function NoteSheet({ record, onClose }) {
       <Field label="מה קרה">
         <Textarea rows={4} autoFocus placeholder="לדוגמה: חייכה בפעם הראשונה" value={text} onChange={(e) => setText(e.target.value)} />
       </Field>
-      <Field label="שעה">
-        <Input type="datetime-local" value={time} onChange={(e) => setTime(e.target.value)} />
-      </Field>
+      <DateTimeField label="שעה" value={time} onChange={setTime} />
       <Button className="w-full" onClick={save} disabled={saving || !text.trim()}>{saving ? 'שומר...' : 'שמירה'}</Button>
     </Sheet>
   );

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { LogOut } from 'lucide-react';
+import { LogOut, Send } from 'lucide-react';
 import { auth, C, collection, isLocalBackend } from '@/data';
 import { useSettings } from '@/hooks/useSettings';
 import { getTheme, setTheme } from '@/lib/theme';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Field, Input } from '@/components/ui/Field';
-import { Segmented } from '@/components/ui/Choice';
+import { Segmented, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { FEEDING_OPTIONS } from '@/features/feeding/feedingTypes';
@@ -27,6 +27,54 @@ function LocalTools() {
         <Button variant="soft" onClick={load}>טעינת נתוני דוגמה</Button>
         <Button variant="danger" onClick={clear}>מחיקת הכל</Button>
       </div>
+    </Card>
+  );
+}
+
+const TEST_ERRORS = {
+  no_email: 'שמרו קודם כתובת אימייל',
+  not_signed_in: 'צריך להתחבר מחדש',
+};
+
+// 06:00 email with the summary of the day that just ended (feedings, diapers, sleep).
+function SummaryEmailCard({ settings, save }) {
+  const [email, setEmail] = useState(settings.summary_email || '');
+  const [enabled, setEnabled] = useState(!!settings.summary_enabled);
+  const [state, setState] = useState({ status: 'idle', message: '' });
+  useEffect(() => { setEmail(settings.summary_email || ''); setEnabled(!!settings.summary_enabled); }, [settings.summary_email, settings.summary_enabled]);
+  const dirty = email.trim() !== (settings.summary_email || '') || enabled !== !!settings.summary_enabled;
+  // Functions only exist on the deployed site (not in the local dev server).
+  const canTest = !isLocalBackend && !import.meta.env.DEV;
+
+  const persist = () => save({ summary_email: email.trim(), summary_enabled: enabled });
+  const sendTest = async () => {
+    setState({ status: 'sending', message: '' });
+    try {
+      if (dirty) await persist();
+      const res = await fetch('/api/send-test-summary', { method: 'POST', headers: { Authorization: `Bearer ${await auth.getToken()}` } });
+      const body = await res.json().catch(() => ({}));
+      setState(res.ok && body.ok
+        ? { status: 'ok', message: `נשלח מייל בדיקה אל ${body.to}` }
+        : { status: 'error', message: TEST_ERRORS[body.error] || `השליחה נכשלה: ${body.error || res.status}` });
+    } catch {
+      setState({ status: 'error', message: 'השליחה נכשלה. בדקו את החיבור לאינטרנט.' });
+    }
+  };
+
+  return (
+    <Card className="space-y-3">
+      <SectionTitle>סיכום יומי במייל</SectionTitle>
+      <p className="text-sm text-mute">כל בוקר ב-06:00: האכלות, חיתולים ושינה של היום שהסתיים.</p>
+      <Field label="אימייל לעדכונים"><Input type="email" dir="ltr" placeholder="name@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
+      <Switch label="לשלוח סיכום כל בוקר" checked={enabled} onChange={setEnabled} />
+      <div className="grid grid-cols-2 gap-2">
+        <Button onClick={persist} disabled={!dirty || (enabled && !email.trim())}>{dirty ? 'שמירה' : 'נשמר ✓'}</Button>
+        <Button variant="outline" onClick={sendTest} disabled={!canTest || !email.trim() || state.status === 'sending'}>
+          <Send className="h-4 w-4" />{state.status === 'sending' ? 'שולח...' : 'מייל בדיקה'}
+        </Button>
+      </div>
+      {!canTest && <p className="text-xs text-mute">מייל בדיקה זמין באתר עצמו (אחרי ההעלאה ל-Netlify).</p>}
+      {state.message && <p className={`text-sm ${state.status === 'ok' ? 'text-note' : 'text-danger'}`}>{state.message}</p>}
     </Card>
   );
 }
@@ -55,10 +103,8 @@ export default function SettingsPage() {
       <PageHeader title="הגדרות" />
       <Card className="space-y-4">
         <SectionTitle>התינוקת</SectionTitle>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="שם"><Input value={form.baby_name} onChange={(e) => setForm({ ...form, baby_name: e.target.value })} /></Field>
-          <Field label="תאריך לידה"><Input type="date" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} /></Field>
-        </div>
+        <Field label="שם"><Input value={form.baby_name} onChange={(e) => setForm({ ...form, baby_name: e.target.value })} /></Field>
+        <Field label="תאריך לידה"><Input type="date" className="h-12" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} /></Field>
         <Field label="סוג האכלה ברירת מחדל">
           <Segmented options={FEEDING_OPTIONS} value={form.default_feeding_type} onChange={(v) => setForm({ ...form, default_feeding_type: v })} />
         </Field>
@@ -70,6 +116,8 @@ export default function SettingsPage() {
         </Field>
         <Button className="w-full" onClick={submit}>{saved ? 'נשמר ✓' : 'שמירה'}</Button>
       </Card>
+
+      <SummaryEmailCard settings={settings} save={save} />
 
       <Card className="space-y-3">
         <SectionTitle>תצוגה</SectionTitle>

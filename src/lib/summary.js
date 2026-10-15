@@ -1,5 +1,5 @@
 import { differenceInMinutes, parseISO } from 'date-fns';
-import { dayKey } from './time';
+import { dayKey } from './time.js';
 
 // Daily totals for one "day" (06:00 → 06:00). Every log adds to these counts.
 export function summarizeDay(key, { feedings = [], diapers = [], sleeps = [], pumping = [] }, now = new Date()) {

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { C, collection } from '@/data';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
 import { Sheet } from '@/components/ui/Sheet';
+import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Input, Textarea } from '@/components/ui/Field';
 import { Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
@@ -29,14 +30,10 @@ export default function SleepSheet({ record, onClose }) {
 
   return (
     <Sheet open onClose={onClose} title={record ? 'עריכת שינה' : 'שינה'}>
-      <Field label="נרדמה">
-        <Input type="datetime-local" value={start} onChange={(e) => setStart(e.target.value)} />
-      </Field>
+      <DateTimeField label="נרדמה" value={start} onChange={setStart} />
       <Switch label="עדיין ישנה" checked={ongoing} onChange={setOngoing} />
       {!ongoing && (
-        <Field label="התעוררה">
-          <Input type="datetime-local" value={end} min={start} onChange={(e) => setEnd(e.target.value)} />
-        </Field>
+        <DateTimeField label="התעוררה" value={end} min={start} onChange={setEnd} />
       )}
       <Field label="הערה">
         <Textarea placeholder="לא חובה" value={note} onChange={(e) => setNote(e.target.value)} />

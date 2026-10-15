@@ -8,7 +8,7 @@ const id = () => `seed${++n}`;
 const iso = (d) => d.toISOString();
 
 export function buildSampleData(now = new Date()) {
-  const db = { feedings: {}, diapers: {}, sleeps: {}, notes: {}, pumping: {}, fever: {}, med_doses: {}, meds: {}, growth: {}, vaccinations: {}, appointments: {}, shopping: {}, settings: {}, profiles: {} };
+  const db = { gifts: {}, feedings: {}, diapers: {}, sleeps: {}, notes: {}, pumping: {}, fever: {}, med_doses: {}, meds: {}, growth: {}, vaccinations: {}, appointments: {}, shopping: {}, settings: {}, profiles: {} };
   const put = (col, data) => { const k = id(); db[col][k] = { created_at: iso(now), updated_at: iso(now), created_by: LOCAL_USER.uid, ...data }; return k; };
   const birth = subDays(now, 38);
 
@@ -22,7 +22,7 @@ export function buildSampleData(now = new Date()) {
   let i = 0;
   while (t < addMinutes(now, -20)) {
     const type = types[i % types.length];
-    put('feedings', { type, time: iso(t), amount_ml: type === 'breast' ? null : 60 + (i % 3) * 15, note: i % 7 === 3 ? 'אכלה טוב, נרדמה בסוף' : '' });
+    put('feedings', { type, time: iso(t), amount_ml: type === 'breast' ? null : 60 + (i % 3) * 15, sides: type === 'breast' ? (i % 5 === 2 ? ['left'] : ['right', 'left']) : null, note: i % 7 === 3 ? 'אכלה טוב, נרדמה בסוף' : '' });
     const diaperAt = addMinutes(t, 25);
     if (diaperAt < now) {
       const poop = i % 3 === 0;
@@ -52,12 +52,15 @@ export function buildSampleData(now = new Date()) {
   put('growth', { date: format(addDays(birth, 30), 'yyyy-MM-dd'), weight_kg: 4.15, height_cm: 54, head_cm: 37, note: 'טיפת חלב' });
   db.vaccinations.hbv1 = { name: 'צהבת B · מנה 1', date: format(birth, 'yyyy-MM-dd'), note: 'בבית החולים', updated_at: iso(now) };
 
-  put('appointments', { doctor_type: 'טיפת חלב', date: format(subDays(now, 8), 'yyyy-MM-dd'), time: '10:30', location: 'טיפת חלב השכונתית', note: 'לשאול על ויטמין D', summary: 'משקל 4.15. הכל תקין, להמשיך ויטמין D. ביקור הבא בגיל חודשיים לחיסונים.' });
+  put('appointments', { doctor_type: 'טיפת חלב', date: format(subDays(now, 8), 'yyyy-MM-dd'), time: '10:30', location: 'טיפת חלב השכונתית', note: 'לשאול על ויטמין D', summary: 'משקל 4.15. הכל תקין, להמשיך ויטמין D. ביקור הבא בגיל חודשיים לחיסונים.', done: true, done_at: iso(subDays(now, 8)) });
   put('appointments', { doctor_type: 'רופא/ת ילדים', date: format(addDays(now, 1), 'yyyy-MM-dd'), time: '16:15', location: 'מכבי', note: 'פריחה קלה בלחי, גזים בערב', summary: '' });
   put('appointments', { doctor_type: 'טיפת חלב', date: format(addDays(birth, 61), 'yyyy-MM-dd'), time: '09:00', location: 'טיפת חלב השכונתית', note: 'חיסוני חודשיים', summary: '' });
 
-  for (const [name, quantity, status] of [['חיתולים מידה 1', '2 חבילות', 'open'], ['מגבונים', '', 'open'], ['משחת החתלה', '', 'bought'], ['בגד גוף 3-6', '4', 'archived']]) {
-    put('shopping', { name, quantity, status });
+  put('gifts', { name: 'שובר BuyMe', from: 'סבתא רינה', value: 300, note: 'בתוקף עד 12/2027', used: false });
+  put('gifts', { name: 'שובר Wolt', from: 'החברים מהעבודה', value: 200, note: '', used: false });
+  put('gifts', { name: 'עגלה', from: 'ההורים', value: null, note: '', used: true });
+  for (const [name, quantity, status, note] of [['חיתולים מידה 1', '2 חבילות', 'open', 'רק Pampers'], ['מגבונים', '', 'open'], ['משחת החתלה', '', 'bought'], ['בגד גוף 3-6', '4', 'archived']]) {
+    put('shopping', { name, quantity, status, note: note || '' });
   }
   return db;
 }

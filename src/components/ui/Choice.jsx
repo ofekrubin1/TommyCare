@@ -32,7 +32,7 @@ export function CheckTile({ checked, onChange, label, emoji }) {
         checked ? 'border-accent bg-accent/10' : 'border-line bg-bg/60'
       )}
     >
-      <span className="text-2xl">{emoji}</span>
+      {emoji && <span className="text-2xl">{emoji}</span>}
       <span className="text-sm font-medium">{label}</span>
       {checked && <Check className="absolute top-2 left-2 w-4 h-4 text-accent" strokeWidth={3} />}
     </button>
