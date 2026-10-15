@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
-import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
+import { AuthProvider, EnsureProfile, useAuth } from '@/features/auth/AuthProvider';
 import LoginPage from '@/features/auth/LoginPage';
 import { QuickAddProvider } from '@/features/timeline/QuickAddProvider';
 import HomePage from '@/pages/HomePage';
@@ -21,6 +21,7 @@ function Gate() {
   if (!user) return <LoginPage />;
   return (
     <QuickAddProvider>
+      <EnsureProfile />
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
