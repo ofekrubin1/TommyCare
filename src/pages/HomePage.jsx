@@ -67,7 +67,7 @@ export default function HomePage() {
       <TodayMeds meds={data.meds} medDoses={data.medDoses} nameOf={nameOf} />
 
       <Card>
-        <SectionTitle>מה קרה היום</SectionTitle>
+        <SectionTitle>מה קרה היום <span className="font-normal">(החל מ-6 בבוקר)</span></SectionTitle>
         {todayEvents.length ? <EventList events={todayEvents} nameOf={nameOf} /> : <EmptyState text="עוד לא נרשם כלום היום. לחצו על אחד הכפתורים למעלה." />}
       </Card>
 
