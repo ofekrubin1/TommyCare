@@ -41,12 +41,11 @@ export function BabyHeader({ settings, save, now }) {
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
 
       <h1 className="mt-2 text-2xl font-bold tracking-tight">{settings.baby_name}</h1>
+      <p className="text-sm text-mute">יום {HE_DAYS[now.getDay()]} · {format(now, 'dd/MM')}</p>
       <p className="text-sm">
         {age
           ? <span className="font-medium text-accent">{age}</span>
           : <Link to="/settings" className="font-medium text-accent underline">הוספת תאריך לידה</Link>}
-        <span className="text-mute"> · </span>
-        <span className="text-mute">יום {HE_DAYS[now.getDay()]} · {format(now, 'dd/MM')}</span>
       </p>
 
       {menu && (
