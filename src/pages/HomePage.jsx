@@ -7,9 +7,9 @@ import { useCollection } from '@/hooks/useCollection';
 import { useNow } from '@/hooks/useNow';
 import { useSettings } from '@/hooks/useSettings';
 import { summarizeDay } from '@/lib/summary';
-import { ageText, dayKey, shiftDay, todayKey } from '@/lib/time';
+import { dayKey, shiftDay, todayKey } from '@/lib/time';
 import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
-import { PageHeader } from '@/components/layout/PageHeader';
+import { BabyHeader } from '@/features/home/BabyHeader';
 import { useProfiles } from '@/features/auth/AuthProvider';
 import { LastStatus } from '@/features/timeline/LastStatus';
 import { QuickActions } from '@/features/timeline/QuickActions';
@@ -44,7 +44,7 @@ function Reminders({ appointments, vaccinations, birthDate, now }) {
 
 export default function HomePage() {
   const data = useBabyData();
-  const { settings } = useSettings();
+  const { settings, save } = useSettings();
   const { data: appointments } = useCollection(C.appointments);
   const { data: vaccinations } = useCollection(C.vaccinations);
   const { nameOf } = useProfiles();
@@ -54,7 +54,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title={<>{settings.baby_name} <span aria-hidden="true">🐣</span></>} subtitle={ageText(settings.birth_date, now) || 'היומן של'} />
+      <BabyHeader settings={settings} save={save} now={now} />
       <LastStatus data={data} now={now} alertHours={Number(settings.feeding_alert_hours) || 3} />
       <QuickActions />
       <Reminders appointments={appointments} vaccinations={vaccinations} birthDate={settings.birth_date} now={now} />
