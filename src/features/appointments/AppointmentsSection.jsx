@@ -1,16 +1,26 @@
 import { useState } from 'react';
-import { Archive, CalendarClock, Check, MapPin, Plus } from 'lucide-react';
+import { Archive, CalendarClock, CalendarPlus, Check, MapPin, Plus } from 'lucide-react';
 import { C, collection } from '@/data';
 import { useCollection } from '@/hooks/useCollection';
 import { useNow } from '@/hooks/useNow';
 import { cn } from '@/lib/utils';
+import { appointmentIcs, downloadIcs } from '@/lib/ics';
+import { useSettings } from '@/hooks/useSettings';
 import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import AppointmentSheet from './AppointmentSheet';
 import { archived, isOverdue, upcoming, whenText } from './appointmentUtils';
 
-function AppointmentRow({ a, now, onEdit, onToggleDone }) {
+function addToCalendar(a, babyName) {
+  const ics = appointmentIcs({
+    id: a.id, title: `${babyName} · ${a.doctor_type}`, date: a.date, time: a.time,
+    location: a.location, description: a.note ? `לשאול: ${a.note}` : '',
+  });
+  downloadIcs(ics, `${a.doctor_type}-${a.date}.ics`);
+}
+
+function AppointmentRow({ a, now, onEdit, onToggleDone, babyName }) {
   const overdue = isOverdue(a, now);
   return (
     <div className="flex items-start gap-3 py-3">
@@ -33,6 +43,11 @@ function AppointmentRow({ a, now, onEdit, onToggleDone }) {
         {a.note && <p className="mt-1 whitespace-pre-wrap text-sm text-mute"><span className="font-medium">לשאול: </span>{a.note}</p>}
         {a.summary && <p className="mt-1 whitespace-pre-wrap rounded-lg bg-note/10 px-2.5 py-1.5 text-sm">{a.summary}</p>}
       </button>
+      {!a.done && (
+        <button onClick={() => addToCalendar(a, babyName)} aria-label="הוספה ליומן" title="הוספה ליומן" className="rounded-lg p-2 text-health active:bg-line/60">
+          <CalendarPlus className="h-4 w-4" />
+        </button>
+      )}
       <RowActions onDelete={() => collection(C.appointments).remove(a.id)} />
     </div>
   );
@@ -40,6 +55,7 @@ function AppointmentRow({ a, now, onEdit, onToggleDone }) {
 
 export default function AppointmentsSection() {
   const { data } = useCollection(C.appointments);
+  const { settings } = useSettings();
   const now = useNow(60_000);
   const [sheet, setSheet] = useState(null); // { record, mode }
   const [showArchive, setShowArchive] = useState(false);
@@ -50,7 +66,7 @@ export default function AppointmentsSection() {
   const toggleDone = (a) => (a.done
     ? collection(C.appointments).update(a.id, { done: false, done_at: null })
     : setSheet({ record: a, mode: 'done' }));
-  const rowProps = (a) => ({ a, now, onEdit: () => setSheet({ record: a }), onToggleDone: () => toggleDone(a) });
+  const rowProps = (a) => ({ a, now, babyName: settings.baby_name, onEdit: () => setSheet({ record: a }), onToggleDone: () => toggleDone(a) });
 
   return (
     <Card>
