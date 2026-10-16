@@ -69,7 +69,7 @@ function DayCard({ dayKey: k, open, onToggle, data, events, now, nameOf, globalF
       <DaySummary summary={summarizeDay(k, data, now)} />
       {open && (
         <div className="mt-3 space-y-2 border-t border-line pt-3">
-          {globalFilter === 'all' && <FilterChips small value={localFilter} onChange={setLocalFilter} />}
+          {globalFilter === 'all' && <FilterChips small value={localFilter} onChange={setLocalFilter} events={allDayEvents} />}
           {shown.length
             ? <EventList events={shown} nameOf={nameOf} />
             : <p className="py-4 text-center text-sm text-mute">{filter === 'all' ? 'אין רישומים ביום הזה' : `אין ${filterLabel(filter)} ביום הזה`}</p>}
@@ -109,7 +109,7 @@ export default function JournalPage() {
         </div>
         <div className="flex items-start gap-2">
           <span className="w-20 flex-none pt-1.5 text-sm font-medium text-mute">סוג רשומה</span>
-          <div className="min-w-0 flex-1"><FilterChips value={filter} onChange={setFilter} /></div>
+          <div className="min-w-0 flex-1"><FilterChips value={filter} onChange={setFilter} events={events} /></div>
         </div>
         {filter !== 'all' && !search && (
           <p className="text-xs text-mute">{matching.length} {filterLabel(filter)} ב-{days.length} ימים</p>
