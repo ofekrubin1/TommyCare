@@ -1,20 +1,26 @@
 import { useState } from 'react';
 import { format, parseISO } from 'date-fns';
-import { Bell, Check, ListChecks, Plus } from 'lucide-react';
+import { Bell, CalendarCheck, Check, ListChecks, Plus } from 'lucide-react';
 import { C, collection } from '@/data';
 import { useCollection } from '@/hooks/useCollection';
 import { useCanEdit } from '@/hooks/useCanEdit';
 import { useNow } from '@/hooks/useNow';
-import { useSettings } from '@/hooks/useSettings';
 import { cn } from '@/lib/utils';
 import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
-import { CalendarButton } from '@/components/ui/CalendarButton';
+import { cachedToken, deleteGoogleEvent } from '@/features/appointments/googleCalendar';
 import { PageHeader } from '@/components/layout/PageHeader';
 import TaskSheet from './TaskSheet';
 
-function TaskRow({ task, now, babyName, onEdit }) {
+// Deleting a task also removes its Google Calendar event, when Google is already signed in (no popup).
+async function removeTask(task) {
+  await collection(C.tasks).remove(task.id);
+  const token = task.google_event_id && cachedToken();
+  if (token) deleteGoogleEvent(token, task.google_event_id).catch(() => {});
+}
+
+function TaskRow({ task, now, onEdit }) {
   const canEdit = useCanEdit();
   const due = task.remind_at && parseISO(task.remind_at);
   const late = !task.done && due && due < now;
@@ -37,13 +43,11 @@ function TaskRow({ task, now, babyName, onEdit }) {
         {due && !task.done && (
           <span className={cn('mt-0.5 flex items-center gap-1 text-xs', late ? 'text-danger' : 'text-accent')}>
             <Bell className="h-3.5 w-3.5" />{format(due, 'dd/MM HH:mm')}{task.reminded_at ? ' · נשלחה תזכורת' : ''}
+            {task.google_event_id && <CalendarCheck className="h-3.5 w-3.5" aria-label="ב-Google Calendar" />}
           </span>
         )}
       </button>
-      {due && !task.done && (
-        <CalendarButton event={{ id: task.id, title: `${babyName}-${task.title}`, date: format(due, 'yyyy-MM-dd'), time: format(due, 'HH:mm'), description: task.note, durationMinutes: 15 }} />
-      )}
-      <RowActions onDelete={() => collection(C.tasks).remove(task.id)} />
+      <RowActions onDelete={() => removeTask(task)} />
     </div>
   );
 }
@@ -51,14 +55,13 @@ function TaskRow({ task, now, babyName, onEdit }) {
 // Tasks for Tom, like the shopping list: open (by reminder time) → done.
 export default function TasksPage() {
   const { data } = useCollection(C.tasks);
-  const { settings } = useSettings();
   const now = useNow(60_000);
   const [editing, setEditing] = useState(null);
   const [showDone, setShowDone] = useState(false);
   const canEdit = useCanEdit();
   const open = data.filter((t) => !t.done).sort((a, b) => (a.remind_at || '9999').localeCompare(b.remind_at || '9999') || (b.created_at || '').localeCompare(a.created_at || ''));
   const done = data.filter((t) => t.done).sort((a, b) => (b.done_at || '').localeCompare(a.done_at || ''));
-  const rowProps = (t) => ({ task: t, now, babyName: settings.baby_name, onEdit: () => setEditing(t) });
+  const rowProps = (t) => ({ task: t, now, onEdit: () => setEditing(t) });
 
   return (
     <div className="space-y-4">

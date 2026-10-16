@@ -52,6 +52,10 @@ export function firestore(idToken) {
       });
       if (!res.ok) throw new Error(`Firestore update ${name}/${id}: ${res.status} ${await res.text()}`);
     },
+    async remove(name, id) {
+      const res = await fetch(`${BASE}/${name}/${id}`, { method: 'DELETE', headers });
+      if (!res.ok && res.status !== 404) throw new Error(`Firestore delete ${name}/${id}: ${res.status} ${await res.text()}`);
+    },
   };
 }
 

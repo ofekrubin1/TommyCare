@@ -12,6 +12,7 @@ export const C = {
   shopping: 'shopping',
   gifts: 'gifts',
   tasks: 'tasks',
+  pushSubs: 'push_subs',
   appointments: 'appointments',
   meds: 'meds',
   medDoses: 'med_doses',

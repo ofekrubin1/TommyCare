@@ -14,6 +14,7 @@ import { useCanEdit } from '@/hooks/useCanEdit';
 import { UsersCard } from './UsersCard';
 import { SummaryEmailCard } from './SummaryEmailCard';
 import { ExportCard } from './ExportCard';
+import { PushCard } from './PushCard';
 
 const THEMES = [{ value: 'auto', label: 'אוטומטי' }, { value: 'light', label: 'בהיר' }, { value: 'dark', label: 'כהה' }];
 
@@ -82,6 +83,8 @@ export default function SettingsPage() {
         </Field>
         <Button className="w-full" onClick={submit}>{saved ? 'נשמר ✓' : 'שמירה'}</Button>
       </Card>
+
+      <PushCard />
 
       <SummaryEmailCard settings={settings} save={save} />
 

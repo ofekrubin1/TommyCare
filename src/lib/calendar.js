@@ -1,6 +1,6 @@
-// "Add to calendar" for appointments and tasks: Google Calendar (a link that always works) or the iPhone calendar (.ics).
-import { appointmentIcs } from './ics';
-
+// "Add to calendar" for an app event { id, title, date, time, durationMinutes, location, description, alarms }.
+// iPhone: a real .ics URL (blob/data links do nothing on iOS). Google: the Calendar API (see googleCalendar.js),
+// or Google's "new event" page when no Google Client ID is set.
 const compact = (date) => date.replace(/-/g, '');
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -16,22 +16,30 @@ function nextDay(date) {
   return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
 }
 
-// Event: { id, title, date: 'yyyy-MM-dd', time: 'HH:mm' | '', location?, description?, durationMinutes? }
 export function googleCalendarUrl({ title, date, time, location, description, durationMinutes = 30 }) {
-  const dates = time
-    ? `${compact(date)}T${time.replace(':', '')}00/${plusMinutes(date, time, durationMinutes)}`
-    : `${compact(date)}/${nextDay(date)}`;
+  const dates = time ? `${compact(date)}T${time.replace(':', '')}00/${plusMinutes(date, time, durationMinutes)}` : `${compact(date)}/${nextDay(date)}`;
   const q = new URLSearchParams({ action: 'TEMPLATE', text: title, dates, ctz: 'Asia/Jerusalem' });
   if (location) q.set('location', location);
   if (description) q.set('details', description);
   return `https://calendar.google.com/calendar/render?${q}`;
 }
 
-export function openGoogleCalendar(event) {
+export function openGoogleCalendarPage(event) {
   window.open(googleCalendarUrl(event), '_blank', 'noopener');
 }
 
-// iPhone: navigating to the calendar file makes Safari show "Add to Calendar" (a blob download often does nothing there).
+export function icsUrl({ id, title, date, time, durationMinutes = 30, location, description, alarms = [] }) {
+  const q = new URLSearchParams({ uid: id || '', title, min: String(durationMinutes), alarms: alarms.join(',') });
+  if (time) q.set('start', new Date(`${date}T${time}:00`).toISOString()); else q.set('date', date);
+  if (location) q.set('loc', location);
+  if (description) q.set('desc', description);
+  return `${window.location.origin}/.netlify/functions/ics?${q}`;
+}
+
+// Safari shows "Add to Calendar" for the .ics. From the home-screen app, open it in Safari's sheet instead
+// (the app window itself ignores calendar files). Call directly from a tap.
 export function openIphoneCalendar(event) {
-  window.location.href = `data:text/calendar;charset=utf-8,${encodeURIComponent(appointmentIcs(event))}`;
+  const url = icsUrl(event);
+  if (window.navigator.standalone || window.matchMedia?.('(display-mode: standalone)').matches) window.open(url, '_blank');
+  else window.location.href = url;
 }

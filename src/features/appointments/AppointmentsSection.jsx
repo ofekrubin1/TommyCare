@@ -40,10 +40,15 @@ function AppointmentRow({ a, now, onEdit, onToggleDone, babyName }) {
         {a.summary && <p className="mt-1 whitespace-pre-wrap rounded-lg bg-note/10 px-2.5 py-1.5 text-sm">{a.summary}</p>}
       </button>
       {!a.done && (
-        <CalendarButton event={{
-          id: a.id, title: `${babyName}-${a.doctor_type}`, // "תום-טיפת חלב": the import reads this prefix back
-          date: a.date, time: a.time, location: a.location, description: a.note ? `לשאול: ${a.note}` : '',
-        }} />
+        <CalendarButton
+          event={{
+            id: a.id, title: `${babyName}-${a.doctor_type}`, // "תום-טיפת חלב": the import reads this prefix back
+            date: a.date, time: a.time, location: a.location, description: a.note || '', alarms: a.time ? [1440, 120] : [1440],
+          }}
+          googleEventId={a.google_event_id}
+          // Linked like an imported event, so "ייבוא מ-Google Calendar" won't add it again.
+          onGoogleSaved={canEdit ? ({ id, updated }) => collection(C.appointments).update(a.id, { google_event_id: id, google_updated: updated }) : undefined}
+        />
       )}
       <RowActions onDelete={() => collection(C.appointments).remove(a.id)} />
     </div>

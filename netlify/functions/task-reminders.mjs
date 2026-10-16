@@ -1,8 +1,10 @@
-// Runs every 15 minutes; emails a reminder for each open task whose reminder time has come,
-// to the addresses set in Settings (same list as the daily summary). Each reminder is sent once.
+// Runs every 15 minutes; for each open task whose reminder time has come, sends a push notification to the
+// phones that turned on notifications (Settings → התראות לטלפון). If no phone has, it emails the addresses
+// set in Settings instead (same list as the daily summary). Each reminder is sent once.
 import { firestore, robotToken } from '../lib/firestore.mjs';
 import { recipientsOf, TZ } from '../lib/dailySummary.mjs';
 import { sendMail } from '../lib/mailer.mjs';
+import { pushConfigured, sendPush } from '../lib/push.mjs';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const when = (iso) => new Intl.DateTimeFormat('he-IL', { timeZone: TZ, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
@@ -30,20 +32,25 @@ export default async () => {
   if (!due.length) return Response.json({ due: 0 });
 
   const settings = (await db.get('settings', 'app')) || {};
+  const devices = pushConfigured() ? await db.list('push_subs') : [];
   const to = recipientsOf(settings);
-  if (!to.length) return Response.json({ skipped: 'no email in settings', due: due.length });
+  if (!devices.length && !to.length) return Response.json({ skipped: 'no phones and no email in settings', due: due.length });
 
   let sent = 0;
   for (const task of due) {
     const stale = now - Date.parse(task.remind_at) > STALE_MS;
     if (!stale) {
-      await sendMail({ to: to.join(', '), ...reminderEmail({ babyName: settings.baby_name, task, appUrl: process.env.URL }) });
+      const delivered = devices.length
+        ? await sendPush(db, { title: `🔔 ${task.title}`, body: task.note || `תזכורת · ${settings.baby_name || 'תום'} · ${when(task.remind_at)}`, url: '/tasks', tag: `task-${task.id}` }, devices)
+        : 0;
+      if (!delivered && to.length) await sendMail({ to: to.join(', '), ...reminderEmail({ babyName: settings.baby_name, task, appUrl: process.env.URL }) });
+      else if (!delivered) throw new Error(`push for task ${task.id} reached no device`); // retried next run
       sent++;
     }
     // Marked only after a successful send, so a failure retries on the next run.
     await db.update('tasks', task.id, { reminded_at: new Date().toISOString() });
   }
-  console.log(`task-reminders: sent ${sent} of ${due.length} to ${to.join(', ')}`);
+  console.log(`task-reminders: sent ${sent} of ${due.length} (${devices.length} phones, email fallback: ${to.join(', ') || 'none'})`);
   return Response.json({ sent, due: due.length });
 };
 
