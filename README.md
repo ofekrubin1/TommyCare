@@ -2,6 +2,15 @@
 
 Tom's daily log (Hebrew, RTL, mobile-first): feedings, diapers, sleep, notes, shopping, doctor appointments, meds, growth, vaccines, fever, pumping, and a PDF report for the doctor. A day runs **06:00 → 06:00**.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/login.png" width="280" alt="Login screen"><br><sub>Login: greeting by time of day</sub></td>
+    <td align="center"><img src="docs/screenshots/home.png" width="280" alt="Home screen"><br><sub>Home: last feeding / diaper / sleep, today's totals, today's log</sub></td>
+  </tr>
+</table>
+
 ## Run
 
 ```

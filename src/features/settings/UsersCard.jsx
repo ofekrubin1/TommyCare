@@ -27,14 +27,14 @@ export function UsersCard() {
         {people.map((p) => (
           <div key={p.id} className="flex items-center gap-3 py-2.5">
             <div className="min-w-0 flex-1">
-              <p className="font-medium">{p.name || displayUser(p.email)}{p.id === user?.uid && <span className="mr-1.5 text-xs text-mute">(את/ה)</span>}</p>
-              <p className="text-xs text-mute" dir="ltr">{displayUser(p.email)}</p>
+              <p className="truncate font-medium">{p.name || displayUser(p.email)}{p.id === user?.uid && <span className="mr-1.5 text-xs text-mute">(את/ה)</span>}</p>
+              <p className="truncate text-right text-xs text-mute" dir="ltr">{displayUser(p.email)}</p>
             </div>
             {p.id === user?.uid
               ? <span className="text-xs text-mute">עריכה מלאה</span>
               : (
                 <>
-                  <div className="w-36"><Switch label={<span className="flex items-center gap-1 text-sm"><Eye className="h-4 w-4" />צפייה בלבד</span>} checked={isViewer(p.id)} onChange={(on) => setViewer(p.id, on)} /></div>
+                  <div className="w-36 flex-none"><Switch label={<span className="flex items-center gap-1 text-sm"><Eye className="h-4 w-4" />צפייה בלבד</span>} checked={isViewer(p.id)} onChange={(on) => setViewer(p.id, on)} /></div>
                   <RowActions onDelete={() => removeUser(p.id)} />
                 </>
               )}

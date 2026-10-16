@@ -51,9 +51,10 @@ function DayCard({ dayKey: k, open, onToggle, data, events, now, nameOf, globalF
   return (
     <Card>
       <button onClick={onToggle} className="mb-3 flex w-full items-center justify-between">
-        <span className="font-semibold">
-          {dayLabel(k)}
-          {filter !== 'all' && <span className="mr-2 text-sm font-normal text-accent">{shown.length} {filterLabel(filter)}</span>}
+        <span className="flex items-center gap-2">
+          <bdi className="font-semibold">{dayLabel(k)}</bdi>
+          {/* separate chip so the number doesn't run into the date (14/10 + 9 → "14/109") */}
+          {filter !== 'all' && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">{shown.length} {filterLabel(filter)}</span>}
         </span>
         <ChevronDown className={cn('h-5 w-5 text-mute transition', open && 'rotate-180')} />
       </button>
