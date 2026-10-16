@@ -6,6 +6,9 @@ import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Input, Textarea } from '@/components/ui/Field';
 import { Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
+import { useCollection } from '@/hooks/useCollection';
+import { findRecentDuplicate } from '@/features/timeline/duplicates';
+import { DuplicateWarning } from '@/features/timeline/DuplicateWarning';
 
 // Sleep with start + end. "Still sleeping" leaves end empty; the home screen shows a "woke up" button.
 export default function SleepSheet({ record, onClose }) {
@@ -16,9 +19,17 @@ export default function SleepSheet({ record, onClose }) {
   const [saving, setSaving] = useState(false);
   const invalid = !start || (!ongoing && (!end || end <= start));
 
-  const save = async () => {
-    setSaving(true);
+  const [dup, setDup] = useState(null);
+  const { data: existing } = useCollection(C.sleeps);
+
+  const save = async (force = false) => {
     const data = { start: fromLocalInput(start), end: ongoing ? null : fromLocalInput(end), note: note.trim() };
+    if (!record && !force) {
+      const found = findRecentDuplicate(existing, data.start, () => true, 'start');
+      if (found) { setDup(found); return; }
+    }
+    setDup(null);
+    setSaving(true);
     try {
       if (record) await collection(C.sleeps).update(record.id, data);
       else await collection(C.sleeps).add(data);
@@ -38,7 +49,8 @@ export default function SleepSheet({ record, onClose }) {
       <Field label="הערה">
         <Textarea placeholder="לא חובה" value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
-      <Button className="w-full" onClick={save} disabled={saving || invalid}>{saving ? 'שומר...' : 'שמירה'}</Button>
+      <DuplicateWarning found={dup} label={'שינה'} field="start" onCancel={() => setDup(null)} onConfirm={() => save(true)} />
+      {!dup && <Button className="w-full" onClick={() => save()} disabled={saving || invalid}>{saving ? 'שומר...' : 'שמירה'}</Button>}
     </Sheet>
   );
 }

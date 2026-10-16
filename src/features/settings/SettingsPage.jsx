@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Send } from 'lucide-react';
 import { auth, C, collection } from '@/data';
 import { useSettings } from '@/hooks/useSettings';
 import { getTheme, setTheme } from '@/lib/theme';
@@ -13,63 +12,10 @@ import { useAuth, useProfiles } from '@/features/auth/AuthProvider';
 import { displayUser } from '@/features/auth/username';
 import { useCanEdit } from '@/hooks/useCanEdit';
 import { UsersCard } from './UsersCard';
+import { SummaryEmailCard } from './SummaryEmailCard';
+import { ExportCard } from './ExportCard';
 
 const THEMES = [{ value: 'auto', label: 'אוטומטי' }, { value: 'light', label: 'בהיר' }, { value: 'dark', label: 'כהה' }];
-
-const TEST_ERRORS = {
-  no_email: 'שמרו קודם כתובת אימייל',
-  not_signed_in: 'צריך להתחבר מחדש',
-};
-
-// 06:00 email with the summary of the day that just ended (feedings, diapers, sleep).
-function SummaryEmailCard({ settings, save }) {
-  const [email, setEmail] = useState(settings.summary_email || '');
-  const [enabled, setEnabled] = useState(!!settings.summary_enabled);
-  const [state, setState] = useState({ status: 'idle', message: '' });
-  useEffect(() => { setEmail(settings.summary_email || ''); setEnabled(!!settings.summary_enabled); }, [settings.summary_email, settings.summary_enabled]);
-  const dirty = email.trim() !== (settings.summary_email || '') || enabled !== !!settings.summary_enabled;
-  // Functions only exist on the deployed site (not in the local dev server).
-  const canTest = !import.meta.env.DEV;
-
-  const persist = () => save({ summary_email: email.trim(), summary_enabled: enabled });
-  const sendTest = async () => {
-    setState({ status: 'sending', message: '' });
-    try {
-      if (dirty) await persist();
-      const res = await fetch('/api/send-test-summary', { method: 'POST', headers: { Authorization: `Bearer ${await auth.getToken()}` } });
-      const body = await res.json().catch(() => ({}));
-      const ROBOT = {
-        missing: 'אבל המייל היומי לא יישלח: חסרים TC_ROBOT_EMAIL / TC_ROBOT_PASSWORD ב-Netlify.',
-        bad_login: 'אבל המייל היומי לא יישלח: משתמש המערכת (TC_ROBOT_EMAIL / TC_ROBOT_PASSWORD) לא מצליח להתחבר.',
-        error: 'אבל בדיקת משתמש המערכת נכשלה.',
-      };
-      setState(res.ok && body.ok
-        ? body.robot === 'ok'
-          ? { status: 'ok', message: `נשלח מייל בדיקה אל ${body.to}. המייל היומי ב-06:00 מוכן ✓` }
-          : { status: 'error', message: `נשלח מייל בדיקה אל ${body.to}, ${ROBOT[body.robot] || ROBOT.error}` }
-        : { status: 'error', message: TEST_ERRORS[body.error] || `השליחה נכשלה: ${body.error || res.status}` });
-    } catch {
-      setState({ status: 'error', message: 'השליחה נכשלה. בדקו את החיבור לאינטרנט.' });
-    }
-  };
-
-  return (
-    <Card className="space-y-3">
-      <SectionTitle>סיכום יומי במייל</SectionTitle>
-      <p className="text-sm text-mute">כל בוקר ב-06:00: האכלות, חיתולים ושינה של היום שהסתיים.</p>
-      <Field label="אימייל לעדכונים"><Input type="email" dir="ltr" placeholder="name@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
-      <Switch label="לשלוח סיכום כל בוקר" checked={enabled} onChange={setEnabled} />
-      <div className="grid grid-cols-2 gap-2">
-        <Button onClick={persist} disabled={!dirty || (enabled && !email.trim())}>{dirty ? 'שמירה' : 'נשמר ✓'}</Button>
-        <Button variant="outline" onClick={sendTest} disabled={!canTest || !email.trim() || state.status === 'sending'}>
-          <Send className="h-4 w-4" />{state.status === 'sending' ? 'שולח...' : 'מייל בדיקה'}
-        </Button>
-      </div>
-      {!canTest && <p className="text-xs text-mute">מייל בדיקה זמין באתר עצמו (אחרי ההעלאה ל-Netlify).</p>}
-      {state.message && <p className={`text-sm ${state.status === 'ok' ? 'text-note' : 'text-danger'}`}>{state.message}</p>}
-    </Card>
-  );
-}
 
 export default function SettingsPage() {
   const { settings, save } = useSettings();
@@ -140,6 +86,8 @@ export default function SettingsPage() {
       <SummaryEmailCard settings={settings} save={save} />
 
       <UsersCard />
+
+      <ExportCard />
 
       {themeCard}
 

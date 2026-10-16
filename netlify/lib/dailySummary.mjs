@@ -60,3 +60,7 @@ export async function loadDayData(db) {
   const [feedings, diapers, sleeps] = await Promise.all([db.list('feedings'), db.list('diapers'), db.list('sleeps')]);
   return { feedings, diapers, sleeps };
 }
+
+// Recipients: the saved list, or the single address from before multi-recipient support.
+export const recipientsOf = (settings) =>
+  (settings.summary_emails?.length ? settings.summary_emails : settings.summary_email ? [settings.summary_email] : []).filter(Boolean);

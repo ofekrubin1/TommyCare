@@ -7,6 +7,9 @@ import { Field, Optional, Textarea } from '@/components/ui/Field';
 import { CheckTile, Chip, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
 import { POOP_COLORS, POOP_TEXTURES } from './diaperOptions';
+import { useCollection } from '@/hooks/useCollection';
+import { findRecentDuplicate } from '@/features/timeline/duplicates';
+import { DuplicateWarning } from '@/features/timeline/DuplicateWarning';
 
 export default function DiaperSheet({ record, onClose }) {
   const [time, setTime] = useState(toLocalInput(record?.time));
@@ -19,14 +22,22 @@ export default function DiaperSheet({ record, onClose }) {
   const [saving, setSaving] = useState(false);
   const flagged = poop && POOP_COLORS.find((c) => c.value === color)?.check;
 
-  const save = async () => {
-    setSaving(true);
+  const [dup, setDup] = useState(null);
+  const { data: existing } = useCollection(C.diapers);
+
+  const save = async (force = false) => {
     const data = {
       time: fromLocalInput(time), pee, poop,
       poop_color: poop ? color || null : null,
       poop_texture: poop ? texture || null : null,
       rash, note: note.trim(),
     };
+    if (!record && !force) {
+      const found = findRecentDuplicate(existing, data.time, (r) => !!r.pee === pee && !!r.poop === poop);
+      if (found) { setDup(found); return; }
+    }
+    setDup(null);
+    setSaving(true);
     try {
       if (record) await collection(C.diapers).update(record.id, data);
       else await collection(C.diapers).add(data);
@@ -72,7 +83,8 @@ export default function DiaperSheet({ record, onClose }) {
       <Field label="הערה">
         <Textarea placeholder="לא חובה" value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
-      <Button className="w-full" onClick={save} disabled={saving || !time}>{saving ? 'שומר...' : 'שמירה'}</Button>
+      <DuplicateWarning found={dup} label={'החלפת חיתול כזו'} field="time" onCancel={() => setDup(null)} onConfirm={() => save(true)} />
+      {!dup && <Button className="w-full" onClick={() => save()} disabled={saving || !time}>{saving ? 'שומר...' : 'שמירה'}</Button>}
     </Sheet>
   );
 }

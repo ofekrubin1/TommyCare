@@ -6,6 +6,9 @@ import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Input, Textarea } from '@/components/ui/Field';
 import { Segmented, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
+import { useCollection } from '@/hooks/useCollection';
+import { findRecentDuplicate } from '@/features/timeline/duplicates';
+import { DuplicateWarning } from '@/features/timeline/DuplicateWarning';
 
 export const STORAGE = [
   { value: 'fridge', label: 'מקרר' },
@@ -21,9 +24,17 @@ export default function PumpingSheet({ record, onClose }) {
   const [note, setNote] = useState(record?.note || '');
   const [saving, setSaving] = useState(false);
 
-  const save = async () => {
-    setSaving(true);
+  const [dup, setDup] = useState(null);
+  const { data: existing } = useCollection(C.pumping);
+
+  const save = async (force = false) => {
     const data = { time: fromLocalInput(time), amount_ml: Number(amount), stored, storage: stored ? storage : null, used: record?.used ?? false, note: note.trim() };
+    if (!record && !force) {
+      const found = findRecentDuplicate(existing, data.time, () => true);
+      if (found) { setDup(found); return; }
+    }
+    setDup(null);
+    setSaving(true);
     try {
       if (record) await collection(C.pumping).update(record.id, data);
       else await collection(C.pumping).add(data);
@@ -44,7 +55,8 @@ export default function PumpingSheet({ record, onClose }) {
       <Field label="הערה">
         <Textarea placeholder="לא חובה" value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
-      <Button className="w-full" onClick={save} disabled={saving || !amount}>{saving ? 'שומר...' : 'שמירה'}</Button>
+      <DuplicateWarning found={dup} label={'שאיבה'} field="time" onCancel={() => setDup(null)} onConfirm={() => save(true)} />
+      {!dup && <Button className="w-full" onClick={() => save()} disabled={saving || !amount}>{saving ? 'שומר...' : 'שמירה'}</Button>}
     </Sheet>
   );
 }

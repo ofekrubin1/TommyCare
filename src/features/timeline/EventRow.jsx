@@ -5,7 +5,7 @@ import { RowActions } from '@/components/ui/RowActions';
 import { KINDS } from './events';
 import { isEditableKind, useQuickAdd } from './QuickAddProvider';
 
-const COLLECTION_OF = { feeding: C.feedings, diaper: C.diapers, sleep: C.sleeps, note: C.notes, pumping: C.pumping, fever: C.fever, med: C.medDoses };
+export const COLLECTION_OF = { feeding: C.feedings, diaper: C.diapers, sleep: C.sleeps, note: C.notes, pumping: C.pumping, fever: C.fever, med: C.medDoses };
 
 export function EventRow({ event, nameOf }) {
   const openSheet = useQuickAdd();
