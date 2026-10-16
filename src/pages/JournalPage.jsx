@@ -5,7 +5,8 @@ import { useBabyData } from '@/hooks/useBabyData';
 import { useCanEdit } from '@/hooks/useCanEdit';
 import { useNow } from '@/hooks/useNow';
 import { daysWithData, summarizeDay } from '@/lib/summary';
-import { dayKey, dayLabel, todayKey } from '@/lib/time';
+import { dayKey, dayLabel, dm, todayKey } from '@/lib/time';
+import { RECENT_DAYS } from '@/data/timeWindow';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -81,8 +82,11 @@ function DayCard({ dayKey: k, open, onToggle, data, events, now, nameOf, globalF
 }
 
 // Everything, grouped by day (06:00 → 06:00), newest first. On top: search by date and/or by record type.
+// Loads the last 30 days; "ימים קודמים" shows more of them, then loads 30 more days at a time.
 export default function JournalPage() {
-  const data = useBabyData();
+  const [windowDays, setWindowDays] = useState(RECENT_DAYS);
+  const [loadedBefore, setLoadedBefore] = useState(null); // day count before the last "load older", to know when there's no more
+  const data = useBabyData(windowDays);
   const { nameOf } = useProfiles();
   const now = useNow();
   const [open, setOpen] = useState(() => new Set([todayKey()]));
@@ -98,6 +102,9 @@ export default function JournalPage() {
   const isOpen = (k) => filter !== 'all' || open.has(k);
   const toggle = (k) => setOpen((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
   const cardProps = { data, events, now, nameOf, globalFilter: filter };
+  const dataDays = daysWithData(data).length;
+  const noOlder = !data.loading && loadedBefore !== null && dataDays === loadedBefore;
+  const loadOlder = () => { setLoadedBefore(dataDays); setWindowDays((d) => d + RECENT_DAYS); setLimit((l) => l + 14); };
 
   return (
     <div className="space-y-3">
@@ -122,7 +129,13 @@ export default function JournalPage() {
         <>
           {days.slice(0, limit).map((k) => <DayCard key={`${k}-${filter}`} dayKey={k} open={isOpen(k)} onToggle={() => toggle(k)} {...cardProps} />)}
           {!days.length && <p className="py-8 text-center text-sm text-mute">אין {filterLabel(filter)} עדיין</p>}
-          {days.length > limit && <Button variant="outline" className="w-full" onClick={() => setLimit((l) => l + 14)}>ימים קודמים</Button>}
+          {days.length > limit
+            ? <Button variant="outline" className="w-full" onClick={() => setLimit((l) => l + 14)}>ימים קודמים</Button>
+            : !noOlder && (
+              <Button variant="outline" className="w-full" onClick={loadOlder} disabled={data.loading}>
+                {data.loading ? 'טוען...' : `טעינת ימים לפני ${dm(dayKey(data.since))}`}
+              </Button>
+            )}
         </>
       )}
     </div>

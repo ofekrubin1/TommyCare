@@ -1,23 +1,76 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Only signed-in family members (email + password accounts). Accounts are created by the owner in
-    // Firebase Console → Authentication → Users; public sign-up is disabled there.
-    // Any collection is allowed, so new app features don't need a rules change.
+    // Who can do what (the app mirrors this in src/features/auth/roles.js):
+    //   owner  — fixed below (isFixedOwner) or given by an owner: everything, including users' permissions
+    //   editor — adds, edits and deletes the family's records
+    //   viewer — reads everything (also anyone signed in without a role: new users wait for an owner)
+    // Accounts are created by the owner in Firebase Console → Authentication → Users; public sign-up is off.
+
     function signedIn() {
       return request.auth != null && request.auth.token.firebase.sign_in_provider == 'password';
     }
 
-    // View-only users (e.g. grandparents): roles/{uid} = { role: 'viewer' }, set in the app (Settings → users).
-    function isViewer() {
-      return exists(/databases/$(database)/documents/roles/$(request.auth.uid))
-        && get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role == 'viewer';
+    // The first owner can't be granted by anyone, so it's fixed here.
+    // Must match OWNER_USERNAMES in src/config/appConfig.js.
+    function isFixedOwner() {
+      return request.auth.token.email in ['ofek@tommycare.app'];
     }
 
-    match /{collection}/{id} {
+    function role() {
+      let doc = /databases/$(database)/documents/roles/$(request.auth.uid);
+      return exists(doc) ? get(doc).data.role : 'none';
+    }
+
+    function isOwner() {
+      return signedIn() && (isFixedOwner() || role() == 'owner');
+    }
+
+    function canEdit() {
+      return signedIn() && (isFixedOwner() || role() in ['owner', 'editor']);
+    }
+
+    // The family's records. A new record can only be stamped with its real author.
+    function dataCollections() {
+      return ['feedings', 'diapers', 'sleeps', 'notes', 'pumping', 'fever', 'med_doses', 'meds', 'growth',
+        'vaccinations', 'appointments', 'shopping', 'gifts', 'tasks', 'settings'];
+    }
+
+    function honestAuthor() {
+      return !('created_by' in request.resource.data) || request.resource.data.created_by == request.auth.uid;
+    }
+
+    // Only these fields change (used by the scheduled jobs' system account, which has no role).
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    match /{col}/{id} {
+      allow read: if signedIn() && col in dataCollections();
+      allow create: if canEdit() && col in dataCollections() && honestAuthor();
+      allow update, delete: if canEdit() && col in dataCollections();
+      // Scheduled jobs: "reminder sent" on a task, "summary sent" date in the settings.
+      allow update: if signedIn() && col == 'tasks' && onlyChanges(['reminded_at']);
+      allow update: if signedIn() && col == 'settings' && id == 'app' && onlyChanges(['last_summary_date']);
+    }
+
+    // Display names: your own, or anyone's by an owner.
+    match /profiles/{uid} {
       allow read: if signedIn();
-      // Viewers can't change anything, except their own display name.
-      allow write: if signedIn() && (!isViewer() || (collection == 'profiles' && id == request.auth.uid));
+      allow write: if signedIn() && (uid == request.auth.uid || isOwner());
+    }
+
+    // Permissions: only an owner changes them, and not their own (so there's always an owner).
+    match /roles/{uid} {
+      allow read: if signedIn();
+      allow write: if isOwner() && uid != request.auth.uid;
+    }
+
+    // Push notification devices: each person adds or removes their own (viewers too).
+    match /push_subs/{id} {
+      allow read: if signedIn();
+      allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow delete: if signedIn() && (resource.data.uid == request.auth.uid || canEdit());
     }
   }
 }

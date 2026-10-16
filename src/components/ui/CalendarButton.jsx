@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CalendarCheck, CalendarPlus } from 'lucide-react';
 import { openIphoneCalendar } from '@/lib/calendar';
-import { getAccessToken, googleConfigured, loadGis, saveGoogleEvent } from '@/features/appointments/googleCalendar';
+import { getAccessToken, googleConfigured, loadGis, saveGoogleEvent } from '@/lib/googleCalendar';
 import { Sheet } from './Sheet';
 import { Button } from './Button';
 

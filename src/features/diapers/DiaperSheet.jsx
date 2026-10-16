@@ -1,15 +1,11 @@
 import { useState } from 'react';
-import { C, collection } from '@/data';
+import { C } from '@/data';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
-import { Sheet } from '@/components/ui/Sheet';
+import { RecordSheet } from '@/components/forms/RecordSheet';
 import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Optional, Textarea } from '@/components/ui/Field';
 import { CheckTile, Chip, Switch } from '@/components/ui/Choice';
-import { Button } from '@/components/ui/Button';
 import { POOP_COLORS, POOP_TEXTURES } from './diaperOptions';
-import { useCollection } from '@/hooks/useCollection';
-import { findRecentDuplicate } from '@/features/timeline/duplicates';
-import { DuplicateWarning } from '@/features/timeline/DuplicateWarning';
 
 export default function DiaperSheet({ record, onClose }) {
   const [time, setTime] = useState(toLocalInput(record?.time));
@@ -19,36 +15,20 @@ export default function DiaperSheet({ record, onClose }) {
   const [texture, setTexture] = useState(record?.poop_texture || '');
   const [rash, setRash] = useState(record?.rash ?? false);
   const [note, setNote] = useState(record?.note || '');
-  const [saving, setSaving] = useState(false);
   const flagged = poop && POOP_COLORS.find((c) => c.value === color)?.check;
 
-  const [dup, setDup] = useState(null);
-  const { data: existing } = useCollection(C.diapers);
-
-  const save = async (force = false) => {
-    const data = {
-      time: fromLocalInput(time), pee, poop,
-      poop_color: poop ? color || null : null,
-      poop_texture: poop ? texture || null : null,
-      rash, note: note.trim(),
-    };
-    if (!record && !force) {
-      const found = findRecentDuplicate(existing, data.time, (r) => !!r.pee === pee && !!r.poop === poop);
-      if (found) { setDup(found); return; }
-    }
-    setDup(null);
-    setSaving(true);
-    try {
-      if (record) await collection(C.diapers).update(record.id, data);
-      else await collection(C.diapers).add(data);
-      onClose();
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
-    <Sheet open onClose={onClose} title={record ? 'עריכת החתלה' : 'החלפת חיתול'}>
+    <RecordSheet
+      collection={C.diapers} record={record} onClose={onClose} title={['החלפת חיתול', 'עריכת החתלה']}
+      values={() => ({
+        time: fromLocalInput(time), pee, poop,
+        poop_color: poop ? color || null : null,
+        poop_texture: poop ? texture || null : null,
+        rash, note: note.trim(),
+      })}
+      canSave={!!time}
+      duplicate={{ isSame: (r) => !!r.pee === pee && !!r.poop === poop, label: 'החלפת חיתול כזו' }}
+    >
       <DateTimeField label="שעה" value={time} onChange={setTime} />
       <div>
         <div className="grid grid-cols-2 gap-3">
@@ -83,8 +63,6 @@ export default function DiaperSheet({ record, onClose }) {
       <Field label="הערה">
         <Textarea placeholder="לא חובה" value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
-      <DuplicateWarning found={dup} label={'החלפת חיתול כזו'} field="time" onCancel={() => setDup(null)} onConfirm={() => save(true)} />
-      {!dup && <Button className="w-full" onClick={() => save()} disabled={saving || !time}>{saving ? 'שומר...' : 'שמירה'}</Button>}
-    </Sheet>
+    </RecordSheet>
   );
 }

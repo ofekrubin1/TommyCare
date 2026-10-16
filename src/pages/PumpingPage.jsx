@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useQuickAdd } from '@/features/timeline/QuickAddProvider';
-import { STORAGE } from './PumpingSheet';
+import { STORAGE } from '@/features/pumping/PumpingSheet';
 import { useCanEdit } from '@/hooks/useCanEdit';
 
 export default function PumpingPage() {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { auth, C, collection } from '@/data';
+import { auth, C, collection, isLocalBackend } from '@/data';
 import { useSettings } from '@/hooks/useSettings';
 import { getTheme, setTheme } from '@/lib/theme';
 import { Card, SectionTitle } from '@/components/ui/Card';
@@ -11,10 +11,11 @@ import { FEEDING_OPTIONS } from '@/features/feeding/feedingTypes';
 import { useAuth, useProfiles } from '@/features/auth/AuthProvider';
 import { displayUser } from '@/features/auth/username';
 import { useCanEdit } from '@/hooks/useCanEdit';
-import { UsersCard } from './UsersCard';
-import { SummaryEmailCard } from './SummaryEmailCard';
-import { ExportCard } from './ExportCard';
-import { PushCard } from './PushCard';
+import { UsersCard } from '@/features/settings/UsersCard';
+import { SummaryEmailCard } from '@/features/settings/SummaryEmailCard';
+import { ExportCard } from '@/features/settings/ExportCard';
+import { PushCard } from '@/features/settings/PushCard';
+import { LocalTools } from '@/features/settings/LocalTools';
 
 const THEMES = [{ value: 'auto', label: 'אוטומטי' }, { value: 'light', label: 'בהיר' }, { value: 'dark', label: 'כהה' }];
 
@@ -58,7 +59,9 @@ export default function SettingsPage() {
           <Field label="השם שלי" hint="מופיע ליד רישומים. שם המשתמש לכניסה לא משתנה."><Input value={myName} onChange={(e) => setMyName(e.target.value)} /></Field>
           <Button className="w-full" onClick={saveMyName}>{saved ? 'נשמר ✓' : 'שמירה'}</Button>
         </Card>
+        <PushCard />
         {themeCard}
+        {isLocalBackend && <LocalTools />}
         <p className="text-center text-xs text-mute">מחובר/ת כ-{displayUser(user?.email)} · מצב צפייה</p>
       </div>
     );
@@ -96,6 +99,8 @@ export default function SettingsPage() {
       <ExportCard />
 
       {themeCard}
+
+      {isLocalBackend && <LocalTools />}
 
       <p className="text-center text-xs text-mute">מחובר/ת כ-{displayUser(user?.email)}</p>
     </div>

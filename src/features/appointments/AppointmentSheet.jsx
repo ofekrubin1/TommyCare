@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { C, collection } from '@/data';
-import { Sheet } from '@/components/ui/Sheet';
+import { C } from '@/data';
+import { RecordSheet } from '@/components/forms/RecordSheet';
 import { Field, Input, Optional, Textarea } from '@/components/ui/Field';
 import { TimeButton } from '@/components/ui/TimeWheels';
 import { Chip, Switch } from '@/components/ui/Choice';
-import { Button } from '@/components/ui/Button';
 import { DEFAULT_DURATION, DOCTOR_TYPES, DURATIONS } from './appointmentUtils';
 
 // Before: type, date, time (5-minute steps), length (for the calendar), place, questions. After ("done"): optional summary of what happened.
@@ -19,37 +18,28 @@ export default function AppointmentSheet({ record, mode, onClose }) {
   const [note, setNote] = useState(record?.note || '');
   const [summary, setSummary] = useState(record?.summary || '');
   const [done, setDone] = useState(mode === 'done' || !!record?.done);
-  const [saving, setSaving] = useState(false);
   const customDoctor = !DOCTOR_TYPES.slice(0, -1).includes(doctor);
 
-  const save = async () => {
-    setSaving(true);
-    const data = {
-      doctor_type: doctor.trim(), date, time, duration: time ? duration : null, location: location.trim(), note: note.trim(), summary: summary.trim(),
-      done, done_at: done ? record?.done_at || new Date().toISOString() : null,
-    };
-    try {
-      if (record) await collection(C.appointments).update(record.id, data);
-      else await collection(C.appointments).add(data);
-      onClose();
-    } finally {
-      setSaving(false);
-    }
-  };
+  const values = () => ({
+    doctor_type: doctor.trim(), date, time, duration: time ? duration : null, location: location.trim(), note: note.trim(), summary: summary.trim(),
+    done, done_at: done ? record?.done_at || new Date().toISOString() : null,
+  });
 
   if (mode === 'done') {
     return (
-      <Sheet open onClose={onClose} title={`${record.doctor_type} · מה היה בתור?`}>
+      <RecordSheet collection={C.appointments} record={record} onClose={onClose} title={`${record.doctor_type} · מה היה בתור?`} values={values} saveText="סימון כבוצע">
         <Field label={<>מה היה בתור<Optional /></>}>
           <Textarea rows={5} autoFocus placeholder="מה נאמר, המלצות, מרשמים, משקל" value={summary} onChange={(e) => setSummary(e.target.value)} />
         </Field>
-        <Button className="w-full" onClick={save} disabled={saving}>{saving ? 'שומר...' : 'סימון כבוצע'}</Button>
-      </Sheet>
+      </RecordSheet>
     );
   }
 
   return (
-    <Sheet open onClose={onClose} title={record ? 'עריכת תור' : 'תור חדש'}>
+    <RecordSheet
+      collection={C.appointments} record={record} onClose={onClose} title={['תור חדש', 'עריכת תור']}
+      values={values} canSave={!!date && !!doctor.trim() && doctor !== 'אחר'}
+    >
       <Field as="div" label="סוג רופא">
         <div className="flex flex-wrap gap-2">
           {DOCTOR_TYPES.map((t) => <Chip key={t} selected={doctor === t || (t === 'אחר' && customDoctor)} onClick={() => setDoctor(t)}>{t}</Chip>)}
@@ -81,7 +71,6 @@ export default function AppointmentSheet({ record, mode, onClose }) {
           )}
         </>
       )}
-      <Button className="w-full" onClick={save} disabled={saving || !date || !doctor.trim() || doctor === 'אחר'}>{saving ? 'שומר...' : 'שמירה'}</Button>
-    </Sheet>
+    </RecordSheet>
   );
 }

@@ -5,9 +5,11 @@ import {
 } from 'firebase/auth';
 import {
   initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-  collection as fsCollection, doc, onSnapshot, addDoc, updateDoc, setDoc, deleteDoc,
+  collection as fsCollection, doc, onSnapshot, updateDoc, setDoc, deleteDoc, getDocs, query, where,
 } from 'firebase/firestore';
 import { firebaseConfig } from '@/config/firebaseConfig';
+import { reportError } from '@/lib/errors';
+import { TIME_FIELD } from '../timeWindow';
 
 const app = initializeApp(firebaseConfig);
 const fbAuth = getAuth(app);
@@ -22,24 +24,37 @@ const db = initializeFirestore(app, {
 const now = () => new Date().toISOString();
 const by = () => fbAuth.currentUser?.uid ?? null;
 
+// Writes return as soon as they're in the local cache (they sync in the background, also when offline).
+// Firestore only resolves a write once the server confirms it, which never happens without signal, so the
+// screens don't wait for it; a write the server rejects (e.g. permissions) is reported to the user instead.
+const background = (promise, what) => { promise.catch((err) => reportError(err, what)); };
+const docs = (snap) => snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+
 export function collection(name) {
   const col = fsCollection(db, name);
   return {
-    subscribe(onData, onError) {
-      return onSnapshot(col, (snap) => onData(snap.docs.map((d) => ({ ...d.data(), id: d.id }))), onError);
+    // `since` (ISO): only records from then on, by the collection's time field (see timeWindow.js).
+    subscribe(onData, onError, { since } = {}) {
+      const q = since && TIME_FIELD[name] ? query(col, where(TIME_FIELD[name], '>=', since)) : col;
+      return onSnapshot(q, (snap) => onData(docs(snap)), onError);
+    },
+    // Every record, once (backup export).
+    async fetchAll() {
+      return docs(await getDocs(col));
     },
     async add(data) {
-      const ref = await addDoc(col, { ...data, created_at: now(), updated_at: now(), created_by: by() });
+      const ref = doc(col);
+      background(setDoc(ref, { ...data, created_at: now(), updated_at: now(), created_by: by() }), `add ${name}`);
       return ref.id;
     },
-    update(id, data) {
-      return updateDoc(doc(col, id), { ...data, updated_at: now() });
+    async update(id, data) {
+      background(updateDoc(doc(col, id), { ...data, updated_at: now() }), `update ${name}/${id}`);
     },
-    set(id, data) {
-      return setDoc(doc(col, id), { ...data, updated_at: now() }, { merge: true });
+    async set(id, data) {
+      background(setDoc(doc(col, id), { ...data, updated_at: now() }, { merge: true }), `set ${name}/${id}`);
     },
-    remove(id) {
-      return deleteDoc(doc(col, id));
+    async remove(id) {
+      background(deleteDoc(doc(col, id)), `remove ${name}/${id}`);
     },
   };
 }

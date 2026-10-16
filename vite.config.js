@@ -16,20 +16,27 @@ const devIcs = {
   },
 };
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react(), devIcs],
   resolve: {
-    alias: { '@': path.resolve(import.meta.dirname, 'src') },
+    alias: {
+      '@': path.resolve(import.meta.dirname, 'src'),
+      // `vite --mode localdb` (port 5173) uses the local test database; everything else uses Firebase.
+      '@backend': path.resolve(import.meta.dirname, mode === 'localdb' ? 'src/data/local/localBackend.js' : 'src/data/firebase/firebaseBackend.js'),
+    },
   },
   // Pre-bundle the lazily loaded PDF libraries, so the dev server doesn't reload mid-export.
   optimizeDeps: { include: ['html2canvas', 'jspdf'] },
   build: {
+    // The Firebase SDK alone is ~540 kB (its own cached chunk); everything else is far below this.
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
         },
       },
     },
   },
-});
+}));

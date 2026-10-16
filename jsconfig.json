@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "paths": { "@/*": ["src/*"] },
+    "paths": { "@/*": ["src/*"], "@backend": ["src/data/firebase/firebaseBackend.js"] },
     "jsx": "react-jsx"
   },
   "include": ["src"]

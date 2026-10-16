@@ -9,9 +9,9 @@ import { cn } from '@/lib/utils';
 import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
-import { cachedToken, deleteGoogleEvent } from '@/features/appointments/googleCalendar';
+import { cachedToken, deleteGoogleEvent } from '@/lib/googleCalendar';
 import { PageHeader } from '@/components/layout/PageHeader';
-import TaskSheet from './TaskSheet';
+import TaskSheet from '@/features/tasks/TaskSheet';
 
 // Deleting a task also removes its Google Calendar event, when Google is already signed in (no popup).
 async function removeTask(task) {

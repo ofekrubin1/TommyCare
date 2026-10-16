@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { TabChips } from '@/components/ui/TabChips';
 import GiftList from '@/features/gifts/GiftList';
-import ShoppingList from './ShoppingList';
+import ShoppingList from '@/features/shopping/ShoppingList';
 
 const TABS = [
   { value: 'shopping', label: 'קניות', Section: ShoppingList },

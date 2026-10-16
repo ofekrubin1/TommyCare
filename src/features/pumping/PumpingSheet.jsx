@@ -1,14 +1,10 @@
 import { useState } from 'react';
-import { C, collection } from '@/data';
+import { C } from '@/data';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
-import { Sheet } from '@/components/ui/Sheet';
+import { RecordSheet } from '@/components/forms/RecordSheet';
 import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Input, Textarea } from '@/components/ui/Field';
 import { Segmented, Switch } from '@/components/ui/Choice';
-import { Button } from '@/components/ui/Button';
-import { useCollection } from '@/hooks/useCollection';
-import { findRecentDuplicate } from '@/features/timeline/duplicates';
-import { DuplicateWarning } from '@/features/timeline/DuplicateWarning';
 
 export const STORAGE = [
   { value: 'fridge', label: 'מקרר' },
@@ -22,30 +18,14 @@ export default function PumpingSheet({ record, onClose }) {
   const [stored, setStored] = useState(record?.stored ?? true);
   const [storage, setStorage] = useState(record?.storage || 'fridge');
   const [note, setNote] = useState(record?.note || '');
-  const [saving, setSaving] = useState(false);
-
-  const [dup, setDup] = useState(null);
-  const { data: existing } = useCollection(C.pumping);
-
-  const save = async (force = false) => {
-    const data = { time: fromLocalInput(time), amount_ml: Number(amount), stored, storage: stored ? storage : null, used: record?.used ?? false, note: note.trim() };
-    if (!record && !force) {
-      const found = findRecentDuplicate(existing, data.time, () => true);
-      if (found) { setDup(found); return; }
-    }
-    setDup(null);
-    setSaving(true);
-    try {
-      if (record) await collection(C.pumping).update(record.id, data);
-      else await collection(C.pumping).add(data);
-      onClose();
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
-    <Sheet open onClose={onClose} title={record ? 'עריכת שאיבה' : 'שאיבה'}>
+    <RecordSheet
+      collection={C.pumping} record={record} onClose={onClose} title={['שאיבה', 'עריכת שאיבה']}
+      values={() => ({ time: fromLocalInput(time), amount_ml: Number(amount), stored, storage: stored ? storage : null, used: record?.used ?? false, note: note.trim() })}
+      canSave={!!amount}
+      duplicate={{ label: 'שאיבה' }}
+    >
       <DateTimeField label="שעה" value={time} onChange={setTime} />
       <Field label="כמות (מ״ל)">
         <Input type="number" inputMode="numeric" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
@@ -55,8 +35,6 @@ export default function PumpingSheet({ record, onClose }) {
       <Field label="הערה">
         <Textarea placeholder="לא חובה" value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
-      <DuplicateWarning found={dup} label={'שאיבה'} field="time" onCancel={() => setDup(null)} onConfirm={() => save(true)} />
-      {!dup && <Button className="w-full" onClick={() => save()} disabled={saving || !amount}>{saving ? 'שומר...' : 'שמירה'}</Button>}
-    </Sheet>
+    </RecordSheet>
   );
 }

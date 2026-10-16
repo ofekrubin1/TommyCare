@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite --host --port 5174 --strictPort",
+    "dev:local": "vite --mode localdb --host --port 5173 --strictPort",
     "build": "vite build",
     "preview": "vite preview",
     "check-gmail": "node scripts/check-gmail.mjs"

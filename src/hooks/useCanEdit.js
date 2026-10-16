@@ -1,12 +1,16 @@
 import { C } from '@/data';
 import { useAuth } from '@/features/auth/AuthProvider';
+import { canEditAs, roleOf } from '@/features/auth/roles';
 import { useCollection } from './useCollection';
 
-// View-only users (roles/{uid}.role === 'viewer', e.g. grandparents) see everything but can't add, edit or delete.
-// firestore.rules enforce this on the server; this hook just hides the controls.
-export function useCanEdit() {
+// This user's role (see features/auth/roles.js). firestore.rules enforce it on the server; the screens
+// only hide what the role can't do. While roles load, nobody gets edit buttons (no flash).
+export function useRole() {
   const { user } = useAuth();
   const { data, loading } = useCollection(C.roles);
-  if (loading) return false; // don't flash edit buttons before the role is known
-  return data.find((r) => r.id === user?.uid)?.role !== 'viewer';
+  if (loading || !user) return 'loading';
+  return roleOf(user.uid, user.email, data);
 }
+
+export const useCanEdit = () => canEditAs(useRole());
+export const useIsOwner = () => useRole() === 'owner';

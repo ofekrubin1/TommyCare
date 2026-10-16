@@ -3,7 +3,8 @@ import { RefreshCw } from 'lucide-react';
 import { C, collection } from '@/data';
 import { useSettings } from '@/hooks/useSettings';
 import { Button } from '@/components/ui/Button';
-import { fetchEvents, getAccessToken, googleConfigured, planSync } from './googleCalendar';
+import { getAccessToken, googleConfigured } from '@/lib/googleCalendar';
+import { fetchEvents, planSync } from './googleImport';
 
 // "Import from Google Calendar": one tap reads the main calendar and syncs every event titled "<baby name>-…".
 export default function GoogleCalendarImport({ appointments }) {
