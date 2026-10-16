@@ -42,34 +42,37 @@ function DeleteDaySheet({ dayKey: k, events, onClose }) {
 
 function DayCard({ dayKey: k, open, onToggle, data, events, now, nameOf, globalFilter }) {
   const canEdit = useCanEdit();
-  const [localFilter, setLocalFilter] = useState(null); // null = follow the filter on top
+  const [localFilter, setLocalFilter] = useState('all');
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const filter = localFilter ?? globalFilter;
+  // A filter on top applies to every day, so the per-day filter only shows when that one is off.
+  const filter = globalFilter !== 'all' ? globalFilter : localFilter;
   const allDayEvents = events.filter((e) => dayKey(e.time) === k);
   const shown = filterEvents(allDayEvents, filter);
 
   return (
     <Card>
-      <button onClick={onToggle} className="mb-3 flex w-full items-center justify-between">
-        <span className="flex items-center gap-2">
+      <div className="mb-3 flex items-center gap-2">
+        <button onClick={onToggle} className="flex min-w-0 flex-1 items-center gap-2 text-right">
           <bdi className="font-semibold">{dayLabel(k)}</bdi>
           {/* separate chip so the number doesn't run into the date (14/10 + 9 → "14/109") */}
           {filter !== 'all' && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">{shown.length} {filterLabel(filter)}</span>}
-        </span>
-        <ChevronDown className={cn('h-5 w-5 text-mute transition', open && 'rotate-180')} />
-      </button>
+        </button>
+        {canEdit && allDayEvents.length > 0 && (
+          <button onClick={() => setConfirmDelete(true)} aria-label={`מחיקת ${dayLabel(k)}`} className="rounded-lg p-1.5 text-mute active:bg-danger/10 active:text-danger">
+            <Trash2 className="h-4 w-4" />
+          </button>
+        )}
+        <button onClick={onToggle} aria-label={open ? 'סגירה' : 'פתיחה'} className="p-1">
+          <ChevronDown className={cn('h-5 w-5 text-mute transition', open && 'rotate-180')} />
+        </button>
+      </div>
       <DaySummary summary={summarizeDay(k, data, now)} />
       {open && (
         <div className="mt-3 space-y-2 border-t border-line pt-3">
-          <FilterChips small value={filter} onChange={setLocalFilter} />
+          {globalFilter === 'all' && <FilterChips small value={localFilter} onChange={setLocalFilter} />}
           {shown.length
             ? <EventList events={shown} nameOf={nameOf} />
             : <p className="py-4 text-center text-sm text-mute">{filter === 'all' ? 'אין רישומים ביום הזה' : `אין ${filterLabel(filter)} ביום הזה`}</p>}
-          {canEdit && allDayEvents.length > 0 && (
-            <button onClick={() => setConfirmDelete(true)} className="flex w-full items-center justify-center gap-1.5 pt-2 text-sm text-danger">
-              <Trash2 className="h-4 w-4" />מחיקת כל היום
-            </button>
-          )}
         </div>
       )}
       {confirmDelete && <DeleteDaySheet dayKey={k} events={allDayEvents} onClose={() => setConfirmDelete(false)} />}
