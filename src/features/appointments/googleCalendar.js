@@ -116,6 +116,7 @@ export async function fetchEvents(token, babyName, calendarId = 'primary') {
   } while (pageToken);
   return events.filter((e) => e.status !== 'cancelled' && e.start && doctorFromTitle(e.summary, babyName)).map((e) => {
     const start = e.start.dateTime ? parseISO(e.start.dateTime) : null;
+    const minutes = start && e.end?.dateTime ? Math.round((parseISO(e.end.dateTime) - start) / 60_000) : 0;
     return {
       google_event_id: e.id,
       google_updated: e.updated,
@@ -123,6 +124,7 @@ export async function fetchEvents(token, babyName, calendarId = 'primary') {
       doctor_type: doctorFromTitle(e.summary, babyName),
       date: start ? format(start, 'yyyy-MM-dd') : e.start.date,
       time: start ? format(start, 'HH:mm') : '',
+      duration: minutes > 0 ? minutes : null,
       location: (e.location || '').trim(),
       note: plainText(e.description),
     };

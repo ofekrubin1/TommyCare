@@ -70,7 +70,10 @@ export default function TaskSheet({ record, onClose }) {
         <div className="space-y-3 rounded-xl bg-line/30 p-3">
           <DateTimeField label="מתי להזכיר" value={remindAt} onChange={setRemindAt} />
           <p className="text-xs text-mute">בזמן הזה תקפוץ התראה בטלפונים שהפעילו התראות (הגדרות ← התראות לטלפון).</p>
-          {gcal && <Switch label="להוסיף גם ל-Google Calendar" checked={google} onChange={setGoogle} />}
+          {gcal ? <Switch label="להוסיף גם ל-Google Calendar" checked={google} onChange={setGoogle} /> : (
+            <div className="opacity-50"><Switch label="להוסיף גם ל-Google Calendar" checked={false} onChange={() => {}} /></div>
+          )}
+          {!gcal && <p className="-mt-2 text-xs text-mute">יופעל אחרי חיבור ל-Google (Client ID).</p>}
           <Button variant="outline" className="w-full py-2 text-sm" disabled={!title.trim()} onClick={() => openIphoneCalendar(event())}>
             <CalendarPlus className="h-4 w-4" />הוספה ליומן iPhone
           </Button>

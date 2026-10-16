@@ -6,14 +6,15 @@ import { Field, Input, Optional, Textarea } from '@/components/ui/Field';
 import { TimeButton } from '@/components/ui/TimeWheels';
 import { Chip, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
-import { DOCTOR_TYPES } from './appointmentUtils';
+import { DEFAULT_DURATION, DOCTOR_TYPES, DURATIONS } from './appointmentUtils';
 
-// Before: type, date, time (5-minute steps), place, questions. After ("done"): optional summary of what happened.
+// Before: type, date, time (5-minute steps), length (for the calendar), place, questions. After ("done"): optional summary of what happened.
 // mode="done": opened from the "done" checkbox, focused on the summary.
 export default function AppointmentSheet({ record, mode, onClose }) {
   const [doctor, setDoctor] = useState(record?.doctor_type || DOCTOR_TYPES[0]);
   const [date, setDate] = useState(record?.date || format(new Date(), 'yyyy-MM-dd'));
   const [time, setTime] = useState(record?.time || '');
+  const [duration, setDuration] = useState(record?.duration || DEFAULT_DURATION);
   const [location, setLocation] = useState(record?.location || '');
   const [note, setNote] = useState(record?.note || '');
   const [summary, setSummary] = useState(record?.summary || '');
@@ -24,7 +25,7 @@ export default function AppointmentSheet({ record, mode, onClose }) {
   const save = async () => {
     setSaving(true);
     const data = {
-      doctor_type: doctor.trim(), date, time, location: location.trim(), note: note.trim(), summary: summary.trim(),
+      doctor_type: doctor.trim(), date, time, duration: time ? duration : null, location: location.trim(), note: note.trim(), summary: summary.trim(),
       done, done_at: done ? record?.done_at || new Date().toISOString() : null,
     };
     try {
@@ -63,6 +64,13 @@ export default function AppointmentSheet({ record, mode, onClose }) {
           <TimeButton value={time} onChange={setTime} allowEmpty />
         </div>
       </Field>
+      {time && (
+        <Field as="div" label="משך התור">
+          <div className="flex flex-wrap gap-2">
+            {DURATIONS.map((d) => <Chip key={d.value} selected={duration === d.value} onClick={() => setDuration(d.value)}>{d.label}</Chip>)}
+          </div>
+        </Field>
+      )}
       <Field label={<>מקום<Optional /></>}><Input value={location} onChange={(e) => setLocation(e.target.value)} /></Field>
       <Field label="הערה / שאלות לשאול"><Textarea rows={3} placeholder="מה חשוב לשאול בתור?" value={note} onChange={(e) => setNote(e.target.value)} /></Field>
       {record && (

@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 import { EVENT_FILTERS } from './eventFilters';
 
-// Record-type chips (scroll sideways). Only types that exist in `events` are offered, with their count.
+// Record-type chips (scroll sideways). Only types that exist in `events` are offered.
 export function FilterChips({ value, onChange, events, small = false }) {
   const options = EVENT_FILTERS
     .map((f) => ({ ...f, count: events.filter(f.match).length }))
@@ -19,7 +19,7 @@ export function FilterChips({ value, onChange, events, small = false }) {
             value === f.value ? 'border-accent bg-accent text-white' : 'border-line bg-card text-mute',
           )}
         >
-          {f.label}{f.value !== 'all' && <span className="mr-1 opacity-70">{f.count}</span>}
+          {f.label}
         </button>
       ))}
     </div>

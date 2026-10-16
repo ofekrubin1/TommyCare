@@ -43,7 +43,7 @@ function AppointmentRow({ a, now, onEdit, onToggleDone, babyName }) {
         <CalendarButton
           event={{
             id: a.id, title: `${babyName}-${a.doctor_type}`, // "תום-טיפת חלב": the import reads this prefix back
-            date: a.date, time: a.time, location: a.location, description: a.note || '', alarms: a.time ? [1440, 120] : [1440],
+            date: a.date, time: a.time, durationMinutes: a.duration || 30, location: a.location, description: a.note || '', alarms: a.time ? [1440, 120] : [1440],
           }}
           googleEventId={a.google_event_id}
           // Linked like an imported event, so "ייבוא מ-Google Calendar" won't add it again.

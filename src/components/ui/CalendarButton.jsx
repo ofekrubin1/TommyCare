@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CalendarCheck, CalendarPlus } from 'lucide-react';
-import { openGoogleCalendarPage, openIphoneCalendar } from '@/lib/calendar';
+import { openIphoneCalendar } from '@/lib/calendar';
 import { getAccessToken, googleConfigured, loadGis, saveGoogleEvent } from '@/features/appointments/googleCalendar';
 import { Sheet } from './Sheet';
 import { Button } from './Button';
@@ -14,7 +14,7 @@ export function CalendarButton({ event, googleEventId, onGoogleSaved, className 
   useEffect(() => { if (open && googleConfigured()) loadGis().catch(() => {}); }, [open]);
 
   const addToGoogle = async () => {
-    if (!googleConfigured()) return openGoogleCalendarPage(event);
+    if (!googleConfigured()) return setState({ status: 'error', message: 'החיבור ל-Google Calendar עוד לא הוגדר (חסר Google Client ID).' });
     try {
       setState({ status: 'busy', message: 'מוסיף ל-Google Calendar...' });
       const saved = await saveGoogleEvent(await getAccessToken(), event, googleEventId);
