@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Archive, CalendarClock, CalendarPlus, Check, MapPin, Plus } from 'lucide-react';
+import { Archive, CalendarClock, Check, MapPin, Plus } from 'lucide-react';
 import { C, collection } from '@/data';
 import { useCollection } from '@/hooks/useCollection';
 import { useNow } from '@/hooks/useNow';
 import { cn } from '@/lib/utils';
-import { appointmentIcs, downloadIcs } from '@/lib/ics';
+import { CalendarButton } from '@/components/ui/CalendarButton';
 import { useSettings } from '@/hooks/useSettings';
 import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -13,14 +13,6 @@ import AppointmentSheet from './AppointmentSheet';
 import GoogleCalendarImport from './GoogleCalendarImport';
 import { archived, isOverdue, upcoming, whenText } from './appointmentUtils';
 import { useCanEdit } from '@/hooks/useCanEdit';
-
-function addToCalendar(a, babyName) {
-  const ics = appointmentIcs({
-    id: a.id, title: `${babyName}-${a.doctor_type}`, // "תום-טיפת חלב": the import reads this prefix back date: a.date, time: a.time,
-    location: a.location, description: a.note ? `לשאול: ${a.note}` : '',
-  });
-  downloadIcs(ics, `${a.doctor_type}-${a.date}.ics`);
-}
 
 function AppointmentRow({ a, now, onEdit, onToggleDone, babyName }) {
   const overdue = isOverdue(a, now);
@@ -48,9 +40,10 @@ function AppointmentRow({ a, now, onEdit, onToggleDone, babyName }) {
         {a.summary && <p className="mt-1 whitespace-pre-wrap rounded-lg bg-note/10 px-2.5 py-1.5 text-sm">{a.summary}</p>}
       </button>
       {!a.done && (
-        <button onClick={() => addToCalendar(a, babyName)} aria-label="הוספה ליומן" title="הוספה ליומן" className="rounded-lg p-2 text-health active:bg-line/60">
-          <CalendarPlus className="h-4 w-4" />
-        </button>
+        <CalendarButton event={{
+          id: a.id, title: `${babyName}-${a.doctor_type}`, // "תום-טיפת חלב": the import reads this prefix back
+          date: a.date, time: a.time, location: a.location, description: a.note ? `לשאול: ${a.note}` : '',
+        }} />
       )}
       <RowActions onDelete={() => collection(C.appointments).remove(a.id)} />
     </div>

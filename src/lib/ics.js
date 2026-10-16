@@ -32,12 +32,3 @@ export function appointmentIcs({ id, title, date, time, location, description, d
     'END:VEVENT', 'END:VCALENDAR',
   ].filter(Boolean).join('\r\n');
 }
-
-export function downloadIcs(ics, filename) {
-  const url = URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
-  const a = Object.assign(document.createElement('a'), { href: url, download: filename });
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
-}
