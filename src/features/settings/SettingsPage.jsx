@@ -33,7 +33,6 @@ export default function SettingsPage() {
 
   const submit = async () => {
     await save({ ...form, feeding_alert_hours: Number(form.feeding_alert_hours) || 3 });
-    if (user && myName.trim()) await collection(C.profiles).set(user.uid, { name: myName.trim(), email: user.email });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -56,7 +55,7 @@ export default function SettingsPage() {
       <div className="space-y-4">
         <PageHeader title="הגדרות" />
         <Card className="space-y-3">
-          <Field label="השם שלי"><Input value={myName} onChange={(e) => setMyName(e.target.value)} /></Field>
+          <Field label="השם שלי" hint="מופיע ליד רישומים. שם המשתמש לכניסה לא משתנה."><Input value={myName} onChange={(e) => setMyName(e.target.value)} /></Field>
           <Button className="w-full" onClick={saveMyName}>{saved ? 'נשמר ✓' : 'שמירה'}</Button>
         </Card>
         {themeCard}
@@ -70,10 +69,9 @@ export default function SettingsPage() {
       <PageHeader title="הגדרות" />
       <Card className="space-y-4">
         <SectionTitle>התינוקת</SectionTitle>
-        <div className="grid grid-cols-3 gap-2">
-          <Field label="שם"><Input value={form.baby_name} onChange={(e) => setForm({ ...form, baby_name: e.target.value })} /></Field>
-          <Field label="תאריך לידה"><Input type="date" className="h-[46px] px-1.5 text-center text-sm" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} /></Field>
-          <Field label="השם שלי"><Input placeholder="אופק" value={myName} onChange={(e) => setMyName(e.target.value)} /></Field>
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="שם"><Input className="h-[46px]" value={form.baby_name} onChange={(e) => setForm({ ...form, baby_name: e.target.value })} /></Field>
+          <Field label="תאריך לידה"><Input type="date" className="h-[46px] text-center" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} /></Field>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <Field label="סוג האכלה">
@@ -85,7 +83,7 @@ export default function SettingsPage() {
             <Input type="number" inputMode="decimal" step="0.5" min="1" max="12" className="h-[46px]" value={form.feeding_alert_hours} onChange={(e) => setForm({ ...form, feeding_alert_hours: e.target.value })} />
           </Field>
         </div>
-        <p className="text-xs text-mute">״השם שלי״ מופיע ליד הרישומים שלך. ההתראה במסך הבית קופצת אחרי כך וכך שעות בלי האכלה.</p>
+        <p className="text-xs text-mute">ההתראה במסך הבית קופצת אחרי כך וכך שעות בלי האכלה.</p>
         <Button className="w-full" onClick={submit}>{saved ? 'נשמר ✓' : 'שמירה'}</Button>
       </Card>
 
