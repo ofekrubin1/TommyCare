@@ -8,6 +8,7 @@ import JournalPage from '@/pages/JournalPage';
 import HealthPage from '@/pages/HealthPage';
 import MorePage from '@/pages/MorePage';
 import ShoppingPage from '@/features/shopping/ShoppingPage';
+import TasksPage from '@/features/tasks/TasksPage';
 import PumpingPage from '@/features/pumping/PumpingPage';
 import SettingsPage from '@/features/settings/SettingsPage';
 
@@ -28,6 +29,7 @@ function Gate() {
           <Route path="journal" element={<JournalPage />} />
           <Route path="health" element={<HealthPage />} />
           <Route path="shopping" element={<ShoppingPage />} />
+          <Route path="tasks" element={<TasksPage />} />
           <Route path="more" element={<MorePage />} />
           <Route path="pumping" element={<PumpingPage />} />
           <Route path="settings" element={<SettingsPage />} />

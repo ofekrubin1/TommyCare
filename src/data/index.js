@@ -11,6 +11,7 @@ export const C = {
   notes: 'notes',
   shopping: 'shopping',
   gifts: 'gifts',
+  tasks: 'tasks',
   appointments: 'appointments',
   meds: 'meds',
   medDoses: 'med_doses',
