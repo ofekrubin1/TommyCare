@@ -8,10 +8,15 @@ export function icsUrl({ id, title, date, time, durationMinutes = 30, location, 
   return `${window.location.origin}/.netlify/functions/ics?${q}`;
 }
 
-// Safari shows "Add to Calendar" for the .ics. From the home-screen app, open it in Safari's sheet instead
-// (the app window itself ignores calendar files). Call directly from a tap.
+// Safari shows its "Add to Calendar" screen for the .ics. Never navigate the app's own window to it: in the
+// home-screen app that replaces the app with no way back. There, hand the link to Safari itself
+// (x-safari-https://, iOS 17+); elsewhere open a new tab. Call directly from a tap.
 export function openIphoneCalendar(event) {
   const url = icsUrl(event);
-  if (window.navigator.standalone || window.matchMedia?.('(display-mode: standalone)').matches) window.open(url, '_blank');
-  else window.location.href = url;
+  const standalone = window.navigator.standalone || window.matchMedia?.('(display-mode: standalone)').matches;
+  if (standalone && /iPhone|iPad|iPod/.test(navigator.userAgent) && url.startsWith('https://')) {
+    window.location.href = url.replace(/^https:/, 'x-safari-https:');
+  } else {
+    window.open(url, '_blank');
+  }
 }

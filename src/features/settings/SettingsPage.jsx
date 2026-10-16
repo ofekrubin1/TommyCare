@@ -3,7 +3,7 @@ import { auth, C, collection } from '@/data';
 import { useSettings } from '@/hooks/useSettings';
 import { getTheme, setTheme } from '@/lib/theme';
 import { Card, SectionTitle } from '@/components/ui/Card';
-import { Field, Input } from '@/components/ui/Field';
+import { Field, Input, Select } from '@/components/ui/Field';
 import { Segmented, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -70,17 +70,22 @@ export default function SettingsPage() {
       <PageHeader title="הגדרות" />
       <Card className="space-y-4">
         <SectionTitle>התינוקת</SectionTitle>
-        <Field label="שם"><Input value={form.baby_name} onChange={(e) => setForm({ ...form, baby_name: e.target.value })} /></Field>
-        <Field label="תאריך לידה"><Input type="date" className="h-12" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} /></Field>
-        <Field label="סוג האכלה ברירת מחדל">
-          <Segmented options={FEEDING_OPTIONS} value={form.default_feeding_type} onChange={(v) => setForm({ ...form, default_feeding_type: v })} />
-        </Field>
-        <Field label="התראה במסך הבית אחרי (שעות בלי האכלה)">
-          <Input type="number" inputMode="decimal" step="0.5" min="1" max="12" value={form.feeding_alert_hours} onChange={(e) => setForm({ ...form, feeding_alert_hours: e.target.value })} />
-        </Field>
-        <Field label="השם שלי" hint="מופיע ליד רישומים שלך (״נרשם ע״י״)">
-          <Input placeholder="לדוגמה: אופק" value={myName} onChange={(e) => setMyName(e.target.value)} />
-        </Field>
+        <div className="grid grid-cols-3 gap-2">
+          <Field label="שם"><Input value={form.baby_name} onChange={(e) => setForm({ ...form, baby_name: e.target.value })} /></Field>
+          <Field label="תאריך לידה"><Input type="date" className="h-[46px] px-1.5 text-center text-sm" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} /></Field>
+          <Field label="השם שלי"><Input placeholder="אופק" value={myName} onChange={(e) => setMyName(e.target.value)} /></Field>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Field label="סוג האכלה">
+            <Select className="h-[46px]" value={form.default_feeding_type} onChange={(e) => setForm({ ...form, default_feeding_type: e.target.value })}>
+              {FEEDING_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </Select>
+          </Field>
+          <Field label="התראה אחרי (שעות)">
+            <Input type="number" inputMode="decimal" step="0.5" min="1" max="12" className="h-[46px]" value={form.feeding_alert_hours} onChange={(e) => setForm({ ...form, feeding_alert_hours: e.target.value })} />
+          </Field>
+        </div>
+        <p className="text-xs text-mute">״השם שלי״ מופיע ליד הרישומים שלך. ההתראה במסך הבית קופצת אחרי כך וכך שעות בלי האכלה.</p>
         <Button className="w-full" onClick={submit}>{saved ? 'נשמר ✓' : 'שמירה'}</Button>
       </Card>
 

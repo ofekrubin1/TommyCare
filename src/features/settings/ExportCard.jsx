@@ -4,19 +4,11 @@ import { C } from '@/data';
 import { useCollection } from '@/hooks/useCollection';
 import { useBabyData } from '@/hooks/useBabyData';
 import { dayKey } from '@/lib/time';
+import { saveFile } from '@/lib/saveFile';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useProfiles } from '@/features/auth/AuthProvider';
 import { KINDS, toEvents } from '@/features/timeline/events';
-
-function download(content, filename, type) {
-  const url = URL.createObjectURL(new Blob([content], { type }));
-  const a = Object.assign(document.createElement('a'), { href: url, download: filename });
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
-}
 
 const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 
@@ -24,7 +16,7 @@ const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 export function ExportCard() {
   const data = useBabyData();
   const { nameOf } = useProfiles();
-  const all = Object.fromEntries(Object.values(C).map((name) => [name, useCollection(name).data])); // eslint-disable-line react-hooks/rules-of-hooks
+  const all = Object.fromEntries(Object.values(C).filter((name) => name !== C.pushSubs).map((name) => [name, useCollection(name).data])); // eslint-disable-line react-hooks/rules-of-hooks
   const stamp = format(new Date(), 'yyyy-MM-dd');
 
   const exportCsv = () => {
@@ -36,12 +28,12 @@ export function ExportCard() {
         return [format(parseISO(dayKey(e.time)), 'dd/MM/yyyy'), format(t, 'dd/MM/yyyy'), format(t, 'HH:mm'), KINDS[e.kind].label, e.title, e.detail || '', nameOf(e.record.created_by)];
       }),
     ];
-    download('﻿' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n'), `TommyCare-יומן-${stamp}.csv`, 'text/csv;charset=utf-8');
+    saveFile('﻿' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n'), `TommyCare-יומן-${stamp}.csv`, 'text/csv');
   };
 
   const exportJson = () => {
     const backup = { exported_at: new Date().toISOString(), app: 'TommyCare', collections: all };
-    download(JSON.stringify(backup, null, 2), `TommyCare-גיבוי-${stamp}.json`, 'application/json');
+    saveFile(JSON.stringify(backup, null, 2), `TommyCare-גיבוי-${stamp}.json`, 'application/json');
   };
 
   return (
