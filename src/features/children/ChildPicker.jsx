@@ -12,9 +12,9 @@ export function ChildPicker() {
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} aria-label="מעבר בין הילדים"
-        className="flex items-center gap-1.5 rounded-full border border-line bg-card py-1 pl-2 pr-1 shadow-soft">
+        className="flex flex-none items-center gap-1.5 rounded-full border border-line bg-card py-1 pl-2 pr-1 shadow-soft">
         <ChildAvatar child={child} className="h-7 w-7 text-base" />
-        <span className="max-w-[7rem] truncate text-sm font-semibold">{child.name}</span>
+        <span className="whitespace-nowrap text-sm font-semibold">{child.name}</span>
         <ChevronDown className="h-4 w-4 text-mute" />
       </button>
       {open && <ChildSwitcher onClose={() => setOpen(false)} />}

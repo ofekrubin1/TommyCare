@@ -13,12 +13,15 @@ const HE_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי
 
 // Full-screen photo; editors can replace or remove it from here.
 function PhotoViewer({ src, name, canEdit, onReplace, onRemove, onClose }) {
+  const [naturalWidth, setNaturalWidth] = useState(0);
   return createPortal(
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-black/90 p-6" dir="rtl" onClick={onClose}>
       <button type="button" onClick={onClose} aria-label="סגירה" className="absolute left-4 top-4 rounded-full bg-white/10 p-2 text-white" style={{ marginTop: 'env(safe-area-inset-top)' }}>
         <X className="h-6 w-6" />
       </button>
-      <img src={src} alt={name} className="max-h-[70dvh] w-full max-w-md rounded-3xl object-contain" onClick={(e) => e.stopPropagation()} />
+      {/* Shown at most at its real size, so an older small photo isn't stretched into a blur. */}
+      <img src={src} alt={name} className="max-h-[70dvh] w-full rounded-3xl object-contain" style={{ maxWidth: Math.min(448, naturalWidth || 448) }}
+        onLoad={(e) => setNaturalWidth(e.currentTarget.naturalWidth)} onClick={(e) => e.stopPropagation()} />
       <p className="text-lg font-semibold text-white">{name}</p>
       {canEdit && (
         <div className="grid w-full max-w-md grid-cols-2 gap-2" onClick={(e) => e.stopPropagation()}>
@@ -86,7 +89,7 @@ export function BabyHeader({ settings, save, now }) {
       )}
       {switching && <ChildSwitcher onClose={() => setSwitching(false)} />}
       {file && (
-        <PhotoCropper size={640} file={file} onCancel={() => setFile(null)} onSave={(dataUrl) => { save({ baby_photo: dataUrl }); setFile(null); }} />
+        <PhotoCropper size={1080} file={file} onCancel={() => setFile(null)} onSave={(dataUrl) => { save({ baby_photo: dataUrl }); setFile(null); }} />
       )}
     </header>
   );

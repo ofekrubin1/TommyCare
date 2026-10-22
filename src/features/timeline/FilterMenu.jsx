@@ -38,26 +38,34 @@ export function FilterMenu({ value, onChange, events, variant = 'button', align 
       <Filter className="h-[18px] w-[18px]" />
     </button>
   ) : (
-    <button
-      type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="listbox" aria-expanded={open}
-      className={cn('flex h-11 w-full items-center gap-2 rounded-xl border bg-bg/60 px-3 font-medium transition', active ? 'border-accent text-accent' : 'border-line text-ink')}
-    >
-      <span aria-hidden="true">{current.icon}</span>
-      <span className="min-w-0 flex-1 truncate text-right">{current.label}</span>
-      <ChevronDown className={cn('h-4 w-4 flex-none text-mute transition', open && 'rotate-180')} />
-    </button>
+    // The whole label shows (wrapping if needed); with a type chosen, a × takes the arrow's place and clears it.
+    <div className={cn('flex min-h-11 w-full items-center rounded-xl border bg-bg/60 font-medium transition', active ? 'border-accent text-accent' : 'border-line text-ink')}>
+      <button
+        type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="listbox" aria-expanded={open}
+        className="flex min-w-0 flex-1 items-center gap-2 py-2 pr-3 text-right"
+      >
+        <span aria-hidden="true">{current.icon}</span>
+        <span className="flex-1 leading-tight">{current.label}</span>
+        {!active && <ChevronDown className={cn('ml-3 h-4 w-4 flex-none text-mute transition', open && 'rotate-180')} />}
+      </button>
+      {active && (
+        <button type="button" onClick={() => onChange('all')} aria-label="ניקוי הסינון" className="flex-none py-2 pl-2.5 pr-1 text-mute">
+          <X className="h-5 w-5" />
+        </button>
+      )}
+    </div>
   );
 
-  // A small × next to the filter clears it (like the date picker).
-  const clear = active && (
-    <button type="button" onClick={() => onChange('all')} aria-label="ניקוי הסינון" className={cn('flex-none text-mute', variant === 'icon' ? 'p-1' : 'p-2')}>
-      <X className={variant === 'icon' ? 'h-4 w-4' : 'h-5 w-5'} />
+  // Next to a day's funnel: a small × that clears that day's filter.
+  const clear = variant === 'icon' && active && (
+    <button type="button" onClick={() => onChange('all')} aria-label="ניקוי הסינון" className="flex-none p-1 text-mute">
+      <X className="h-4 w-4" />
     </button>
   );
 
   return (
-    <div ref={ref} className={cn('relative flex items-center', variant === 'button' ? 'w-full gap-1' : 'flex-none')}>
-      <div className={variant === 'button' ? 'min-w-0 flex-1' : ''}>{trigger}</div>
+    <div ref={ref} className={cn('relative flex items-center', variant === 'button' ? 'w-full' : 'flex-none')}>
+      {trigger}
       {clear}
       {open && (
         <ul role="listbox" className={cn('absolute top-full z-30 mt-1.5 max-h-[60vh] min-w-[13rem] overflow-y-auto rounded-2xl border border-line bg-card py-1 shadow-lg', align === 'left' ? 'left-0' : 'right-0')}>
