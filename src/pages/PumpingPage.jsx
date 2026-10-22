@@ -7,9 +7,10 @@ import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ChildPicker } from '@/features/children/ChildPicker';
 import { useQuickAdd } from '@/features/timeline/QuickAddProvider';
 import { STORAGE } from '@/features/pumping/PumpingSheet';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 export default function PumpingPage() {
   const { data } = useCollection(C.pumping);
@@ -20,7 +21,7 @@ export default function PumpingPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="שאיבה ומלאי חלב" child action={<Button className="py-2 text-sm" onClick={() => openSheet('pumping')}><Plus className="w-4 h-4" />שאיבה</Button>} />
+      <PageHeader title="שאיבה ומלאי חלב" aside={<ChildPicker />} action={<Button className="py-2 text-sm" onClick={() => openSheet('pumping')}><Plus className="w-4 h-4" />שאיבה</Button>} />
       <Card>
         <SectionTitle>במלאי</SectionTitle>
         <div className="grid grid-cols-2 gap-2">

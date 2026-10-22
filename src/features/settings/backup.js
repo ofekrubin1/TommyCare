@@ -1,11 +1,10 @@
 // Full backup (JSON) and restore. A backup holds every child with all their records, the family's shared
 // lists and settings, and users' display names. Restore puts records back by their id: missing ones come
 // back, existing ones are overwritten with the backup's version, nothing else is deleted.
-import { C, CHILD_COLLECTIONS, collectionAt, familyPath, getContext } from '@/data';
-import { CHILD_FIELDS } from '@/features/children/children';
+import { C, CHILD_COLLECTIONS, collectionAt, familyPath, getContext, withoutId } from '@/data';
+import { CHILD_FIELDS } from '@/core/children/children';
 
 const FAMILY_SHARED = [C.shopping, C.gifts, C.tasks, C.settings];
-const withoutId = ({ id, ...rest }) => rest; // eslint-disable-line no-unused-vars
 
 export async function buildBackup() {
   const fam = familyPath();

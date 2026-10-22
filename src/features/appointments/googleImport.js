@@ -2,12 +2,6 @@
 import { format, parseISO } from 'date-fns';
 import { api } from '@/lib/googleCalendar';
 
-// Kept for a possible "choose calendar" option later.
-export async function listCalendars(token) {
-  const { items = [] } = await api(token, '/users/me/calendarList?minAccessRole=reader');
-  return items.map((c) => ({ id: c.id, name: c.summaryOverride || c.summary, primary: !!c.primary }));
-}
-
 const plainText = (html) => (html || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
 
 // "תום-טיפת חלב" / "תום - טיפת חלב" / "תום טיפת חלב" → "טיפת חלב". Other events → null (not Tom's).

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { C } from '@/data';
-import { useSettings } from '@/hooks/useSettings';
+import { useSettings } from '@/core/children/useSettings';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
 import { RecordSheet } from '@/components/forms/RecordSheet';
 import { DateTimeField } from '@/components/ui/DateTime';

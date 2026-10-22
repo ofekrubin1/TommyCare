@@ -7,7 +7,7 @@ import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import GiftSheet from './GiftSheet';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 function GiftRow({ gift, onEdit }) {
   const canEdit = useCanEdit();

@@ -4,7 +4,7 @@ import { dayKey, hm, todayKey } from '@/lib/time';
 import { cn } from '@/lib/utils';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 export const VITAMIN_D = { name: 'ויטמין D', dose: 'לפי הנחיית טיפת חלב', daily: true, active: true };
 

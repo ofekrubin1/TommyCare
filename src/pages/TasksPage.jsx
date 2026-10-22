@@ -3,7 +3,7 @@ import { format, parseISO } from 'date-fns';
 import { Bell, CalendarCheck, Check, ListChecks, Plus } from 'lucide-react';
 import { C, collection } from '@/data';
 import { useCollection } from '@/hooks/useCollection';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 import { useNow } from '@/hooks/useNow';
 import { cn } from '@/lib/utils';
 import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';

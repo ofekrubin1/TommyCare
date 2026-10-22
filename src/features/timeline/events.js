@@ -1,6 +1,6 @@
 import { differenceInMinutes, parseISO } from 'date-fns';
 import { Milk, Droplets, Moon, StickyNote, Thermometer, Pill, FlaskConical } from 'lucide-react';
-import { dayKey, durationText, hm } from '@/lib/time';
+import { durationText, hm } from '@/lib/time';
 import { FEEDING_TYPES, isBottle, sidesText } from '@/features/feeding/feedingTypes';
 import { colorLabel, diaperTitle, textureLabel } from '@/features/diapers/diaperOptions';
 
@@ -49,4 +49,3 @@ export function toEvents(data, now = new Date()) {
   return ev.filter((e) => e.time).sort((a, b) => b.time.localeCompare(a.time));
 }
 
-export const eventsForDay = (data, key, now) => toEvents(data, now).filter((e) => dayKey(e.time) === key);

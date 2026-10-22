@@ -4,7 +4,7 @@ import { isLocalBackend } from '@/data';
 import { BottomNav } from './BottomNav';
 import { ErrorBoundary } from './ErrorBoundary';
 import { BottleLoader } from '@/components/ui/BottleLoader';
-import { useRole } from '@/hooks/useCanEdit';
+import { useRole } from '@/core/auth/useRole';
 
 
 export function Layout() {

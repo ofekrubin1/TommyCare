@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Pencil, Plus, Trash2 } from 'lucide-react';
-import { useChildren } from '@/hooks/useSettings';
-import { useIsOwner } from '@/hooks/useCanEdit';
+import { useChildren } from '@/core/children/useChildren';
+import { useIsOwner } from '@/core/auth/useRole';
 import { ageText } from '@/lib/time';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
 import { ChildAvatar } from '@/features/children/ChildSwitcher';
 import ChildSheet from '@/features/children/ChildSheet';
-import { deleteChild } from '@/features/children/children';
+import { deleteChild } from '@/core/children/children';
 
 function DeleteChildSheet({ child, onClose }) {
   const [busy, setBusy] = useState(false);

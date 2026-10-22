@@ -1,6 +1,6 @@
 import { C } from '@/data';
 import { RECENT_DAYS, windowStart } from '@/data/timeWindow';
-import { useCollection } from './useCollection';
+import { useCollection } from '@/hooks/useCollection';
 
 // Everything the timeline, journal and summaries read, in one place: the logs of the last `days` days
 // (30 by default; the journal asks for more), plus the medicines list.
@@ -29,6 +29,3 @@ export function useBabyData(days = RECENT_DAYS) {
     meds: meds.data,
   };
 }
-
-// A recent window of one log collection (e.g. for the "already logged?" check in a form).
-export const useRecent = (name, days = 2) => useCollection(name, { since: windowStart(days) });

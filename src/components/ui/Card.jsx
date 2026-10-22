@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 export function Card({ className, children, ...props }) {
   return (

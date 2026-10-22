@@ -5,14 +5,14 @@ import { useCollection } from '@/hooks/useCollection';
 import { useNow } from '@/hooks/useNow';
 import { cn } from '@/lib/utils';
 import { CalendarButton } from '@/components/ui/CalendarButton';
-import { useSettings } from '@/hooks/useSettings';
+import { useSettings } from '@/core/children/useSettings';
 import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import AppointmentSheet from './AppointmentSheet';
 import GoogleCalendarImport from './GoogleCalendarImport';
 import { archived, isOverdue, upcoming, whenText } from './appointmentUtils';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 function AppointmentRow({ a, now, onEdit, onToggleDone, babyName }) {
   const overdue = isOverdue(a, now);

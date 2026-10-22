@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 const OPEN = 132; // px revealed: room for two buttons
 const SNAP = 50;

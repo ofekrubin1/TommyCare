@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 // Edit + delete (with a second tap to confirm) for list rows.
 export function RowActions({ onEdit, onDelete }) {

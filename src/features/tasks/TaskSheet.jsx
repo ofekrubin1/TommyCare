@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CalendarPlus } from 'lucide-react';
 import { C, collection } from '@/data';
-import { useSettings } from '@/hooks/useSettings';
+import { useSettings } from '@/core/children/useSettings';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
 import { openIphoneCalendar } from '@/lib/calendar';
 import { cachedToken, deleteGoogleEvent, getAccessToken, googleConfigured, loadGis, saveGoogleEvent } from '@/lib/googleCalendar';

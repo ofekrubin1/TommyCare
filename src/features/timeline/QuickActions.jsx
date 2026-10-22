@@ -1,7 +1,7 @@
 import { Droplets, FlaskConical, Milk, Moon, StickyNote, Thermometer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useQuickAdd } from './QuickAddProvider';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 const MAIN = [
   { kind: 'feeding', label: 'האכלה', icon: Milk, tone: 'bg-feed text-white' },

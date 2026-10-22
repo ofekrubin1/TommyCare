@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, parseISO } from 'date-fns';
-import { dueDate, VACCINE_SCHEDULE } from '@/lib/vaccines';
+import { dueDate, VACCINE_SCHEDULE } from '@/features/vaccines/schedule';
 
 // Merges the official schedule with what the family recorded:
 //   records keyed by schedule key → given date / note / edited name or due date / hidden

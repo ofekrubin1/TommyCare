@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/Card';
 import { Field, Input } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
 import { greeting } from './greeting';
-import { usernameToEmail } from './username';
+import { usernameToEmail } from '@/core/auth/username';
 
 const ERRORS = {
   'auth/invalid-credential': 'משתמש או סיסמה שגויים',

@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ChildPicker } from '@/features/children/ChildPicker';
 import { TabChips } from '@/components/ui/TabChips';
 import AppointmentsSection from '@/features/appointments/AppointmentsSection';
 import MedsSection from '@/features/meds/MedsSection';
@@ -21,7 +22,7 @@ export default function HealthPage() {
   const tab = TABS.find((t) => t.value === params.get('tab')) || TABS[0];
   return (
     <div className="space-y-4">
-      <PageHeader title="בריאות" child />
+      <PageHeader title="בריאות" aside={<ChildPicker />} />
       <TabChips tabs={TABS} value={tab.value} onChange={(v) => setParams({ tab: v }, { replace: true })} />
       <tab.Section />
       <ReportCard />

@@ -3,14 +3,14 @@ import { format, parseISO } from 'date-fns';
 import { Check, Plus, Syringe } from 'lucide-react';
 import { C, collection } from '@/data';
 import { useCollection } from '@/hooks/useCollection';
-import { useSettings } from '@/hooks/useSettings';
+import { useSettings } from '@/core/children/useSettings';
 import { cn } from '@/lib/utils';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { SwipeRow } from '@/components/ui/SwipeRow';
 import VaccineSheet from './VaccineSheet';
 import { buildVaccineList, statusOf } from './vaccineList';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 const fmt = (d) => format(parseISO(d), 'dd/MM/yyyy');
 

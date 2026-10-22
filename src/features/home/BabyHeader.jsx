@@ -7,7 +7,7 @@ import { ChildSwitcher } from '@/features/children/ChildSwitcher';
 import { ageText } from '@/lib/time';
 import { Button } from '@/components/ui/Button';
 import { PhotoCropper } from '@/components/ui/PhotoCropper';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 const HE_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
 

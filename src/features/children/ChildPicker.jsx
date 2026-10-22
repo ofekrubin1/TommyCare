@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { useChildren } from '@/hooks/useSettings';
+import { useChildren } from '@/core/children/useChildren';
 import { ChildAvatar, ChildSwitcher } from './ChildSwitcher';
 
 // "Whose screen is this": the current child's photo + name; tap to switch. The choice is app-wide, so home,

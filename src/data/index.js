@@ -84,3 +84,6 @@ export function collection(name, opts) {
   if (!path) throw new Error(`no child chosen for ${name}`);
   return at(path);
 }
+
+// A record without its id field (ids are document names, not data) — for copying / restoring documents.
+export const withoutId = ({ id, ...rest }) => rest; // eslint-disable-line no-unused-vars

@@ -1,14 +1,14 @@
 // The 06:00 summary email for the day that just ended: feedings, diapers, sleep — a section per child.
 // Days are Israeli days (06:00 → 06:00) even though the server runs in UTC (see israelTime.js).
-import { summarizeDay } from '../src/lib/summary.js';
+import { summarizeDay } from '../src/features/summary/summarizeDay.js';
 import { dayKey, shiftDay } from '../src/lib/time.js';
 import { childPath, loadChildren } from './family.js';
 import { israelIso, israelWall } from './israelTime.js';
+import { escapeHtml as esc } from '../src/lib/html.js';
 
 // The app day that just ended, in Israel.
 export const yesterdayKey = (now = new Date()) => shiftDay(dayKey(israelWall(now).toISOString()), -1);
 
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const n1 = (x) => (Math.round(x * 10) / 10).toLocaleString('he-IL');
 const dmy = (key) => key.split('-').reverse().join('/');
 

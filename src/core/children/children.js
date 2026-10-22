@@ -1,5 +1,5 @@
 // Children: each has their own records (pumping too: the milk is for that baby); the family shares shopping, gifts and tasks.
-import { C, CHILD_COLLECTIONS, childPath, collectionAt, familyPath, getContext } from '@/data';
+import { C, CHILD_COLLECTIONS, childPath, collectionAt, familyPath, getContext, withoutId } from '@/data';
 
 // A child's own settings, and the older "settings" keys they replace (screens still read settings.baby_name etc.).
 export const CHILD_FIELDS = {
@@ -41,7 +41,6 @@ export async function deleteChild(childId) {
 export const FIRST_CHILD_ID = 'child1';
 const FAMILY_SHARED = [C.shopping, C.gifts, C.tasks];
 const FAMILY_SETTING_KEYS = ['summary_emails', 'summary_email', 'summary_enabled', 'last_summary_date', 'roles_v2'];
-const withoutId = ({ id, ...rest }) => rest; // eslint-disable-line no-unused-vars
 
 export async function migrateToFamily() {
   const { familyId } = getContext();

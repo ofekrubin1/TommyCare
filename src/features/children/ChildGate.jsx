@@ -2,14 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { C, setCurrentChild } from '@/data';
 import { useCollectionAt, useDataContext } from '@/hooks/useCollection';
-import { useChildren } from '@/hooks/useSettings';
-import { useCanEdit, useRole } from '@/hooks/useCanEdit';
+import { useChildren } from '@/core/children/useChildren';
+import { useCanEdit, useRole } from '@/core/auth/useRole';
 import { reportError } from '@/lib/errors';
 import { BottleLoader } from '@/components/ui/BottleLoader';
 import { Button } from '@/components/ui/Button';
-import { useAuth } from '@/features/auth/AuthProvider';
-import { isFixedOwner } from '@/features/auth/roles';
-import { migrateToFamily } from './children';
+import { useAuth } from '@/core/auth/AuthProvider';
+import { isFixedOwner } from '@/core/auth/roles';
+import { migrateToFamily } from '@/core/children/children';
 import ChildSheet from './ChildSheet';
 
 const Message = ({ children }) => (

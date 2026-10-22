@@ -4,7 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
 import { Toaster } from '@/components/ui/Toaster';
 import { BottleLoader } from '@/components/ui/BottleLoader';
-import { AuthProvider, EnsureProfile, KeepPushCurrent, useAuth } from '@/features/auth/AuthProvider';
+import { AuthProvider, EnsureProfile, KeepPushCurrent, useAuth } from '@/core/auth/AuthProvider';
 import { ChildGate } from '@/features/children/ChildGate';
 import LoginPage from '@/features/auth/LoginPage';
 import { QuickAddProvider } from '@/features/timeline/QuickAddProvider';

@@ -6,7 +6,7 @@ import { durationText, hm, sinceText } from '@/lib/time';
 import { byTimeDesc, cn } from '@/lib/utils';
 import { FEEDING_TYPES } from '@/features/feeding/feedingTypes';
 import { diaperTitle } from '@/features/diapers/diaperOptions';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 function Tile({ icon: Icon, tone, title, value, sub, alert, children }) {
   return (

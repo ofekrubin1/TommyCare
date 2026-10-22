@@ -11,11 +11,11 @@ import { dayKey } from '../src/lib/time.js';
 import { FAMILY, childPath, loadChildren, loadFamilySettings, recipientsOf } from './family.js';
 import { buildSummaryEmail, loadChildrenDays } from './dailySummary.js';
 import { hmText, israelHour, israelWall, whenText } from './israelTime.js';
+import { escapeHtml as esc } from '../src/lib/html.js';
 
 const HOUR = 3600_000;
 const passedText = (h) => (h === 1 ? 'עברה שעה' : h === 2 ? 'עברו שעתיים' : `עברו ${h} שעות`);
 const STALE_MS = 24 * HOUR; // task reminders more than a day late are skipped, not sent
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function reminderEmail(task, appUrl) {
   const html = `<!doctype html><html lang="he" dir="rtl"><body style="margin:0;background:#FBF7F4;font-family:Arial,Helvetica,sans-serif;direction:rtl;">

@@ -5,8 +5,8 @@ import { useCollection } from '@/hooks/useCollection';
 import { errorMessage } from '@/lib/errors';
 import { Sheet } from '@/components/ui/Sheet';
 import { Button } from '@/components/ui/Button';
-import { findRecentDuplicate } from '@/features/timeline/duplicates';
-import { DuplicateWarning } from '@/features/timeline/DuplicateWarning';
+import { findRecentDuplicate } from '@/components/forms/duplicates';
+import { DuplicateWarning } from '@/components/forms/DuplicateWarning';
 
 // The shared add/edit form: a bottom sheet with the form's own fields (children) plus everything every form
 // needs: save (add or update), "saving..." state, an error line, the "already logged?" check, and the button.

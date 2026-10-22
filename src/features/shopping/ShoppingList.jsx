@@ -6,7 +6,7 @@ import { Card, EmptyState, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import ShoppingItemSheet from './ShoppingItemSheet';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 const shop = () => collection(C.shopping);
 const byName = (a, b) => (a.name || '').localeCompare(b.name || '', 'he');

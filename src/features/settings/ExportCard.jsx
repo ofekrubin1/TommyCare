@@ -4,11 +4,11 @@ import { Download, Upload } from 'lucide-react';
 import { dayKey } from '@/lib/time';
 import { reportError } from '@/lib/errors';
 import { saveFile } from '@/lib/saveFile';
-import { useIsOwner } from '@/hooks/useCanEdit';
+import { useIsOwner } from '@/core/auth/useRole';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
-import { useProfiles } from '@/features/auth/AuthProvider';
+import { useProfiles } from '@/core/auth/AuthProvider';
 import { KINDS, toEvents } from '@/features/timeline/events';
 import { buildBackup, describeBackup, restoreBackup } from './backup';
 

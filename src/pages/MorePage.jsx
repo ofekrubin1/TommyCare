@@ -3,8 +3,8 @@ import { ChevronLeft, FileText, FlaskConical, LogOut, Settings } from 'lucide-re
 import { auth } from '@/data';
 import { Card } from '@/components/ui/Card';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { useAuth } from '@/features/auth/AuthProvider';
-import { displayUser } from '@/features/auth/username';
+import { useAuth } from '@/core/auth/AuthProvider';
+import { displayUser } from '@/core/auth/username';
 
 const ITEMS = [
   { to: '/pumping', label: 'שאיבה ומלאי חלב', icon: FlaskConical, tone: 'text-pump bg-pump/10' },

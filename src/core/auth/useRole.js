@@ -1,7 +1,7 @@
 import { C } from '@/data';
-import { useAuth } from '@/features/auth/AuthProvider';
-import { canEditAs, roleOf } from '@/features/auth/roles';
-import { useCollection } from './useCollection';
+import { useAuth } from '@/core/auth/AuthProvider';
+import { canEditAs, roleOf } from '@/core/auth/roles';
+import { useCollection } from '@/hooks/useCollection';
 
 // This user's role (see features/auth/roles.js). firestore.rules enforce it on the server; the screens
 // only hide what the role can't do. While roles load, nobody gets edit buttons (no flash).

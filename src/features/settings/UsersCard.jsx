@@ -3,12 +3,12 @@ import { Check, Pencil, X } from 'lucide-react';
 import { RowActions } from '@/components/ui/RowActions';
 import { C, collection } from '@/data';
 import { useCollection } from '@/hooks/useCollection';
-import { useIsOwner } from '@/hooks/useCanEdit';
+import { useIsOwner } from '@/core/auth/useRole';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Field';
-import { useAuth } from '@/features/auth/AuthProvider';
-import { displayUser } from '@/features/auth/username';
-import { isFixedOwner, ROLES, roleOf } from '@/features/auth/roles';
+import { useAuth } from '@/core/auth/AuthProvider';
+import { displayUser } from '@/core/auth/username';
+import { isFixedOwner, ROLES, roleOf } from '@/core/auth/roles';
 import { cn } from '@/lib/utils';
 
 // Display name (shown next to entries, "נרשם ע״י") — editable here. The login user name is separate and fixed.

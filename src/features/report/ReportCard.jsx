@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { FileText } from 'lucide-react';
 import { C } from '@/data';
-import { useBabyData } from '@/hooks/useBabyData';
+import { useBabyData } from '@/features/timeline/useBabyData';
 import { useCollection } from '@/hooks/useCollection';
-import { useSettings } from '@/hooks/useSettings';
+import { useSettings } from '@/core/children/useSettings';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { buildReportHtml } from './buildReport';

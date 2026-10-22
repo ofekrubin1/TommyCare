@@ -23,10 +23,3 @@ export function Button({ variant = 'primary', className, children, ...props }) {
   );
 }
 
-export function IconButton({ className, label, children, ...props }) {
-  return (
-    <button aria-label={label} title={label} className={cn('p-2 rounded-lg text-mute active:bg-line/60', className)} {...props}>
-      {children}
-    </button>
-  );
-}

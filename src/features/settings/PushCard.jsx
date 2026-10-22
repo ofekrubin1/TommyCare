@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { BellRing } from 'lucide-react';
 import { auth, C } from '@/data';
 import { API_ORIGIN } from '@/config/appConfig';
-import { useAuth } from '@/features/auth/AuthProvider';
+import { useAuth } from '@/core/auth/AuthProvider';
 import { useCollection } from '@/hooks/useCollection';
 import { currentSubscription, disablePush, enablePush, pushSupport, setDeviceOptions, thisDeviceId } from '@/lib/push';
 import { Switch } from '@/components/ui/Choice';

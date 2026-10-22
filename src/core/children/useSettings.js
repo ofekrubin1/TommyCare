@@ -1,15 +1,8 @@
 import { DEFAULT_SETTINGS } from '@/config/appConfig';
 import { C, collection } from '@/data';
-import { childAsSettings, sortChildren, splitSettings } from '@/features/children/children';
-import { useCollection, useDataContext } from './useCollection';
-
-// All children, in order, and the one chosen on this device.
-export function useChildren() {
-  const { childId } = useDataContext();
-  const { data, loading } = useCollection(C.children);
-  const children = sortChildren(data);
-  return { children, child: children.find((c) => c.id === childId) || null, loading };
-}
+import { childAsSettings, splitSettings } from './children';
+import { useCollection } from '@/hooks/useCollection';
+import { useChildren } from './useChildren';
 
 // Settings as the screens read them: the family's shared settings (families/<id>/settings/app: daily email, ...)
 // merged with the current child's (name, birth date, photo, feeding defaults). save() sends each key to its place.

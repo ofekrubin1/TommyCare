@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { C, collection } from '@/data';
-import { useSettings } from '@/hooks/useSettings';
+import { useSettings } from '@/core/children/useSettings';
 import { Button } from '@/components/ui/Button';
 import { getAccessToken, googleConfigured } from '@/lib/googleCalendar';
 import { fetchEvents, planSync } from './googleImport';

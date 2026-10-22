@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { RowActions } from '@/components/ui/RowActions';
 import MedSheet from './MedSheet';
 import { VITAMIN_D } from './TodayMeds';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useCanEdit } from '@/core/auth/useRole';
 
 export default function MedsSection() {
   const { data: meds } = useCollection(C.meds);

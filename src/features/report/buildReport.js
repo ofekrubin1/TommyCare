@@ -1,10 +1,10 @@
 import { format, parseISO } from 'date-fns';
-import { summarizeDay } from '@/lib/summary';
+import { summarizeDay } from '@/features/summary/summarizeDay';
 import { ageText, dayKey, dm, shiftDay, todayKey } from '@/lib/time';
 import { num } from '@/lib/utils';
 import { byGender } from '@/lib/gender';
+import { escapeHtml as esc } from '@/lib/html';
 
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const th = 'padding:8px;background:#F6E7EB;color:#8A3D52;font-size:12px;text-align:right;font-weight:bold;';
 const td = 'padding:7px 8px;border-bottom:1px solid #EEE;font-size:12px;color:#333;';
 

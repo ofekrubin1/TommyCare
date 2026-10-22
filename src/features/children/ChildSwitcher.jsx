@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Check, Plus } from 'lucide-react';
 import { setCurrentChild } from '@/data';
-import { useChildren } from '@/hooks/useSettings';
-import { useCanEdit } from '@/hooks/useCanEdit';
+import { useChildren } from '@/core/children/useChildren';
+import { useCanEdit } from '@/core/auth/useRole';
 import { ageText } from '@/lib/time';
 import { cn } from '@/lib/utils';
 import { Sheet } from '@/components/ui/Sheet';
