@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronDown } from 'lucide-react';
+import { Check, ChevronDown, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EVENT_FILTERS } from './eventFilters';
 
 // The main choices; "עוד" opens the rest (only types that exist in the shown records).
 const MAIN = ['all', 'feeding', 'diaper', 'med'];
 
-// Record-type filter as a dropdown: the button shows the chosen type; the list offers the main categories,
-// and "עוד" for the specific ones (breast, pee, sleep, fever...).
-export function FilterMenu({ value, onChange, events, small = false }) {
+// Record-type filter as a dropdown: the main categories, and "עוד" for the specific ones (breast, pee, sleep...).
+// variant "button": a full-width button showing the chosen type (top of the journal).
+// variant "icon": a funnel next to a day's date; highlighted while a type is chosen. `align`: which edge the list
+// opens from ("left" for a funnel on the left side).
+export function FilterMenu({ value, onChange, events, variant = 'button', align = 'right' }) {
   const [open, setOpen] = useState(false);
   const [more, setMore] = useState(!MAIN.includes(value));
   const ref = useRef(null);
@@ -16,6 +18,7 @@ export function FilterMenu({ value, onChange, events, small = false }) {
   const extra = EVENT_FILTERS.filter((f) => !MAIN.includes(f.value) && (f.value === value || events.some(f.match)));
   const options = more ? [...main, ...extra] : main;
   const current = EVENT_FILTERS.find((f) => f.value === value) || EVENT_FILTERS[0];
+  const active = value !== 'all';
 
   useEffect(() => {
     if (!open) return;
@@ -26,23 +29,30 @@ export function FilterMenu({ value, onChange, events, small = false }) {
     return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', esc); };
   }, [open]);
 
+  const trigger = variant === 'icon' ? (
+    <button
+      type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="listbox" aria-expanded={open}
+      aria-label={active ? `סינון: ${current.label}` : 'סינון לפי סוג'}
+      className={cn('flex h-9 w-9 items-center justify-center rounded-xl transition', active ? 'bg-accent/15 text-accent' : 'bg-line/60 text-mute')}
+    >
+      <Filter className="h-[18px] w-[18px]" />
+    </button>
+  ) : (
+    <button
+      type="button" onClick={() => setOpen((o) => !o)} aria-haspopup="listbox" aria-expanded={open}
+      className={cn('flex h-11 w-full items-center gap-2 rounded-xl border bg-bg/60 px-3 font-medium transition', active ? 'border-accent text-accent' : 'border-line text-ink')}
+    >
+      <span aria-hidden="true">{current.icon}</span>
+      <span className="min-w-0 flex-1 truncate text-right">{current.label}</span>
+      <ChevronDown className={cn('h-4 w-4 flex-none text-mute transition', open && 'rotate-180')} />
+    </button>
+  );
+
   return (
-    <div ref={ref} className="relative inline-block">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        className={cn('flex items-center gap-2 rounded-xl border bg-card font-medium transition',
-          value !== 'all' ? 'border-accent text-accent' : 'border-line text-ink',
-          small ? 'px-2.5 py-1.5 text-sm' : 'px-3 py-2')}
-      >
-        <span aria-hidden="true">{current.icon}</span>
-        {current.label}
-        <ChevronDown className={cn('h-4 w-4 text-mute transition', open && 'rotate-180')} />
-      </button>
+    <div ref={ref} className={cn('relative', variant === 'button' ? 'w-full' : 'flex-none')}>
+      {trigger}
       {open && (
-        <ul role="listbox" className="absolute right-0 top-full z-30 mt-1.5 max-h-[60vh] min-w-[13rem] overflow-y-auto rounded-2xl border border-line bg-card py-1 shadow-lg">
+        <ul role="listbox" className={cn('absolute top-full z-30 mt-1.5 max-h-[60vh] min-w-[13rem] overflow-y-auto rounded-2xl border border-line bg-card py-1 shadow-lg', align === 'left' ? 'left-0' : 'right-0')}>
           {options.map((f) => (
             <li key={f.value}>
               <button

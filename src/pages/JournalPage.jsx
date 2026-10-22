@@ -58,6 +58,10 @@ function DayCard({ dayKey: k, open, onToggle, data, events, now, nameOf, globalF
           {/* separate chip so the number doesn't run into the date (14/10 + 9 → "14/109") */}
           {filter !== 'all' && <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">{shown.length} {filterLabel(filter)}</span>}
         </button>
+        {globalFilter === 'all' && allDayEvents.length > 0 && (
+          <FilterMenu variant="icon" align="left" value={localFilter} events={allDayEvents}
+            onChange={(v) => { setLocalFilter(v); if (!open) onToggle(); }} />
+        )}
         {canEdit && allDayEvents.length > 0 && (
           <button onClick={() => setConfirmDelete(true)} aria-label={`מחיקת ${dayLabel(k)}`} className="rounded-lg p-1.5 text-mute active:bg-danger/10 active:text-danger">
             <Trash2 className="h-4 w-4" />
@@ -70,7 +74,6 @@ function DayCard({ dayKey: k, open, onToggle, data, events, now, nameOf, globalF
       <DaySummary summary={summarizeDay(k, data, now)} />
       {open && (
         <div className="mt-3 space-y-2 border-t border-line pt-3">
-          {globalFilter === 'all' && <FilterMenu small value={localFilter} onChange={setLocalFilter} events={allDayEvents} />}
           {shown.length
             ? <EventList events={shown} nameOf={nameOf} />
             : <p className="py-4 text-center text-sm text-mute">{filter === 'all' ? 'אין רישומים ביום הזה' : `אין ${filterLabel(filter)} ביום הזה`}</p>}
@@ -110,13 +113,15 @@ export default function JournalPage() {
     <div className="space-y-3">
       <PageHeader title="יומן" subtitle="כל יום מתחיל ב-06:00" child />
       <Card className="space-y-3 p-3">
-        <div className="flex items-center gap-2">
-          <span className="w-20 flex-none text-sm font-medium text-mute">תאריך</span>
-          <DayPicker value={search} onChange={setSearch} enabledDays={new Set(daysWithData(data))} />
-        </div>
-        <div className="flex items-start gap-2">
-          <span className="w-20 flex-none pt-1.5 text-sm font-medium text-mute">סוג רשומה</span>
-          <div className="min-w-0 flex-1"><FilterMenu value={filter} onChange={setFilter} events={events} /></div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="min-w-0 space-y-1.5">
+            <span className="block text-sm font-medium text-mute">תאריך</span>
+            <DayPicker value={search} onChange={setSearch} enabledDays={new Set(daysWithData(data))} />
+          </div>
+          <div className="min-w-0 space-y-1.5">
+            <span className="block text-sm font-medium text-mute">סוג רשומה</span>
+            <FilterMenu value={filter} onChange={setFilter} events={events} />
+          </div>
         </div>
         {filter !== 'all' && !search && (
           <p className="text-xs text-mute">{matching.length} {filterLabel(filter)} ב-{days.length} ימים</p>
