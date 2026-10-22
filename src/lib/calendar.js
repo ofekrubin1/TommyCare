@@ -17,16 +17,13 @@ export function icsUrl({ id, title, date, time, durationMinutes = 30, location, 
   return `${API_ORIGIN || window.location.origin}/api/ics?${q}`;
 }
 
-// Safari shows its "Add to Calendar" screen for the .ics. The file comes from the server's own address
-// (tommycare.pages.dev), outside the home-screen app's address, so on iPhone the app opens it in a Safari sheet
-// *over* the app: "Add", then "Done" (or swipe down) and you're back in the app. Never navigate the app's own
-// window to it (that replaced the app with no way back). Call directly from a tap.
+// Safari shows its "Add to Calendar" screen for the .ics. From the home-screen app the file must go to Safari itself
+// (x-safari-https://, iOS 17+): the app's own window gets stuck on it, and so does the in-app Safari sheet
+// (tried: it can't show calendar files). Afterwards the user switches back to the app. Call directly from a tap.
 export function openIphoneCalendar(event) {
   const url = icsUrl(event);
   const standalone = window.navigator.standalone || window.matchMedia?.('(display-mode: standalone)').matches;
-  // Same address as the app (dev server): an in-app sheet isn't possible, so hand it to Safari itself (iOS 17+).
-  const sameOrigin = new URL(url).origin === window.location.origin;
-  if (standalone && sameOrigin && /iPhone|iPad|iPod/.test(navigator.userAgent) && url.startsWith('https://')) {
+  if (standalone && /iPhone|iPad|iPod/.test(navigator.userAgent) && url.startsWith('https://')) {
     window.location.href = url.replace(/^https:/, 'x-safari-https:');
   } else {
     window.open(url, '_blank');
