@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "check-gmail": "node scripts/check-gmail.mjs",
-    "deploy": "vite build && firebase deploy --only hosting && wrangler pages deploy dist --project-name tommycare --branch main",
+    "deploy": "vite build && firebase deploy --only hosting && wrangler pages deploy cloudflare/public --project-name tommycare --branch main",
     "deploy:cron": "wrangler deploy --config workers/cron/wrangler.toml",
     "deploy:rules": "firebase deploy --only firestore:rules"
   },

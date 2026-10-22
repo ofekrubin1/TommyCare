@@ -1,7 +1,8 @@
-# Cloudflare Pages: the app (dist/) + its small server functions (functions/api: .ics for the iPhone calendar,
-# test email, test notification). Deploy: npm run deploy. The scheduled jobs are a separate worker (workers/cron).
+# Cloudflare Pages: only the app's small server functions (functions/api: .ics for the iPhone calendar, test email,
+# test notification). The app itself is on Firebase Hosting (tommycare.web.app); everything else here redirects
+# there (cloudflare/public/_redirects). Deploy: npm run deploy. The scheduled jobs are a separate worker (workers/cron).
 name = "tommycare"
-pages_build_output_dir = "dist"
+pages_build_output_dir = "cloudflare/public"
 compatibility_date = "2026-10-01"
 compatibility_flags = ["nodejs_compat"]
 

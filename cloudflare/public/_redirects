@@ -1,0 +1,3 @@
+# This Cloudflare project only runs the app's server functions (/api/*, see functions/). The app itself is at
+# https://tommycare.web.app — anything else opened here goes there.
+/*  https://tommycare.web.app/:splat  301
