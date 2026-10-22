@@ -10,7 +10,11 @@ const API = 'https://www.googleapis.com/calendar/v3';
 export const googleConfigured = () => !!GOOGLE_CLIENT_ID;
 
 let gisLoaded;
-let cached = null; // { token, exp }: reused for ~an hour, so later saves need no popup
+// The access token ({ token, exp }), reused for its hour — also after the app is closed and reopened — so
+// Google's sign-in window (which on iPhone opens over the app) shows up as rarely as possible.
+const TOKEN_KEY = 'tommycare:google-token';
+let cached = (() => { try { return JSON.parse(localStorage.getItem(TOKEN_KEY)); } catch { return null; } })();
+const remember = (value) => { cached = value; try { localStorage.setItem(TOKEN_KEY, JSON.stringify(value)); } catch { /* private mode */ } };
 export function loadGis() {
   gisLoaded ||= new Promise((resolve, reject) => {
     const s = Object.assign(document.createElement('script'), { src: 'https://accounts.google.com/gsi/client', async: true });
@@ -22,6 +26,9 @@ export function loadGis() {
 }
 
 // The token from earlier in this session, if still valid (no popup).
+// On sign-out: the next person on this phone must not write to this person's calendar.
+export function forgetGoogle() { cached = null; try { localStorage.removeItem(TOKEN_KEY); } catch { /* private mode */ } }
+
 export const cachedToken = () => (cached && cached.exp > Date.now() ? cached.token : null);
 
 // Opens Google's consent popup (must run from a tap) and resolves with an access token.
@@ -34,7 +41,7 @@ export async function getAccessToken() {
       scope: SCOPE,
       callback: (r) => {
         if (r.error) return reject(new Error(r.error));
-        cached = { token: r.access_token, exp: Date.now() + (Number(r.expires_in) || 3600) * 1000 - 60_000 };
+        remember({ token: r.access_token, exp: Date.now() + (Number(r.expires_in) || 3600) * 1000 - 60_000 });
         resolve(r.access_token);
       },
       error_callback: (e) => reject(new Error(e?.type || 'popup_closed')),
