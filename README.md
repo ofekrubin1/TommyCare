@@ -30,10 +30,12 @@ npm run build       # production build → dist/ (always Firebase; the local bac
 
 ## Deploy
 
-Hosted on Cloudflare (free plan): the app and its small functions (`functions/api`) on Cloudflare Pages, and the
-every-minute jobs (reminders, feeding alerts, daily email) in a separate worker (`workers/cron`).
+The app is on Firebase Hosting (https://tommycare.web.app); its small server functions (`functions/api`) are on
+Cloudflare Pages (tommycare.pages.dev), and the every-minute jobs (reminders, feeding alerts, daily email) on a
+Cloudflare worker (`workers/cron`). All on free plans.
 
 ```
-npm run deploy       # build + upload the app → https://tommycare.pages.dev
+npm run deploy       # build, upload the app (Firebase Hosting) and the functions (Cloudflare Pages)
 npm run deploy:cron  # upload the scheduled worker
+npm run deploy:rules # publish firestore.rules
 ```
