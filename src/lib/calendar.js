@@ -1,7 +1,11 @@
 import { API_ORIGIN } from '@/config/appConfig';
 
 // Event lengths to choose from (appointments, task reminders), in minutes.
-export const EVENT_DURATIONS = [{ value: 15, label: '15 דק׳' }, { value: 30, label: 'חצי שעה' }, { value: 45, label: '45 דק׳' }, { value: 60, label: 'שעה' }, { value: 90, label: 'שעה וחצי' }, { value: 120, label: 'שעתיים' }];
+// `short`: for a one-row picker.
+export const EVENT_DURATIONS = [
+  { value: 15, label: '15 דק׳', short: '15 ד׳' }, { value: 30, label: 'חצי שעה', short: '30 ד׳' }, { value: 45, label: '45 דק׳', short: '45 ד׳' },
+  { value: 60, label: 'שעה', short: 'שעה' }, { value: 90, label: 'שעה וחצי', short: '1.5 ש׳' }, { value: 120, label: 'שעתיים', short: '2 ש׳' },
+];
 
 // "Add to iPhone calendar" for an app event { id, title, date, time, durationMinutes, location, description, alarms }:
 // a real .ics URL (blob/data links do nothing on iOS). Google Calendar is added via its API (googleCalendar.js).

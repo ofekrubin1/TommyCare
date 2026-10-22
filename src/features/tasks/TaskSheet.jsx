@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CalendarPlus } from 'lucide-react';
+import { CalendarCheck, CalendarPlus } from 'lucide-react';
 import { C, collection } from '@/data';
 import { useSettings } from '@/core/children/useSettings';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
@@ -8,7 +8,7 @@ import { cachedToken, deleteGoogleEvent, getAccessToken, googleConfigured, loadG
 import { RecordSheet } from '@/components/forms/RecordSheet';
 import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Input, Optional, Textarea } from '@/components/ui/Field';
-import { Chip, Switch } from '@/components/ui/Choice';
+import { Segmented, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
 import { taskEvent } from './taskEvent';
 
@@ -16,21 +16,22 @@ const googleError = (err) => Object.assign(err, {
   userMessage: `המשימה נשמרה, אבל ${err.message === 'popup_closed' ? 'ההתחברות ל-Google בוטלה' : 'העדכון ב-Google Calendar נכשל'}. אפשר לנסות שוב.`,
 });
 
-// A task for Tom (e.g. "להזמין תור לטיפת חלב"), with an optional reminder: a push notification at that time,
-// and optionally an event in Google Calendar / the iPhone calendar.
+// A task for Tom (e.g. "להזמין תור לטיפת חלב"), with an optional reminder: a push notification at that time, and,
+// with the two calendar buttons, an event in the iPhone calendar or Google Calendar (length: the chosen duration).
 export default function TaskSheet({ record, onClose }) {
   const { settings } = useSettings();
   const [title, setTitle] = useState(record?.title || '');
   const [note, setNote] = useState(record?.note || '');
   const [remind, setRemind] = useState(!!record?.remind_at);
   const [remindAt, setRemindAt] = useState(toLocalInput(record?.remind_at));
-  const [google, setGoogle] = useState(!!record?.google_event_id);
   const [duration, setDuration] = useState(record?.duration || 15);
+  // The Google event of this task: from before, or added with the button now (saved with the task).
+  const [googleId, setGoogleId] = useState(record?.google_event_id || null);
+  const [google, setGoogle] = useState({ status: 'idle', message: '' });
   const gcal = googleConfigured();
   useEffect(() => { if (gcal) loadGis().catch(() => {}); }, [gcal]);
 
   const prevGoogle = record?.google_event_id || null;
-  const wantGoogle = gcal && remind && google;
   const event = (id) => taskEvent({ id, title: title.trim(), note: note.trim(), remindAt, duration }, settings.baby_name);
 
   const values = () => {
@@ -41,20 +42,30 @@ export default function TaskSheet({ record, onClose }) {
     return { title: title.trim(), note: note.trim(), remind_at: at, duration: at ? duration : null, ...(changed ? { reminded_at: null, remind_pending: !!at } : {}) };
   };
 
-  // Google's sign-in popup must open straight from the tap, before anything else is awaited.
-  const beforeSave = async () => {
-    if (wantGoogle) return getAccessToken().catch((err) => { throw googleError(err); });
-    if (prevGoogle && gcal) return cachedToken() || getAccessToken().catch(() => null);
-    return null;
+  // "Google Calendar" button: adds (or updates) the event right away, like the iPhone button.
+  const addToGoogle = async () => {
+    try {
+      setGoogle({ status: 'busy', message: '' });
+      const saved = await saveGoogleEvent(await getAccessToken(), event(record?.id), googleId);
+      setGoogleId(saved.id);
+      setGoogle({ status: 'ok', message: googleId ? 'עודכן ב-Google Calendar ✓' : 'נוסף ל-Google Calendar ✓' });
+    } catch (err) {
+      console.error(err);
+      setGoogle({ status: 'error', message: err.message === 'popup_closed' ? 'ההתחברות ל-Google בוטלה' : 'ההוספה ל-Google Calendar נכשלה' });
+    }
   };
+
+  // Removing the reminder also removes its Google event (Google's sign-in, if needed, opens straight from the tap).
+  const beforeSave = async () => (googleId && !remind && gcal ? cachedToken() || getAccessToken().catch(() => null) : cachedToken());
 
   const afterSave = async (id, _data, token) => {
     try {
-      if (wantGoogle) {
-        const saved = await saveGoogleEvent(token, event(id), prevGoogle);
-        if (saved.id !== prevGoogle) await collection(C.tasks).update(id, { google_event_id: saved.id });
-      } else if (prevGoogle && token) {
-        await deleteGoogleEvent(token, prevGoogle);
+      if (googleId && remind) {
+        // keep the event in step with what was saved (time / title / duration may have changed since the button)
+        if (token) await saveGoogleEvent(token, event(id), googleId);
+        if (googleId !== prevGoogle) await collection(C.tasks).update(id, { google_event_id: googleId });
+      } else if (googleId && !remind && token) {
+        await deleteGoogleEvent(token, googleId);
         await collection(C.tasks).update(id, { google_event_id: null });
       }
     } catch (err) {
@@ -75,18 +86,17 @@ export default function TaskSheet({ record, onClose }) {
         <div className="space-y-3 rounded-xl bg-line/30 p-3">
           <DateTimeField label="מתי להזכיר" value={remindAt} onChange={setRemindAt} />
           <Field as="div" label={<>משך ביומן<Optional /></>}>
-            <div className="flex flex-wrap gap-2">
-              {EVENT_DURATIONS.map((d) => <Chip key={d.value} selected={duration === d.value} onClick={() => setDuration(d.value)}>{d.label}</Chip>)}
-            </div>
+            <Segmented options={EVENT_DURATIONS.map((d) => ({ value: d.value, label: d.short }))} value={duration} onChange={setDuration} />
           </Field>
-          <p className="text-xs text-mute">בזמן הזה תקפוץ התראה בטלפונים שהפעילו התראות (הגדרות ← התראות לטלפון).</p>
-          {gcal ? <Switch label="להוסיף גם ל-Google Calendar" checked={google} onChange={setGoogle} /> : (
-            <div className="opacity-50"><Switch label="להוסיף גם ל-Google Calendar" checked={false} onChange={() => {}} /></div>
-          )}
-          {!gcal && <p className="-mt-2 text-xs text-mute">יופעל אחרי חיבור ל-Google (Client ID).</p>}
-          <Button variant="outline" className="w-full py-2 text-sm" disabled={!title.trim()} onClick={() => openIphoneCalendar(event(record?.id))}>
-            <CalendarPlus className="h-4 w-4" />הוספה ליומן iPhone
-          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button variant="outline" className="py-2 text-sm" disabled={!title.trim()} onClick={() => openIphoneCalendar(event(record?.id))}>
+              <CalendarPlus className="h-4 w-4" />יומן iPhone
+            </Button>
+            <Button variant="outline" className="py-2 text-sm" disabled={!title.trim() || !gcal || google.status === 'busy'} onClick={addToGoogle}>
+              {googleId ? <CalendarCheck className="h-4 w-4" /> : <CalendarPlus className="h-4 w-4" />}יומן Google
+            </Button>
+          </div>
+          {google.message && <p className={`text-xs ${google.status === 'error' ? 'text-danger' : 'text-note'}`}>{google.message}</p>}
         </div>
       )}
     </RecordSheet>
