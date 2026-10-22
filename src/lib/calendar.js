@@ -5,7 +5,7 @@ export function icsUrl({ id, title, date, time, durationMinutes = 30, location, 
   if (time) q.set('start', new Date(`${date}T${time}:00`).toISOString()); else q.set('date', date);
   if (location) q.set('loc', location);
   if (description) q.set('desc', description);
-  return `${window.location.origin}/.netlify/functions/ics?${q}`;
+  return `${window.location.origin}/api/ics?${q}`;
 }
 
 // Safari shows its "Add to Calendar" screen for the .ics. Never navigate the app's own window to it: in the

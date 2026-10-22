@@ -40,7 +40,7 @@ export function PushCard() {
     const body = await res.json().catch(() => ({}));
     setState(body.ok
       ? { status: 'ok', message: 'נשלחה התראת בדיקה לטלפון שלך ✓' }
-      : { status: 'error', message: body.error === 'no_key' ? 'חסר VAPID_PRIVATE_KEY בהגדרות של Netlify.' : body.error === 'no_devices' ? 'אין מכשירים עם התראות פעילות.' : 'השליחה נכשלה.' });
+      : { status: 'error', message: body.error === 'no_key' ? 'חסר VAPID_PRIVATE_KEY בהגדרות של Cloudflare.' : body.error === 'no_devices' ? 'אין מכשירים עם התראות פעילות.' : 'השליחה נכשלה.' });
   });
 
   return (

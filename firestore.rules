@@ -57,7 +57,7 @@ service cloud.firestore {
         allow create: if canEdit() && col in ['shopping', 'gifts', 'tasks', 'settings'] && honestAuthor();
         allow update, delete: if canEdit() && col in ['shopping', 'gifts', 'tasks', 'settings'];
         // Scheduled jobs: "reminder sent" on a task, "summary sent" date in the settings.
-        allow update: if signedIn() && col == 'tasks' && onlyChanges(['reminded_at']);
+        allow update: if signedIn() && col == 'tasks' && onlyChanges(['reminded_at', 'remind_pending']);
         allow update: if signedIn() && col == 'settings' && id == 'app' && onlyChanges(['last_summary_date']);
       }
 

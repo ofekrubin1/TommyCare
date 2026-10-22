@@ -34,8 +34,10 @@ export default function TaskSheet({ record, onClose }) {
 
   const values = () => {
     const at = remind ? fromLocalInput(remindAt) : null;
-    // A new or moved reminder is sent again; an unchanged one keeps its "sent" mark.
-    return { title: title.trim(), note: note.trim(), remind_at: at, ...(at !== (record?.remind_at || null) ? { reminded_at: null } : {}) };
+    // A new or moved reminder is sent again (remind_pending: what the server's every-minute check looks for);
+    // an unchanged one keeps its "sent" mark.
+    const changed = at !== (record?.remind_at || null);
+    return { title: title.trim(), note: note.trim(), remind_at: at, ...(changed ? { reminded_at: null, remind_pending: !!at } : {}) };
   };
 
   // Google's sign-in popup must open straight from the tap, before anything else is awaited.

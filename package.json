@@ -8,7 +8,9 @@
     "dev:local": "vite --mode localdb --host --port 5173 --strictPort",
     "build": "vite build",
     "preview": "vite preview",
-    "check-gmail": "node scripts/check-gmail.mjs"
+    "check-gmail": "node scripts/check-gmail.mjs",
+    "deploy": "vite build && wrangler pages deploy dist --project-name tommycare --branch main",
+    "deploy:cron": "wrangler deploy --config workers/cron/wrangler.toml"
   },
   "dependencies": {
     "clsx": "2.1.1",
@@ -22,13 +24,14 @@
     "react-dom": "18.3.1",
     "react-router-dom": "6.28.0",
     "tailwind-merge": "2.5.5",
-    "web-push": "3.6.7"
+    "worker-mailer": "1.2.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "4.3.4",
     "autoprefixer": "10.4.20",
     "postcss": "8.4.49",
     "tailwindcss": "3.4.16",
-    "vite": "5.4.11"
+    "vite": "5.4.11",
+    "wrangler": "4.148.0"
   }
 }

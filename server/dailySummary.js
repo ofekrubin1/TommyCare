@@ -1,13 +1,12 @@
-// Builds the 06:00 summary email for the day that just ended: feedings, diapers, sleep only.
-import { summarizeDay } from '../../src/lib/summary.js';
-import { shiftDay, todayKey } from '../../src/lib/time.js';
-import { childPath, loadChildren } from './family.mjs';
+// The 06:00 summary email for the day that just ended: feedings, diapers, sleep — a section per child.
+// Days are Israeli days (06:00 → 06:00) even though the server runs in UTC (see israelTime.js).
+import { summarizeDay } from '../src/lib/summary.js';
+import { dayKey, shiftDay } from '../src/lib/time.js';
+import { childPath, loadChildren } from './family.js';
+import { israelIso, israelWall } from './israelTime.js';
 
-export const TZ = 'Asia/Jerusalem';
-
-// Wall-clock hour in Israel (functions run in UTC).
-export const israelHour = (now = new Date()) =>
-  Number(new Intl.DateTimeFormat('en-GB', { timeZone: TZ, hour: '2-digit', hourCycle: 'h23' }).format(now));
+// The app day that just ended, in Israel.
+export const yesterdayKey = (now = new Date()) => shiftDay(dayKey(israelWall(now).toISOString()), -1);
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const n1 = (x) => (Math.round(x * 10) / 10).toLocaleString('he-IL');
@@ -23,8 +22,9 @@ function block(title, color, main, rows) {
 
 // `children`: [{ name, data: { feedings, diapers, sleeps } }] — one section per child (just the blocks for one).
 // `key`: the day to summarize (defaults to the day that just ended).
-export function buildSummaryEmail({ children, key = shiftDay(todayKey(), -1), appUrl, test = false }) {
-  const days = children.map((c) => ({ name: c.name || 'תום', s: summarizeDay(key, c.data, new Date()) }));
+export function buildSummaryEmail({ children, key = yesterdayKey(), appUrl, test = false }) {
+  const now = israelWall();
+  const days = children.map((c) => ({ name: c.name || 'תום', s: summarizeDay(key, c.data, now) }));
   const several = days.length > 1;
   const title = several ? 'סיכום יומי' : `${esc(days[0]?.name)} · סיכום יומי`;
   const feedTypes = (s) => [s.breast && `הנקה ${s.breast}`, s.formula && `תמ״ל ${s.formula}`, s.pumped && `בקבוק שאיבה ${s.pumped}`].filter(Boolean).join(' · ');
@@ -54,19 +54,17 @@ export function buildSummaryEmail({ children, key = shiftDay(todayKey(), -1), ap
   return { subject: `${test ? '[בדיקה] ' : ''}🐣 ${who} · סיכום ${dmy(key)}`, html, text };
 }
 
-// Every child with the records the summary needs (the last 3 days are plenty for "yesterday").
+// Every child with the records the summary needs (the last 3 days are plenty for "yesterday"), with their
+// times moved to Israel's wall clock for the shared day logic.
 export async function loadChildrenDays(db) {
   const from = new Date(Date.now() - 3 * 864e5).toISOString();
+  const local = (rows, fields) => rows.map((r) => ({ ...r, ...Object.fromEntries(fields.map((f) => [f, israelIso(r[f])])) }));
   const children = await loadChildren(db);
   return Promise.all(children.map(async (c) => {
     const parent = childPath(c.id);
     const [feedings, diapers, sleeps] = await Promise.all([
       db.since(parent, 'feedings', 'time', from), db.since(parent, 'diapers', 'time', from), db.since(parent, 'sleeps', 'start', from),
     ]);
-    return { name: c.name, data: { feedings, diapers, sleeps } };
+    return { name: c.name, data: { feedings: local(feedings, ['time']), diapers: local(diapers, ['time']), sleeps: local(sleeps, ['start', 'end']) } };
   }));
 }
-
-// Recipients: the saved list, or the single address from before multi-recipient support.
-export const recipientsOf = (settings) =>
-  (settings.summary_emails?.length ? settings.summary_emails : settings.summary_email ? [settings.summary_email] : []).filter(Boolean);

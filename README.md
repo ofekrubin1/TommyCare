@@ -17,7 +17,7 @@ Tom's daily log (Hebrew, RTL, mobile-first): feedings, diapers, sleep, notes, sh
 npm install
 npm run dev:local   # port 5173: local test environment, data only in this browser (no Firebase)
 npm run dev         # port 5174: against the real Firebase data (login required)
-npm run check-gmail # verify Gmail credentials locally before putting them in Netlify
+npm run check-gmail # verify Gmail credentials locally before putting them in Cloudflare
 npm run build       # production build → dist/ (always Firebase; the local backend isn't bundled)
 ```
 
@@ -30,5 +30,10 @@ npm run build       # production build → dist/ (always Firebase; the local bac
 
 ## Deploy
 
-Netlify builds from `netlify.toml` (`npm run build`, publish `dist`). Automatic builds are off; deploys are triggered by hand
-(Netlify → Deploys → Trigger deploy) once a change has been tried on 5173 and 5174.
+Hosted on Cloudflare (free plan): the app and its small functions (`functions/api`) on Cloudflare Pages, and the
+every-minute jobs (reminders, feeding alerts, daily email) in a separate worker (`workers/cron`).
+
+```
+npm run deploy       # build + upload the app → https://tommycare.pages.dev
+npm run deploy:cron  # upload the scheduled worker
+```

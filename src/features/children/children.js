@@ -58,7 +58,11 @@ export async function migrateToFamily() {
   }
   for (const name of FAMILY_SHARED) {
     const target = collectionAt(`${family}/${name}`);
-    for (const r of await legacy(name)) target.set(r.id, withoutId(r));
+    for (const r of await legacy(name)) {
+      // tasks: mark reminders still to send, for the server's every-minute check
+      const pending = name === C.tasks && r.remind_at && !r.reminded_at && !r.done ? { remind_pending: true } : {};
+      target.set(r.id, { ...withoutId(r), ...pending });
+    }
   }
   const familySettings = Object.fromEntries(FAMILY_SETTING_KEYS.filter((k) => app[k] !== undefined).map((k) => [k, app[k]]));
   collectionAt(`${family}/${C.settings}`).set('app', familySettings);

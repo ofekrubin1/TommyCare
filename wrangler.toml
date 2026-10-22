@@ -1,0 +1,9 @@
+# Cloudflare Pages: the app (dist/) + its small server functions (functions/api: .ics for the iPhone calendar,
+# test email, test notification). Deploy: npm run deploy. The scheduled jobs are a separate worker (workers/cron).
+name = "tommycare"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+APP_URL = "https://tommycare.pages.dev"

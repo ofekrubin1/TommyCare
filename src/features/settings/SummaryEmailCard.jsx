@@ -11,7 +11,7 @@ const TEST_ERRORS = {
   not_signed_in: 'צריך להתחבר מחדש',
 };
 const ROBOT = {
-  missing: 'אבל המייל היומי לא יישלח: חסרים TC_ROBOT_EMAIL / TC_ROBOT_PASSWORD ב-Netlify.',
+  missing: 'אבל המייל היומי לא יישלח: חסרים TC_ROBOT_EMAIL / TC_ROBOT_PASSWORD ב-Cloudflare.',
   bad_login: 'אבל המייל היומי לא יישלח: משתמש המערכת (TC_ROBOT_EMAIL / TC_ROBOT_PASSWORD) לא מצליח להתחבר.',
   error: 'אבל בדיקת משתמש המערכת נכשלה.',
 };
@@ -83,7 +83,7 @@ export function SummaryEmailCard({ settings, save }) {
           <Send className="h-4 w-4" />{state.status === 'sending' ? 'שולח...' : 'מייל בדיקה'}
         </Button>
       </div>
-      {!canTest && <p className="text-xs text-mute">מייל בדיקה זמין באתר עצמו (אחרי ההעלאה ל-Netlify).</p>}
+      {!canTest && <p className="text-xs text-mute">מייל בדיקה זמין באתר עצמו (אחרי ההעלאה ל-Cloudflare).</p>}
       {state.message && <p className={`text-sm ${state.status === 'ok' ? 'text-note' : 'text-danger'}`}>{state.message}</p>}
     </Card>
   );

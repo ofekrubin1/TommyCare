@@ -69,7 +69,7 @@ export function buildSampleData(now = new Date()) {
     put('diapers', { time: iso(addMinutes(at, 30)), pee: true, poop: false, rash: false, note: '' });
   }
 
-  put('tasks', { title: 'להזמין תור לטיפת חלב', note: '', done: false, remind_at: iso(addDays(now, 1)), reminded_at: null });
+  put('tasks', { title: 'להזמין תור לטיפת חלב', note: '', done: false, remind_at: iso(addDays(now, 1)), reminded_at: null, remind_pending: true });
   put('tasks', { title: 'לקנות מדחום חדש', note: 'דיגיטלי, לאוזן', done: false, remind_at: null });
   put('tasks', { title: 'לשלוח תמונות לסבתא', note: '', done: true, done_at: iso(subDays(now, 1)) });
 

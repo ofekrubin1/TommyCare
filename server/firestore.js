@@ -1,6 +1,6 @@
-// Minimal Firestore REST client for functions. Every call carries a Firebase ID token, so firestore.rules
-// apply exactly as in the app (only signed-in family accounts).
-import { firebaseConfig } from '../../src/config/firebaseConfig.js';
+// Minimal Firestore REST client for the server side (Cloudflare). Every call carries a Firebase ID token, so
+// firestore.rules apply exactly as in the app. Runs anywhere `fetch` exists (Cloudflare Workers, Node 18+).
+import { firebaseConfig } from '../src/config/firebaseConfig.js';
 
 const KEY = firebaseConfig.apiKey;
 const BASE = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
@@ -17,14 +17,25 @@ function decode(v) {
   return undefined;
 }
 const decodeFields = (f) => Object.fromEntries(Object.entries(f).map(([k, v]) => [k, decode(v)]));
+const fromDoc = (d) => ({ ...decodeFields(d.fields || {}), id: d.name.split('/').pop() });
 
 const encode = (v) => (v === null || v === undefined ? { nullValue: null }
   : typeof v === 'boolean' ? { booleanValue: v }
     : typeof v === 'number' ? (Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v })
       : { stringValue: String(v) });
 
+const value = (v) => (typeof v === 'boolean' ? { booleanValue: v } : v === null ? { nullValue: null } : { stringValue: String(v) });
+
 export function firestore(idToken) {
   const headers = { Authorization: `Bearer ${idToken}`, 'Content-Type': 'application/json' };
+
+  // runQuery under `parent` (a document path, or '' for the top level) on collection `name`.
+  async function query(parent, structured) {
+    const res = await fetch(`${BASE}${parent ? `/${parent}` : ''}:runQuery`, { method: 'POST', headers, body: JSON.stringify({ structuredQuery: structured }) });
+    if (!res.ok) throw new Error(`Firestore query ${parent}: ${res.status} ${await res.text()}`);
+    return (await res.json()).filter((r) => r.document).map((r) => fromDoc(r.document));
+  }
+
   return {
     async list(name) {
       const docs = [];
@@ -33,30 +44,32 @@ export function firestore(idToken) {
         const res = await fetch(`${BASE}/${name}?pageSize=300${token ? `&pageToken=${encodeURIComponent(token)}` : ''}`, { headers });
         if (!res.ok) throw new Error(`Firestore list ${name}: ${res.status} ${await res.text()}`);
         const body = await res.json();
-        for (const d of body.documents || []) docs.push({ ...decodeFields(d.fields || {}), id: d.name.split('/').pop() });
+        for (const d of body.documents || []) docs.push(fromDoc(d));
         token = body.nextPageToken || '';
       } while (token);
       return docs;
     },
-    // Records of `parent`/`name` whose `field` >= `from` (newest first, up to `limit`). Paths may be nested,
-    // e.g. parent "families/main/children/child1", name "feedings".
-    async since(parent, name, field, from, { limit } = {}) {
-      const structuredQuery = {
+    // Records of `parent`/`name` whose `field` >= `from`, newest first (optionally only `limit` of them).
+    since(parent, name, field, from, { limit } = {}) {
+      return query(parent, {
         from: [{ collectionId: name }],
         where: { fieldFilter: { field: { fieldPath: field }, op: 'GREATER_THAN_OR_EQUAL', value: { stringValue: from } } },
         orderBy: [{ field: { fieldPath: field }, direction: 'DESCENDING' }],
         ...(limit && { limit }),
-      };
-      const res = await fetch(`${BASE}/${parent}:runQuery`, { method: 'POST', headers, body: JSON.stringify({ structuredQuery }) });
-      if (!res.ok) throw new Error(`Firestore query ${parent}/${name}: ${res.status} ${await res.text()}`);
-      return (await res.json()).filter((r) => r.document).map(({ document: d }) => ({ ...decodeFields(d.fields || {}), id: d.name.split('/').pop() }));
+      });
+    },
+    // Records of `parent`/`name` whose `field` equals `v` (e.g. tasks with a reminder still to send).
+    where(parent, name, field, v) {
+      return query(parent, {
+        from: [{ collectionId: name }],
+        where: { fieldFilter: { field: { fieldPath: field }, op: 'EQUAL', value: value(v) } },
+      });
     },
     async get(name, id) {
       const res = await fetch(`${BASE}/${name}/${id}`, { headers });
       if (res.status === 404) return null;
       if (!res.ok) throw new Error(`Firestore get ${name}/${id}: ${res.status} ${await res.text()}`);
-      const d = await res.json();
-      return { ...decodeFields(d.fields || {}), id };
+      return fromDoc(await res.json());
     },
     async update(name, id, data) {
       const mask = Object.keys(data).map((k) => `updateMask.fieldPaths=${encodeURIComponent(k)}`).join('&');
@@ -72,13 +85,18 @@ export function firestore(idToken) {
   };
 }
 
-// Signs in the "system" account (env TC_ROBOT_EMAIL / TC_ROBOT_PASSWORD) used by the scheduled email.
-export async function robotToken() {
-  const email = process.env.TC_ROBOT_EMAIL, password = process.env.TC_ROBOT_PASSWORD;
-  if (!email || !password) throw new Error('Set TC_ROBOT_EMAIL and TC_ROBOT_PASSWORD in Netlify environment variables.');
+// Signs in the "system" account (secrets TC_ROBOT_EMAIL / TC_ROBOT_PASSWORD) used by the scheduled jobs.
+// The token is valid for an hour; a running worker reuses it.
+let cachedToken = null;
+export async function robotToken(env) {
+  if (cachedToken && cachedToken.exp > Date.now()) return cachedToken.token;
+  const email = env.TC_ROBOT_EMAIL, password = env.TC_ROBOT_PASSWORD;
+  if (!email || !password) throw new Error('Set TC_ROBOT_EMAIL and TC_ROBOT_PASSWORD (Cloudflare secrets).');
   const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${KEY}`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password, returnSecureToken: true }),
   });
   if (!res.ok) throw new Error(`Robot sign-in failed: ${res.status} ${await res.text()}`);
-  return (await res.json()).idToken;
+  const body = await res.json();
+  cachedToken = { token: body.idToken, exp: Date.now() + (Number(body.expiresIn) - 300) * 1000 };
+  return cachedToken.token;
 }

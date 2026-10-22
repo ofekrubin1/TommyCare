@@ -1,0 +1,15 @@
+# The every-minute jobs (reminders, feeding alerts, daily email). Deploy: npm run deploy:cron
+name = "tommycare-cron"
+main = "index.js"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = false # no web address; it only runs on the schedule
+
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+APP_URL = "https://tommycare.pages.dev"
+
+[observability]
+enabled = true

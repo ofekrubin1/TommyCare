@@ -1,5 +1,5 @@
 // Builds an .ics calendar event. Pure (no browser/Node APIs), shared by the app, the dev server and
-// the Netlify "ics" function. Timed events are in UTC, so no VTIMEZONE block is needed.
+// the /api/ics function (Cloudflare). Timed events are in UTC, so no VTIMEZONE block is needed.
 const esc = (s) => String(s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
 const utc = (d) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
 const compact = (date) => date.replace(/-/g, '');
@@ -43,7 +43,7 @@ export function buildIcs({ uid, title, start, date, minutes = 30, location, desc
   ].filter(Boolean).map(fold).join(CRLF) + CRLF;
 }
 
-// Query string ⇄ event, for the /.netlify/functions/ics link.
+// Query string ⇄ event, for the /api/ics link.
 export function icsFromQuery(q) {
   const alarms = (q.get('alarms') || '').split(',').filter((x) => x !== '').map(Number).filter((n) => Number.isFinite(n) && n >= 0);
   return buildIcs({
