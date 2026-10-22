@@ -46,7 +46,7 @@
   input, textarea, select { font-size: 16px; } /* no iOS zoom on focus */
 }
 
-/* BottleLoader: the milk drains in three steps, then refills. */
+/* BottleLoader: the milk drains in three steps, then refills; the bottle bobs as if sipping. */
 .bottle-milk {
   transform-box: fill-box;
   transform-origin: bottom;
@@ -59,8 +59,17 @@
   75%, 93% { transform: scaleY(0); }
   100% { transform: scaleY(1); }
 }
+.baby-bottle {
+  transform-box: view-box;
+  transform-origin: 60px 68px;
+  animation: baby-sip 1.4s ease-in-out infinite;
+}
+@keyframes baby-sip {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-4deg) translateX(-1px); }
+}
 @media (prefers-reduced-motion: reduce) {
-  .bottle-milk { animation: none; transform: scaleY(0.66); }
+  .bottle-milk, .baby-bottle { animation: none; }
 }
 
 /* Bottom tab bar: "liquid glass" like WhatsApp — almost clear, so the page shows through with only a light blur;

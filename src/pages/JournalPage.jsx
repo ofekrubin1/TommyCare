@@ -140,9 +140,12 @@ export default function JournalPage() {
           {!days.length && <p className="py-8 text-center text-sm text-mute">{filter === 'all' ? 'אין רישומים עדיין' : `אין ${filterLabel(filter)} עדיין`}</p>}
           {days.length > limit
             ? <Button variant="outline" className="w-full" onClick={() => setLimit((l) => l + 14)}>ימים קודמים</Button>
-            : !noOlder && (
+            : noOlder ? (
+              days.length > 0 && <p className="py-3 text-center text-sm text-mute">אין רשומות ישנות יותר מ-{dm(days.at(-1))}</p>
+            ) : (
               <Button variant="outline" className="w-full" onClick={loadOlder} disabled={data.loading}>
-                {data.loading ? 'טוען...' : `תצוגה מורחבת · ימים לפני ${dm(dayKey(data.since))}`}
+                {/* the oldest day on screen, not the start of the loaded window */}
+                {data.loading ? 'טוען...' : `תצוגה מורחבת · ימים לפני ${dm(days.at(-1) || dayKey(data.since))}`}
               </Button>
             )}
         </>
