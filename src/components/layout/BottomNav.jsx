@@ -16,13 +16,13 @@ const TABS = [
 export function BottomNav() {
   return (
     <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
-      <div className="glass-bar pointer-events-auto mx-auto grid max-w-lg grid-cols-6 gap-0.5 rounded-[2rem] p-1.5">
+      <div className="glass-bar pointer-events-auto mx-auto grid max-w-lg grid-cols-6 gap-0.5 rounded-full p-1.5">
         {TABS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
             end={end}
-            className={({ isActive }) => cn('flex flex-col items-center gap-0.5 rounded-[1.4rem] py-1.5 text-[11px] transition', isActive ? 'bg-ink/[0.08] font-semibold text-ink dark:bg-white/15' : 'text-ink/70')}
+            className={({ isActive }) => cn('flex flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] transition', isActive ? 'glass-tab-active font-semibold text-ink' : 'text-ink/75')}
           >
             {({ isActive }) => (
               <>

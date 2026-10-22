@@ -3,12 +3,18 @@ import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EVENT_FILTERS } from './eventFilters';
 
-// Record-type filter as a dropdown: the button shows the chosen type; the list offers only types that exist in
-// `events` (plus "all" and the current one).
+// The main choices; "עוד" opens the rest (only types that exist in the shown records).
+const MAIN = ['all', 'feeding', 'diaper', 'med'];
+
+// Record-type filter as a dropdown: the button shows the chosen type; the list offers the main categories,
+// and "עוד" for the specific ones (breast, pee, sleep, fever...).
 export function FilterMenu({ value, onChange, events, small = false }) {
   const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(!MAIN.includes(value));
   const ref = useRef(null);
-  const options = EVENT_FILTERS.filter((f) => f.value === 'all' || f.value === value || events.some(f.match));
+  const main = EVENT_FILTERS.filter((f) => MAIN.includes(f.value));
+  const extra = EVENT_FILTERS.filter((f) => !MAIN.includes(f.value) && (f.value === value || events.some(f.match)));
+  const options = more ? [...main, ...extra] : main;
   const current = EVENT_FILTERS.find((f) => f.value === value) || EVENT_FILTERS[0];
 
   useEffect(() => {
@@ -52,6 +58,15 @@ export function FilterMenu({ value, onChange, events, small = false }) {
               </button>
             </li>
           ))}
+          {!more && extra.length > 0 && (
+            <li>
+              <button type="button" onClick={() => setMore(true)} className="flex w-full items-center gap-3 border-t border-line px-4 py-2.5 text-right text-mute active:bg-line/60">
+                <span className="text-lg" aria-hidden="true">⋯</span>
+                <span className="flex-1">עוד</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </li>
+          )}
         </ul>
       )}
     </div>
