@@ -4,7 +4,7 @@ import { C } from '@/data';
 import { RecordSheet } from '@/components/forms/RecordSheet';
 import { Field, Input, Optional, Textarea } from '@/components/ui/Field';
 import { TimeButton } from '@/components/ui/TimeWheels';
-import { Chip, Switch } from '@/components/ui/Choice';
+import { Chip, Segmented, Switch } from '@/components/ui/Choice';
 import { DEFAULT_DURATION, DOCTOR_TYPES, DURATIONS } from './appointmentUtils';
 
 // Before: type, date, time (5-minute steps), length (for the calendar), place, questions. After ("done"): optional summary of what happened.
@@ -41,8 +41,9 @@ export default function AppointmentSheet({ record, mode, onClose }) {
       values={values} canSave={!!date && !!doctor.trim() && doctor !== 'אחר'}
     >
       <Field as="div" label="סוג רופא">
-        <div className="flex flex-wrap gap-2">
-          {DOCTOR_TYPES.map((t) => <Chip key={t} selected={doctor === t || (t === 'אחר' && customDoctor)} onClick={() => setDoctor(t)}>{t}</Chip>)}
+        {/* one row, scrolls sideways */}
+        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
+          {DOCTOR_TYPES.map((t) => <Chip key={t} className="flex-none whitespace-nowrap" selected={doctor === t || (t === 'אחר' && customDoctor)} onClick={() => setDoctor(t)}>{t}</Chip>)}
         </div>
         {customDoctor && (
           <Input className="mt-2" placeholder="איזה רופא?" value={doctor === 'אחר' ? '' : doctor} onChange={(e) => setDoctor(e.target.value || 'אחר')} />
@@ -56,13 +57,11 @@ export default function AppointmentSheet({ record, mode, onClose }) {
       </Field>
       {time && (
         <Field as="div" label="משך התור">
-          <div className="flex flex-wrap gap-2">
-            {DURATIONS.map((d) => <Chip key={d.value} selected={duration === d.value} onClick={() => setDuration(d.value)}>{d.label}</Chip>)}
-          </div>
+          <Segmented options={DURATIONS.map((d) => ({ value: d.value, label: d.short }))} value={duration} onChange={setDuration} />
         </Field>
       )}
       <Field label={<>מקום<Optional /></>}><Input value={location} onChange={(e) => setLocation(e.target.value)} /></Field>
-      <Field label="הערה / שאלות לשאול"><Textarea rows={3} placeholder="מה חשוב לשאול בתור?" value={note} onChange={(e) => setNote(e.target.value)} /></Field>
+      <Field label="הערה / שאלות לשאול"><Textarea rows={2} placeholder="מה חשוב לשאול בתור?" value={note} onChange={(e) => setNote(e.target.value)} /></Field>
       {record && (
         <>
           <Switch label="התור בוצע" checked={done} onChange={setDone} />
