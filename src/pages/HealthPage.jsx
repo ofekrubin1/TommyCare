@@ -21,7 +21,7 @@ export default function HealthPage() {
   const tab = TABS.find((t) => t.value === params.get('tab')) || TABS[0];
   return (
     <div className="space-y-4">
-      <PageHeader title="בריאות" />
+      <PageHeader title="בריאות" child />
       <TabChips tabs={TABS} value={tab.value} onChange={(v) => setParams({ tab: v }, { replace: true })} />
       <tab.Section />
       <ReportCard />

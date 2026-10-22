@@ -20,7 +20,7 @@ export default function PumpingPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title="שאיבה ומלאי חלב" action={<Button className="py-2 text-sm" onClick={() => openSheet('pumping')}><Plus className="w-4 h-4" />שאיבה</Button>} />
+      <PageHeader title="שאיבה ומלאי חלב" child action={<Button className="py-2 text-sm" onClick={() => openSheet('pumping')}><Plus className="w-4 h-4" />שאיבה</Button>} />
       <Card>
         <SectionTitle>במלאי</SectionTitle>
         <div className="grid grid-cols-2 gap-2">

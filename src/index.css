@@ -62,3 +62,18 @@
 @media (prefers-reduced-motion: reduce) {
   .bottle-milk { animation: none; transform: scaleY(0.66); }
 }
+
+/* Bottom tab bar: see-through "glass" like WhatsApp — the page shows through, heavily blurred, with a thin
+   light edge and a soft shadow. */
+.glass-bar {
+  background: rgb(255 255 255 / 0.38);
+  -webkit-backdrop-filter: blur(22px) saturate(1.8);
+  backdrop-filter: blur(22px) saturate(1.8);
+  border: 1px solid rgb(255 255 255 / 0.55);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.10), inset 0 1px 0 rgb(255 255 255 / 0.6);
+}
+.dark .glass-bar {
+  background: rgb(30 26 34 / 0.45);
+  border-color: rgb(255 255 255 / 0.12);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.08);
+}

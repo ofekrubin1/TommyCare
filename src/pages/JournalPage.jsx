@@ -108,7 +108,7 @@ export default function JournalPage() {
 
   return (
     <div className="space-y-3">
-      <PageHeader title="יומן" subtitle="כל יום מתחיל ב-06:00" />
+      <PageHeader title="יומן" subtitle="כל יום מתחיל ב-06:00" child />
       <Card className="space-y-3 p-3">
         <div className="flex items-center gap-2">
           <span className="w-20 flex-none text-sm font-medium text-mute">תאריך</span>
