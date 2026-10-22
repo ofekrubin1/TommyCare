@@ -2,6 +2,7 @@ import { format, parseISO } from 'date-fns';
 import { summarizeDay } from '@/lib/summary';
 import { ageText, dayKey, dm, shiftDay, todayKey } from '@/lib/time';
 import { num } from '@/lib/utils';
+import { byGender } from '@/lib/gender';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const th = 'padding:8px;background:#F6E7EB;color:#8A3D52;font-size:12px;text-align:right;font-weight:bold;';
@@ -44,7 +45,7 @@ export function buildReportHtml({ settings, data, growth, appointments }) {
   return `<div style="font-family:Arial,Helvetica,sans-serif;direction:rtl;width:794px;background:#fff;padding:32px 36px;box-sizing:border-box;color:#333;">
     <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #D66A83;padding-bottom:10px;">
       <div><div style="font-size:24px;font-weight:bold;color:#3A3335;">${esc(settings.baby_name)}</div>
-      <div style="font-size:13px;color:#777;">${[settings.birth_date && `נולדה ${format(parseISO(settings.birth_date), 'dd/MM/yyyy')}`, ageText(settings.birth_date)].filter(Boolean).join(' · ')}</div></div>
+      <div style="font-size:13px;color:#777;">${[settings.birth_date && `${byGender(settings.baby_gender, 'נולדה', 'נולד')} ${format(parseISO(settings.birth_date), 'dd/MM/yyyy')}`, ageText(settings.birth_date, new Date(), settings.baby_gender)].filter(Boolean).join(' · ')}</div></div>
       <div style="font-size:12px;color:#777;text-align:left;">דוח לרופא · 7 ימים אחרונים<br/>${format(new Date(), 'dd/MM/yyyy')}</div>
     </div>
     ${section('סיכום יומי', table(['יום', 'האכלות', 'סוג', 'מ״ל בבקבוק', 'פיפי', 'קקי', 'שעות שינה'], dailyRows))}

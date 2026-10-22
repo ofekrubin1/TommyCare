@@ -38,7 +38,7 @@ export function ChildrenCard() {
             <ChildAvatar child={c} className="h-10 w-10 text-xl" />
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">{c.name}</p>
-              <p className="text-xs text-mute">{c.birth_date ? ageText(c.birth_date) : 'בלי תאריך לידה'}</p>
+              <p className="text-xs text-mute">{c.birth_date ? ageText(c.birth_date, new Date(), c.gender) : 'בלי תאריך לידה'}</p>
             </div>
             <button type="button" onClick={() => setEditing(c)} aria-label={`עריכת ${c.name}`} className="rounded-lg p-2 text-mute active:bg-line/60"><Pencil className="h-4 w-4" /></button>
             {isOwner && children.length > 1 && (

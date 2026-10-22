@@ -13,6 +13,7 @@ import { buildSummaryEmail, loadChildrenDays } from './dailySummary.js';
 import { hmText, israelHour, israelWall, whenText } from './israelTime.js';
 
 const HOUR = 3600_000;
+const passedText = (h) => (h === 1 ? 'עברה שעה' : h === 2 ? 'עברו שעתיים' : `עברו ${h} שעות`);
 const STALE_MS = 24 * HOUR; // task reminders more than a day late are skipped, not sent
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
@@ -61,12 +62,13 @@ export async function feedingAlerts(ctx) {
     // The latest feeding of the last day (a child with none, e.g. a brand-new one, gets no alerts).
     const [last] = await db.since(childPath(child.id), 'feedings', 'time', new Date(now - 24 * HOUR).toISOString(), { limit: 1 });
     if (!last || now - Date.parse(last.time) < hours * HOUR || child.feeding_alert_for === last.id) continue;
-    const devices = await ctx.devices();
+    // Phones that turned this alert off (Settings → התראות לטלפון) don't get it.
+    const devices = (await ctx.devices()).filter((d) => d.feeding_alerts !== false);
     if (!devices.length) continue;
     const passed = Math.floor((now - Date.parse(last.time)) / HOUR);
     await ctx.push({
-      title: `🍼 ${child.name}: עברו ${passed} שעות מההאכלה`,
-      body: `האכלה אחרונה ב-${hmText(last.time)} (${FEEDING_TYPES[last.type]?.label || 'האכלה'})`,
+      title: 'TommyCare',
+      body: `${passedText(passed)} מזמן האכלה של ${child.name}\nהאכלה אחרונה ב-${hmText(last.time)} (${FEEDING_TYPES[last.type]?.label || 'האכלה'})`,
       url: '/', tag: `feeding-${child.id}`,
     }, devices);
     await db.update(`${FAMILY}/children`, child.id, { feeding_alert_for: last.id });

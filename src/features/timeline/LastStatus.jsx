@@ -1,3 +1,4 @@
+import { byGender } from '@/lib/gender';
 import { differenceInMinutes, parseISO } from 'date-fns';
 import { Droplets, Milk, Moon, Sun, TriangleAlert } from 'lucide-react';
 import { C, collection } from '@/data';
@@ -21,7 +22,7 @@ function Tile({ icon: Icon, tone, title, value, sub, alert, children }) {
 }
 
 // "When was the last...?" — the most common question at 3am.
-export function LastStatus({ data, now, alertHours }) {
+export function LastStatus({ data, now, alertHours, gender }) {
   const canEdit = useCanEdit();
   const lastFeed = [...data.feedings].sort(byTimeDesc())[0];
   const lastDiaper = [...data.diapers].sort(byTimeDesc())[0];
@@ -39,14 +40,14 @@ export function LastStatus({ data, now, alertHours }) {
         value={lastDiaper ? sinceText(lastDiaper.time, now) : '—'}
         sub={lastDiaper ? `${hm(lastDiaper.time)} · ${diaperTitle(lastDiaper)}` : 'עוד לא נרשם'} />
       {sleepingNow ? (
-        <Tile icon={Moon} tone="text-sleep" title="ישנה" value={durationText(differenceInMinutes(now, parseISO(sleepingNow.start)))} sub={`מ-${hm(sleepingNow.start)}`}>
+        <Tile icon={Moon} tone="text-sleep" title={byGender(gender, 'ישנה', 'ישן')} value={durationText(differenceInMinutes(now, parseISO(sleepingNow.start)))} sub={`מ-${hm(sleepingNow.start)}`}>
           {canEdit && <button onClick={() => collection(C.sleeps).update(sleepingNow.id, { end: new Date().toISOString() })}
-            className="mt-1.5 w-full rounded-lg bg-sleep/15 py-1 text-xs font-semibold text-sleep">התעוררה</button>}
+            className="mt-1.5 w-full rounded-lg bg-sleep/15 py-1 text-xs font-semibold text-sleep">{byGender(gender, 'התעוררה', 'התעורר')}</button>}
         </Tile>
       ) : (
-        <Tile icon={Sun} tone="text-sleep" title="ערה"
+        <Tile icon={Sun} tone="text-sleep" title={byGender(gender, 'ערה', 'ער')}
           value={lastSleep ? sinceText(lastSleep.end, now).replace('לפני ', '') : '—'}
-          sub={lastSleep ? `התעוררה ב-${hm(lastSleep.end)}` : 'אין שינה רשומה'} />
+          sub={lastSleep ? `${byGender(gender, 'התעוררה', 'התעורר')} ב-${hm(lastSleep.end)}` : 'אין שינה רשומה'} />
       )}
     </div>
   );

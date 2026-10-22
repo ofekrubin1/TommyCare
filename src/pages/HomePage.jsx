@@ -55,7 +55,7 @@ export default function HomePage() {
   return (
     <div className="space-y-4">
       <BabyHeader settings={settings} save={save} now={now} />
-      <LastStatus data={data} now={now} alertHours={Number(settings.feeding_alert_hours) || 3} />
+      <LastStatus data={data} now={now} alertHours={Number(settings.feeding_alert_hours) || 3} gender={settings.baby_gender} />
       <QuickActions />
       <Reminders appointments={appointments} vaccinations={vaccinations} birthDate={settings.birth_date} now={now} />
 

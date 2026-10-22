@@ -29,7 +29,7 @@ export function ChildSwitcher({ onClose }) {
             <ChildAvatar child={c} />
             <span className="min-w-0 flex-1">
               <span className="block font-semibold">{c.name}</span>
-              {c.birth_date && <span className="block text-sm text-mute">{ageText(c.birth_date)}</span>}
+              {c.birth_date && <span className="block text-sm text-mute">{ageText(c.birth_date, new Date(), c.gender)}</span>}
             </span>
             {c.id === current?.id && <Check className="h-5 w-5 text-accent" />}
           </button>

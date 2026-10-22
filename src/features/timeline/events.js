@@ -31,7 +31,7 @@ export function toEvents(data, now = new Date()) {
   }
   for (const s of data.sleeps || []) {
     const minutes = differenceInMinutes(s.end ? parseISO(s.end) : now, parseISO(s.start));
-    ev.push({ kind: 'sleep', record: s, time: s.start, title: s.end ? `שינה עד ${hm(s.end)}` : 'ישנה עכשיו',
+    ev.push({ kind: 'sleep', record: s, time: s.start, title: s.end ? `שינה עד ${hm(s.end)}` : 'בשינה עכשיו',
       detail: join(durationText(Math.max(0, minutes)), s.note), live: !s.end });
   }
   for (const n of data.notes || []) ev.push({ kind: 'note', record: n, time: n.time, title: n.text });

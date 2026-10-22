@@ -99,7 +99,7 @@ function toFamilyLayout(flat, now) {
   const itai = format(subDays(now, 3), 'yyyy-MM-dd');
   out[`${F}/children`] = {
     child1: { name: app.baby_name, birth_date: app.birth_date, photo: '', default_feeding_type: 'breast', feeding_alert_hours: 3, order: 1 },
-    child2: { name: 'איתי', birth_date: itai, photo: '', default_feeding_type: 'formula', feeding_alert_hours: 3, order: 2 },
+    child2: { name: 'איתי', birth_date: itai, photo: '', default_feeding_type: 'formula', feeding_alert_hours: 3, order: 2, gender: 'boy' },
   };
   const by = { created_at: iso(now), updated_at: iso(now), created_by: localUid('ofek') };
   out[`${F}/children/child2/feedings`] = {

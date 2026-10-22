@@ -42,7 +42,7 @@ export function BabyHeader({ settings, save, now }) {
 
   const pick = () => { setViewing(false); fileRef.current?.click(); };
   const onFile = (e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) setFile(f); };
-  const age = ageText(settings.birth_date, now);
+  const age = ageText(settings.birth_date, now, settings.baby_gender);
 
   return (
     <header className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-accent/15 via-accent/5 to-transparent px-4 pb-3 pt-4 text-center">

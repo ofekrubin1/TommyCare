@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { BellRing } from 'lucide-react';
-import { auth } from '@/data';
+import { auth, C } from '@/data';
 import { API_ORIGIN } from '@/config/appConfig';
 import { useAuth } from '@/features/auth/AuthProvider';
-import { currentSubscription, disablePush, enablePush, pushSupport } from '@/lib/push';
+import { useCollection } from '@/hooks/useCollection';
+import { currentSubscription, disablePush, enablePush, pushSupport, setDeviceOptions, thisDeviceId } from '@/lib/push';
+import { Switch } from '@/components/ui/Choice';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
@@ -20,7 +22,15 @@ export function PushCard() {
   const [on, setOn] = useState(false);
   const [state, setState] = useState({ status: 'idle', message: '' });
 
-  useEffect(() => { currentSubscription().then((s) => setOn(!!s)).catch(() => {}); }, []);
+  const [deviceId, setDeviceId] = useState(null);
+  const { data: devices } = useCollection(C.pushSubs);
+  const device = devices.find((d) => d.id === deviceId);
+  const feedingAlerts = device?.feeding_alerts !== false; // on unless turned off
+
+  useEffect(() => {
+    currentSubscription().then((s) => setOn(!!s)).catch(() => {});
+    thisDeviceId().then(setDeviceId).catch(() => {});
+  }, [on]);
 
   const run = async (fn) => {
     setState({ status: 'busy', message: '' });
@@ -49,10 +59,13 @@ export function PushCard() {
       <SectionTitle>התראות לטלפון</SectionTitle>
       <p className="text-sm text-mute">תזכורות של משימות, והתראה כשעבר זמן רב מההאכלה האחרונה.</p>
       {support !== 'ok' ? <p className="rounded-xl bg-line/40 p-3 text-sm">{HELP[support]}</p> : on ? (
+        <>
+          <Switch label="התראה כשעבר זמן מההאכלה" checked={feedingAlerts} onChange={(v) => deviceId && setDeviceOptions(deviceId, { feeding_alerts: v })} />
         <div className="flex gap-2">
           <Button variant="outline" className="flex-1" onClick={test} disabled={state.status === 'busy'}><BellRing className="h-4 w-4" />התראת בדיקה</Button>
           <Button variant="outline" className="flex-1" onClick={disable} disabled={state.status === 'busy'}>כיבוי בטלפון הזה</Button>
         </div>
+        </>
       ) : (
         <Button className="w-full" onClick={enable} disabled={state.status === 'busy'}><BellRing className="h-4 w-4" />הפעלת התראות בטלפון הזה</Button>
       )}

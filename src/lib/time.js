@@ -42,13 +42,15 @@ export function durationText(minutes) {
   return m ? `${h} ש׳ ${m} דק׳` : `${h} ש׳`;
 }
 
-export function ageText(birthDate, now = new Date()) {
+// "בת 8 שבועות ו-4 ימים" / "בן ..." (gender: 'girl' | 'boy'; not set → just "8 שבועות ו-4 ימים").
+export function ageText(birthDate, now = new Date(), gender = '') {
   if (!birthDate) return '';
   const days = differenceInCalendarDays(now, parseISO(birthDate));
   if (days < 0) return '';
-  if (days < 14) return `בת ${days} ימים`;
-  if (days < 90) return `בת ${Math.floor(days / 7)} שבועות${days % 7 ? ` ו-${days % 7} ימים` : ''}`;
+  const p = gender === 'girl' ? 'בת ' : gender === 'boy' ? 'בן ' : '';
+  if (days < 14) return `${p}${days} ימים`;
+  if (days < 90) return `${p}${Math.floor(days / 7)} שבועות${days % 7 ? ` ו-${days % 7} ימים` : ''}`;
   const months = Math.floor(days / 30.44);
-  if (months < 24) return `בת ${months} חודשים`;
-  return `בת ${Math.floor(months / 12)} שנים`;
+  if (months < 24) return `${p}${months} חודשים`;
+  return `${p}${Math.floor(months / 12)} שנים`;
 }

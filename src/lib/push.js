@@ -52,6 +52,15 @@ export async function enablePush(user) {
   return permission;
 }
 
+// This device's saved subscription id (null when notifications are off here).
+export async function thisDeviceId() {
+  const sub = await currentSubscription();
+  return sub ? docId(sub.endpoint) : null;
+}
+
+// Per-device choices, e.g. { feeding_alerts: false } = no "X hours since feeding" alerts on this phone.
+export const setDeviceOptions = (id, patch) => collection(C.pushSubs).set(id, patch);
+
 export async function disablePush() {
   const sub = await currentSubscription();
   if (!sub) return;

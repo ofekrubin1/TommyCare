@@ -8,6 +8,7 @@ export const CHILD_FIELDS = {
   baby_photo: 'photo',
   default_feeding_type: 'default_feeding_type',
   feeding_alert_hours: 'feeding_alert_hours',
+  baby_gender: 'gender',
 };
 
 export const childAsSettings = (child) => Object.fromEntries(

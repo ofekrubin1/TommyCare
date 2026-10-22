@@ -17,7 +17,7 @@ export default function NoteSheet({ record, onClose }) {
       canSave={!!text.trim()}
     >
       <Field label="מה קרה">
-        <Textarea rows={4} placeholder="לדוגמה: חייכה בפעם הראשונה" value={text} onChange={(e) => setText(e.target.value)} />
+        <Textarea rows={4} placeholder="לדוגמה: חיוך ראשון!" value={text} onChange={(e) => setText(e.target.value)} />
       </Field>
       <DateTimeField label="שעה" value={time} onChange={setTime} />
     </RecordSheet>

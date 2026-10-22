@@ -8,6 +8,7 @@ import { Segmented, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { FEEDING_OPTIONS } from '@/features/feeding/feedingTypes';
+import { GENDERS } from '@/lib/gender';
 import { useAuth, useProfiles } from '@/features/auth/AuthProvider';
 import { displayUser } from '@/features/auth/username';
 import { useCanEdit } from '@/hooks/useCanEdit';
@@ -35,8 +36,8 @@ export default function SettingsPage() {
 
   const submit = async () => {
     // The current child's details (the family's settings have their own cards).
-    const { baby_name, birth_date, default_feeding_type } = form;
-    await save({ baby_name, birth_date, default_feeding_type, feeding_alert_hours: Number(form.feeding_alert_hours) || 3 });
+    const { baby_name, birth_date, default_feeding_type, baby_gender = '' } = form;
+    await save({ baby_name, birth_date, default_feeding_type, baby_gender, feeding_alert_hours: Number(form.feeding_alert_hours) || 3 });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -79,6 +80,9 @@ export default function SettingsPage() {
           <Field label="שם"><Input className="h-[46px]" value={form.baby_name} onChange={(e) => setForm({ ...form, baby_name: e.target.value })} /></Field>
           <Field label="תאריך לידה"><Input type="date" className="h-[46px] text-center" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} /></Field>
         </div>
+        <Field as="div" label="בן או בת">
+          <Segmented options={GENDERS} value={form.baby_gender || ''} onChange={(v) => setForm({ ...form, baby_gender: v })} />
+        </Field>
         <div className="grid grid-cols-2 gap-2">
           <Field label="סוג האכלה ברירת מחדל">
             <Select className="h-[46px]" value={form.default_feeding_type} onChange={(e) => setForm({ ...form, default_feeding_type: e.target.value })}>

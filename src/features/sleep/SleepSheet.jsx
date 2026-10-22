@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { C } from '@/data';
+import { useSettings } from '@/hooks/useSettings';
+import { byGender } from '@/lib/gender';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
 import { RecordSheet } from '@/components/forms/RecordSheet';
 import { DateTimeField } from '@/components/ui/DateTime';
@@ -8,6 +10,7 @@ import { Switch } from '@/components/ui/Choice';
 
 // Sleep with start + end. "Still sleeping" leaves end empty; the home screen shows a "woke up" button.
 export default function SleepSheet({ record, onClose }) {
+  const gender = useSettings().settings.baby_gender;
   const [start, setStart] = useState(toLocalInput(record?.start));
   const [ongoing, setOngoing] = useState(record ? !record.end : true);
   const [end, setEnd] = useState(toLocalInput(record?.end));
@@ -21,10 +24,10 @@ export default function SleepSheet({ record, onClose }) {
       canSave={!invalid}
       duplicate={{ field: 'start', label: 'שינה' }}
     >
-      <DateTimeField label="נרדמה" value={start} onChange={setStart} />
-      <Switch label="עדיין ישנה" checked={ongoing} onChange={setOngoing} />
+      <DateTimeField label={byGender(gender, 'נרדמה', 'נרדם')} value={start} onChange={setStart} />
+      <Switch label={`עדיין ${byGender(gender, 'ישנה', 'ישן')}`} checked={ongoing} onChange={setOngoing} />
       {!ongoing && (
-        <DateTimeField label="התעוררה" value={end} min={start} onChange={setEnd} />
+        <DateTimeField label={byGender(gender, 'התעוררה', 'התעורר')} value={end} min={start} onChange={setEnd} />
       )}
       <Field label="הערה">
         <Textarea placeholder="לא חובה" value={note} onChange={(e) => setNote(e.target.value)} />
