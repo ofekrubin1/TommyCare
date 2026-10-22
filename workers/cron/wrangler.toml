@@ -9,7 +9,7 @@ workers_dev = false # no web address; it only runs on the schedule
 crons = ["* * * * *"]
 
 [vars]
-APP_URL = "https://tommycare.pages.dev"
+APP_URL = "https://tommycare.web.app"
 
 [observability]
 enabled = true

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BellRing } from 'lucide-react';
 import { auth } from '@/data';
+import { API_ORIGIN } from '@/config/appConfig';
 import { useAuth } from '@/features/auth/AuthProvider';
 import { currentSubscription, disablePush, enablePush, pushSupport } from '@/lib/push';
 import { Card, SectionTitle } from '@/components/ui/Card';
@@ -36,7 +37,7 @@ export function PushCard() {
   });
   const disable = () => run(async () => { await disablePush(); setOn(false); setState({ status: 'ok', message: 'ההתראות כובו בטלפון הזה' }); });
   const test = () => run(async () => {
-    const res = await fetch('/api/send-test-push', { method: 'POST', headers: { Authorization: `Bearer ${await auth.getToken()}` } });
+    const res = await fetch(`${API_ORIGIN}/api/send-test-push`, { method: 'POST', headers: { Authorization: `Bearer ${await auth.getToken()}` } });
     const body = await res.json().catch(() => ({}));
     setState(body.ok
       ? { status: 'ok', message: 'נשלחה התראת בדיקה לטלפון שלך ✓' }

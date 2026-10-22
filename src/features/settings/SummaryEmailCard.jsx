@@ -1,3 +1,4 @@
+import { API_ORIGIN } from '@/config/appConfig';
 import { useEffect, useState } from 'react';
 import { Plus, Send, X } from 'lucide-react';
 import { auth } from '@/data';
@@ -44,7 +45,7 @@ export function SummaryEmailCard({ settings, save }) {
     setState({ status: 'sending', message: '' });
     try {
       if (dirty) await persist();
-      const res = await fetch('/api/send-test-summary', { method: 'POST', headers: { Authorization: `Bearer ${await auth.getToken()}` } });
+      const res = await fetch(`${API_ORIGIN}/api/send-test-summary`, { method: 'POST', headers: { Authorization: `Bearer ${await auth.getToken()}` } });
       const body = await res.json().catch(() => ({}));
       setState(res.ok && body.ok
         ? body.robot === 'ok'

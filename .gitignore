@@ -6,3 +6,7 @@ dist
 # Cloudflare: local state and local secrets (never commit)
 .wrangler
 .dev.vars
+
+# Firebase CLI local state
+.firebase
+firebase-debug.log

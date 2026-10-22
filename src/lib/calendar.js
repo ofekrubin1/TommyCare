@@ -1,3 +1,5 @@
+import { API_ORIGIN } from '@/config/appConfig';
+
 // "Add to iPhone calendar" for an app event { id, title, date, time, durationMinutes, location, description, alarms }:
 // a real .ics URL (blob/data links do nothing on iOS). Google Calendar is added via its API (googleCalendar.js).
 export function icsUrl({ id, title, date, time, durationMinutes = 30, location, description, alarms = [] }) {
@@ -5,7 +7,7 @@ export function icsUrl({ id, title, date, time, durationMinutes = 30, location, 
   if (time) q.set('start', new Date(`${date}T${time}:00`).toISOString()); else q.set('date', date);
   if (location) q.set('loc', location);
   if (description) q.set('desc', description);
-  return `${window.location.origin}/api/ics?${q}`;
+  return `${API_ORIGIN || window.location.origin}/api/ics?${q}`;
 }
 
 // Safari shows its "Add to Calendar" screen for the .ics. Never navigate the app's own window to it: in the

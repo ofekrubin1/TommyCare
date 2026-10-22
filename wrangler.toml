@@ -6,4 +6,4 @@ compatibility_date = "2026-10-01"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-APP_URL = "https://tommycare.pages.dev"
+APP_URL = "https://tommycare.web.app"

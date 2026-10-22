@@ -9,8 +9,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "check-gmail": "node scripts/check-gmail.mjs",
-    "deploy": "vite build && wrangler pages deploy dist --project-name tommycare --branch main",
-    "deploy:cron": "wrangler deploy --config workers/cron/wrangler.toml"
+    "deploy": "vite build && firebase deploy --only hosting && wrangler pages deploy dist --project-name tommycare --branch main",
+    "deploy:cron": "wrangler deploy --config workers/cron/wrangler.toml",
+    "deploy:rules": "firebase deploy --only firestore:rules"
   },
   "dependencies": {
     "clsx": "2.1.1",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@vitejs/plugin-react": "4.3.4",
     "autoprefixer": "10.4.20",
+    "firebase-tools": "15.32.1",
     "postcss": "8.4.49",
     "tailwindcss": "3.4.16",
     "vite": "5.4.11",
