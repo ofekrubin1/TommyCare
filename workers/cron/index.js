@@ -11,7 +11,8 @@ export async function runJobs(env, now = Date.now()) {
   let devices;
   const ctx = {
     db, env, now,
-    devices: async () => (devices ??= pushConfigured(env) ? await db.list('push_subs') : []),
+    // only phones of the current app (address saved by the app; old addresses / removed apps are skipped)
+    devices: async () => (devices ??= pushConfigured(env) ? (await db.list('push_subs')).filter((s) => s.origin === env.APP_URL) : []),
     push: (payload, list) => sendPush(db, payload, list, env),
     mail: (message) => sendMail(env, message),
   };

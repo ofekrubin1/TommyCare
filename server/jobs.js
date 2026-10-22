@@ -66,11 +66,15 @@ export async function feedingAlerts(ctx) {
     const devices = (await ctx.devices()).filter((d) => d.feeding_alerts !== false);
     if (!devices.length) continue;
     const passed = Math.floor((now - Date.parse(last.time)) / HOUR);
-    await ctx.push({
-      title: 'TommyCare',
-      body: `${passedText(passed)} מזמן האכלה של ${child.name}\nהאכלה אחרונה ב-${hmText(last.time)} (${FEEDING_TYPES[last.type]?.label || 'האכלה'})`,
+    // The phone shows the app's name (TommyCare) itself, so the title is the message.
+    const delivered = await ctx.push({
+      title: `${passedText(passed)} מזמן האכלה של ${child.name}`,
+      body: `האכלה אחרונה ב-${hmText(last.time)} (${FEEDING_TYPES[last.type]?.label || 'האכלה'})`,
       url: '/', tag: `feeding-${child.id}`,
     }, devices);
+    console.log(`feeding alert for ${child.name}: ${delivered}/${devices.length} phones`);
+    // Marked only when a phone got it; otherwise the next minute tries again.
+    if (!delivered) continue;
     await db.update(`${FAMILY}/children`, child.id, { feeding_alert_for: last.id });
     sent++;
   }

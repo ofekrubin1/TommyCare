@@ -102,8 +102,12 @@ export default function JournalPage() {
   const days = filter === 'all'
     ? [...new Set([todayKey(), ...daysWithData(data)])].sort().reverse()
     : [...new Set(matching.map((e) => dayKey(e.time)))].sort().reverse();
-  const isOpen = (k) => filter !== 'all' || open.has(k);
-  const toggle = (k) => setOpen((s) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; });
+  // With a type filter every matching day starts open (the results show right away), and can still be closed.
+  const [closedWhileFiltered, setClosedWhileFiltered] = useState(() => new Set());
+  const isOpen = (k) => (filter !== 'all' ? !closedWhileFiltered.has(k) : open.has(k));
+  const flip = (s, k) => { const n = new Set(s); n.has(k) ? n.delete(k) : n.add(k); return n; };
+  const toggle = (k) => (filter !== 'all' ? setClosedWhileFiltered((s) => flip(s, k)) : setOpen((s) => flip(s, k)));
+  const chooseFilter = (v) => { setFilter(v); setClosedWhileFiltered(new Set()); };
   const cardProps = { data, events, now, nameOf, globalFilter: filter };
   const dataDays = daysWithData(data).length;
   const noOlder = !data.loading && loadedBefore !== null && dataDays === loadedBefore;
@@ -120,7 +124,7 @@ export default function JournalPage() {
           </div>
           <div className="min-w-0 space-y-1.5">
             <span className="block text-sm font-medium text-mute">סוג רשומה</span>
-            <FilterMenu value={filter} onChange={setFilter} events={events} />
+            <FilterMenu value={filter} onChange={chooseFilter} events={events} />
           </div>
         </div>
         {filter !== 'all' && !search && (

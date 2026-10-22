@@ -47,9 +47,23 @@ export async function enablePush(user) {
   await navigator.serviceWorker.ready;
   const sub = (await reg.pushManager.getSubscription())
     || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(VAPID_PUBLIC_KEY) });
-  const { endpoint, keys } = sub.toJSON();
-  await collection(C.pushSubs).set(await docId(endpoint), { endpoint, p256dh: keys.p256dh, auth: keys.auth, uid: user.uid, device: deviceName() });
+  await saveSubscription(sub, user);
   return permission;
+}
+
+// The device's subscription, with the app address it belongs to (the server only notifies the current app's
+// devices — not ones left over from an old address or a removed home-screen app).
+async function saveSubscription(sub, user) {
+  const { endpoint, keys } = sub.toJSON();
+  await collection(C.pushSubs).set(await docId(endpoint), {
+    endpoint, p256dh: keys.p256dh, auth: keys.auth, uid: user.uid, device: deviceName(), origin: window.location.origin, last_seen: new Date().toISOString(),
+  });
+}
+
+// On every app start: refresh this device's subscription (if notifications are on here).
+export async function touchThisDevice(user) {
+  const sub = await currentSubscription().catch(() => null);
+  if (sub && user) await saveSubscription(sub, user);
 }
 
 // This device's saved subscription id (null when notifications are off here).

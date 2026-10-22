@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronDown, Filter } from 'lucide-react';
+import { Check, ChevronDown, Filter, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EVENT_FILTERS } from './eventFilters';
 
@@ -48,9 +48,17 @@ export function FilterMenu({ value, onChange, events, variant = 'button', align 
     </button>
   );
 
+  // A small × next to the filter clears it (like the date picker).
+  const clear = active && (
+    <button type="button" onClick={() => onChange('all')} aria-label="ניקוי הסינון" className={cn('flex-none text-mute', variant === 'icon' ? 'p-1' : 'p-2')}>
+      <X className={variant === 'icon' ? 'h-4 w-4' : 'h-5 w-5'} />
+    </button>
+  );
+
   return (
-    <div ref={ref} className={cn('relative', variant === 'button' ? 'w-full' : 'flex-none')}>
-      {trigger}
+    <div ref={ref} className={cn('relative flex items-center', variant === 'button' ? 'w-full gap-1' : 'flex-none')}>
+      <div className={variant === 'button' ? 'min-w-0 flex-1' : ''}>{trigger}</div>
+      {clear}
       {open && (
         <ul role="listbox" className={cn('absolute top-full z-30 mt-1.5 max-h-[60vh] min-w-[13rem] overflow-y-auto rounded-2xl border border-line bg-card py-1 shadow-lg', align === 'left' ? 'left-0' : 'right-0')}>
           {options.map((f) => (

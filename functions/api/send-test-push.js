@@ -14,9 +14,9 @@ export async function onRequestPost({ request, env }) {
   try {
     const db = firestore(token);
     // Reading through Firestore with the caller's token is what verifies it (rules reject a bad token).
-    const mine = (await db.list('push_subs')).filter((s) => s.uid === uidOf(token));
+    const mine = (await db.list('push_subs')).filter((s) => s.uid === uidOf(token) && s.origin === env.APP_URL);
     if (!mine.length) return Response.json({ ok: false, error: 'no_devices' }, { status: 400 });
-    const sent = await sendPush(db, { title: '🔔 TommyCare', body: 'התראת בדיקה: ההתראות עובדות ✓', url: '/settings', tag: 'test' }, mine, env);
+    const sent = await sendPush(db, { title: 'התראת בדיקה', body: 'ההתראות עובדות ✓', url: '/settings', tag: 'test' }, mine, env);
     return Response.json({ ok: sent > 0, sent, error: sent ? undefined : 'send_failed' });
   } catch (err) {
     console.error(err);

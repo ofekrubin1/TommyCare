@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { displayUser } from './username';
 import { auth, C, collection } from '@/data';
 import { useCollection } from '@/hooks/useCollection';
+import { touchThisDevice } from '@/lib/push';
 
 const AuthContext = createContext({ user: null, loading: true });
 
@@ -18,6 +19,13 @@ export function useProfiles() {
   const { data } = useCollection(C.profiles);
   const names = Object.fromEntries(data.map((p) => [p.id, p.name]));
   return { names, nameOf: (uid) => names[uid] || '' };
+}
+
+// Keeps this phone's notification subscription current (see touchThisDevice).
+export function KeepPushCurrent() {
+  const { user } = useAuth();
+  useEffect(() => { if (user) touchThisDevice(user).catch(() => {}); }, [user]);
+  return null;
 }
 
 // Every signed-in user gets a display name, so "נרשם ע״י" always shows who logged an entry.
