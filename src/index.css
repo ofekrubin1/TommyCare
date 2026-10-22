@@ -46,30 +46,34 @@
   input, textarea, select { font-size: 16px; } /* no iOS zoom on focus */
 }
 
-/* BottleLoader: the milk drains in three steps, then refills; the bottle bobs as if sipping. */
-.bottle-milk {
-  transform-box: fill-box;
-  transform-origin: bottom;
-  animation: bottle-drain 2.8s ease-in-out infinite;
+/* BottleLoader: the baby rocks and kicks, blinks, hearts float up, the bottle bobs as if sipping, and the milk
+   drains toward the nipple stopping exactly on each mark (x 39, 32, 25 of a body running 16 → 46), then refills. */
+.loader-baby { transform-box: view-box; transform-origin: 80px 148px; animation: loader-rock 2.8s ease-in-out infinite; }
+@keyframes loader-rock { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+.loader-leg-l { transform-box: view-box; transform-origin: 68px 126px; animation: loader-kick 1.4s ease-in-out infinite; }
+.loader-leg-r { transform-box: view-box; transform-origin: 92px 126px; animation: loader-kick 1.4s ease-in-out infinite reverse; }
+@keyframes loader-kick { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-10deg); } }
+.loader-bottle { transform-box: view-box; transform-origin: 82px 72px; animation: loader-sip 1.4s ease-in-out infinite; }
+@keyframes loader-sip { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-6deg); } }
+.loader-milk { transform-box: fill-box; transform-origin: left center; animation: loader-drain 3.6s ease-in-out infinite; }
+@keyframes loader-drain {
+  0%, 12% { transform: scaleX(1); }
+  18%, 30% { transform: scaleX(0.7667); }
+  36%, 48% { transform: scaleX(0.5333); }
+  54%, 66% { transform: scaleX(0.3); }
+  72%, 86% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
 }
-@keyframes bottle-drain {
-  0%, 18% { transform: scaleY(1); }
-  25%, 43% { transform: scaleY(0.66); }
-  50%, 68% { transform: scaleY(0.33); }
-  75%, 93% { transform: scaleY(0); }
-  100% { transform: scaleY(1); }
-}
-.baby-bottle {
-  transform-box: view-box;
-  transform-origin: 60px 68px;
-  animation: baby-sip 1.4s ease-in-out infinite;
-}
-@keyframes baby-sip {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-4deg) translateX(-1px); }
-}
+.loader-heart { transform-box: fill-box; transform-origin: center; opacity: 0; animation: loader-float 2.8s ease-out infinite; }
+.loader-heart-2 { animation-delay: 1.4s; }
+@keyframes loader-float { 0% { opacity: 0; transform: translateY(6px) scale(.6); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-22px) scale(1); } }
+.loader-eyes { transform-box: fill-box; transform-origin: center; animation: loader-blink 4.2s infinite; }
+@keyframes loader-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.15); } }
+.loader-dots::after { content: ''; display: inline-block; width: 1.2em; text-align: left; animation: loader-dots 1.6s steps(1) infinite; }
+@keyframes loader-dots { 0% { content: ''; } 25% { content: '.'; } 50% { content: '..'; } 75% { content: '...'; } }
 @media (prefers-reduced-motion: reduce) {
-  .bottle-milk, .baby-bottle { animation: none; }
+  .loader-baby, .loader-leg-l, .loader-leg-r, .loader-bottle, .loader-milk, .loader-heart, .loader-eyes, .loader-dots::after { animation: none; }
+  .loader-heart { opacity: 0; }
 }
 
 /* Bottom tab bar: "liquid glass" like WhatsApp — almost clear, so the page shows through with only a light blur;

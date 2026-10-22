@@ -3,12 +3,12 @@ import { CalendarPlus } from 'lucide-react';
 import { C, collection } from '@/data';
 import { useSettings } from '@/core/children/useSettings';
 import { fromLocalInput, toLocalInput } from '@/lib/time';
-import { openIphoneCalendar } from '@/lib/calendar';
+import { EVENT_DURATIONS, openIphoneCalendar } from '@/lib/calendar';
 import { cachedToken, deleteGoogleEvent, getAccessToken, googleConfigured, loadGis, saveGoogleEvent } from '@/lib/googleCalendar';
 import { RecordSheet } from '@/components/forms/RecordSheet';
 import { DateTimeField } from '@/components/ui/DateTime';
 import { Field, Input, Optional, Textarea } from '@/components/ui/Field';
-import { Switch } from '@/components/ui/Choice';
+import { Chip, Switch } from '@/components/ui/Choice';
 import { Button } from '@/components/ui/Button';
 import { taskEvent } from './taskEvent';
 
@@ -25,19 +25,20 @@ export default function TaskSheet({ record, onClose }) {
   const [remind, setRemind] = useState(!!record?.remind_at);
   const [remindAt, setRemindAt] = useState(toLocalInput(record?.remind_at));
   const [google, setGoogle] = useState(!!record?.google_event_id);
+  const [duration, setDuration] = useState(record?.duration || 15);
   const gcal = googleConfigured();
   useEffect(() => { if (gcal) loadGis().catch(() => {}); }, [gcal]);
 
   const prevGoogle = record?.google_event_id || null;
   const wantGoogle = gcal && remind && google;
-  const event = (id) => taskEvent({ id, title: title.trim(), note: note.trim(), remindAt }, settings.baby_name);
+  const event = (id) => taskEvent({ id, title: title.trim(), note: note.trim(), remindAt, duration }, settings.baby_name);
 
   const values = () => {
     const at = remind ? fromLocalInput(remindAt) : null;
     // A new or moved reminder is sent again (remind_pending: what the server's every-minute check looks for);
     // an unchanged one keeps its "sent" mark.
     const changed = at !== (record?.remind_at || null);
-    return { title: title.trim(), note: note.trim(), remind_at: at, ...(changed ? { reminded_at: null, remind_pending: !!at } : {}) };
+    return { title: title.trim(), note: note.trim(), remind_at: at, duration: at ? duration : null, ...(changed ? { reminded_at: null, remind_pending: !!at } : {}) };
   };
 
   // Google's sign-in popup must open straight from the tap, before anything else is awaited.
@@ -73,6 +74,11 @@ export default function TaskSheet({ record, onClose }) {
       {remind && (
         <div className="space-y-3 rounded-xl bg-line/30 p-3">
           <DateTimeField label="מתי להזכיר" value={remindAt} onChange={setRemindAt} />
+          <Field as="div" label={<>משך ביומן<Optional /></>}>
+            <div className="flex flex-wrap gap-2">
+              {EVENT_DURATIONS.map((d) => <Chip key={d.value} selected={duration === d.value} onClick={() => setDuration(d.value)}>{d.label}</Chip>)}
+            </div>
+          </Field>
           <p className="text-xs text-mute">בזמן הזה תקפוץ התראה בטלפונים שהפעילו התראות (הגדרות ← התראות לטלפון).</p>
           {gcal ? <Switch label="להוסיף גם ל-Google Calendar" checked={google} onChange={setGoogle} /> : (
             <div className="opacity-50"><Switch label="להוסיף גם ל-Google Calendar" checked={false} onChange={() => {}} /></div>

@@ -1,5 +1,8 @@
 import { API_ORIGIN } from '@/config/appConfig';
 
+// Event lengths to choose from (appointments, task reminders), in minutes.
+export const EVENT_DURATIONS = [{ value: 15, label: '15 דק׳' }, { value: 30, label: 'חצי שעה' }, { value: 45, label: '45 דק׳' }, { value: 60, label: 'שעה' }, { value: 90, label: 'שעה וחצי' }, { value: 120, label: 'שעתיים' }];
+
 // "Add to iPhone calendar" for an app event { id, title, date, time, durationMinutes, location, description, alarms }:
 // a real .ics URL (blob/data links do nothing on iOS). Google Calendar is added via its API (googleCalendar.js).
 export function icsUrl({ id, title, date, time, durationMinutes = 30, location, description, alarms = [] }) {
