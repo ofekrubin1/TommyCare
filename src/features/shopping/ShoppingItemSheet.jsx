@@ -15,7 +15,7 @@ export default function ShoppingItemSheet({ record, onClose }) {
       newDefaults={{ status: 'open' }}
       canSave={!!name.trim()}
     >
-      <Field label="מה צריך לקנות"><Input autoFocus={!record} value={name} onChange={(e) => setName(e.target.value)} /></Field>
+      <Field label="מה צריך לקנות"><Input value={name} onChange={(e) => setName(e.target.value)} /></Field>
       <Field label={<>כמות<Optional /></>}><Input value={quantity} onChange={(e) => setQuantity(e.target.value)} /></Field>
       <Field label={<>הערה<Optional /></>}><Textarea placeholder="לדוגמה: מידה 2, רק של Pampers" value={note} onChange={(e) => setNote(e.target.value)} /></Field>
     </RecordSheet>

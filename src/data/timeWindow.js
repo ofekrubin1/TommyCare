@@ -8,8 +8,9 @@ export const TIME_FIELD = {
   feedings: 'time', diapers: 'time', sleeps: 'start', notes: 'time', pumping: 'time', fever: 'time', med_doses: 'time',
 };
 
-// Default window: the journal and home show the last 30 days; the journal loads more on request.
-export const RECENT_DAYS = 30;
+// Default window: the journal and home show the last 7 days; the journal's "תצוגה מורחבת" loads 30 more at a time.
+export const RECENT_DAYS = 7;
+export const MORE_DAYS = 30;
 
 // Start of the app day (06:00) `days` days ago, as an ISO instant. Stable for the whole day, so every screen
 // asking for the same window shares one live query.

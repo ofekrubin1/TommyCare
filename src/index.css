@@ -45,3 +45,20 @@
   }
   input, textarea, select { font-size: 16px; } /* no iOS zoom on focus */
 }
+
+/* BottleLoader: the milk drains in three steps, then refills. */
+.bottle-milk {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: bottle-drain 2.8s ease-in-out infinite;
+}
+@keyframes bottle-drain {
+  0%, 18% { transform: scaleY(1); }
+  25%, 43% { transform: scaleY(0.66); }
+  50%, 68% { transform: scaleY(0.33); }
+  75%, 93% { transform: scaleY(0); }
+  100% { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bottle-milk { animation: none; transform: scaleY(0.66); }
+}

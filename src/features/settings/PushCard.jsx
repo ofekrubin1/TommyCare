@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BellRing } from 'lucide-react';
-import { auth, C } from '@/data';
-import { useCollection } from '@/hooks/useCollection';
-import { useAuth, useProfiles } from '@/features/auth/AuthProvider';
+import { auth } from '@/data';
+import { useAuth } from '@/features/auth/AuthProvider';
 import { currentSubscription, disablePush, enablePush, pushSupport } from '@/lib/push';
 import { Card, SectionTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -16,8 +15,6 @@ const HELP = {
 // Settings → push notifications on this phone (task reminders), plus a test notification.
 export function PushCard() {
   const { user } = useAuth();
-  const { data: subs } = useCollection(C.pushSubs);
-  const { nameOf } = useProfiles();
   const support = pushSupport();
   const [on, setOn] = useState(false);
   const [state, setState] = useState({ status: 'idle', message: '' });
@@ -42,14 +39,14 @@ export function PushCard() {
     const res = await fetch('/api/send-test-push', { method: 'POST', headers: { Authorization: `Bearer ${await auth.getToken()}` } });
     const body = await res.json().catch(() => ({}));
     setState(body.ok
-      ? { status: 'ok', message: `נשלחה התראת בדיקה ל-${body.sent} מכשירים` }
+      ? { status: 'ok', message: 'נשלחה התראת בדיקה לטלפון שלך ✓' }
       : { status: 'error', message: body.error === 'no_key' ? 'חסר VAPID_PRIVATE_KEY בהגדרות של Netlify.' : body.error === 'no_devices' ? 'אין מכשירים עם התראות פעילות.' : 'השליחה נכשלה.' });
   });
 
   return (
     <Card className="space-y-3">
       <SectionTitle>התראות לטלפון</SectionTitle>
-      <p className="text-sm text-mute">תזכורות של משימות קופצות כהתראה בטלפון, בזמן שנקבע.</p>
+      <p className="text-sm text-mute">תזכורות של משימות, והתראה כשעבר זמן רב מההאכלה האחרונה.</p>
       {support !== 'ok' ? <p className="rounded-xl bg-line/40 p-3 text-sm">{HELP[support]}</p> : on ? (
         <div className="flex gap-2">
           <Button variant="outline" className="flex-1" onClick={test} disabled={state.status === 'busy'}><BellRing className="h-4 w-4" />התראת בדיקה</Button>
@@ -59,9 +56,6 @@ export function PushCard() {
         <Button className="w-full" onClick={enable} disabled={state.status === 'busy'}><BellRing className="h-4 w-4" />הפעלת התראות בטלפון הזה</Button>
       )}
       {state.message && <p className={`text-sm ${state.status === 'error' ? 'text-danger' : 'text-note'}`}>{state.message}</p>}
-      {subs.length > 0 && (
-        <p className="text-xs text-mute">מכשירים עם התראות: {subs.map((s) => [s.device, nameOf(s.uid)].filter(Boolean).join(' · ')).join(', ')}</p>
-      )}
     </Card>
   );
 }

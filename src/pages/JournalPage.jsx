@@ -6,7 +6,7 @@ import { useCanEdit } from '@/hooks/useCanEdit';
 import { useNow } from '@/hooks/useNow';
 import { daysWithData, summarizeDay } from '@/lib/summary';
 import { dayKey, dayLabel, dm, todayKey } from '@/lib/time';
-import { RECENT_DAYS } from '@/data/timeWindow';
+import { MORE_DAYS, RECENT_DAYS } from '@/data/timeWindow';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +17,7 @@ import { useProfiles } from '@/features/auth/AuthProvider';
 import { COLLECTION_OF, EventList } from '@/features/timeline/EventRow';
 import { toEvents } from '@/features/timeline/events';
 import { filterEvents, filterLabel } from '@/features/timeline/eventFilters';
-import { FilterChips } from '@/features/timeline/FilterChips';
+import { FilterMenu } from '@/features/timeline/FilterMenu';
 import { DaySummary } from '@/features/summary/DaySummary';
 
 // "Delete the whole day": every record of that day (06:00 → 06:00), after a confirmation.
@@ -70,7 +70,7 @@ function DayCard({ dayKey: k, open, onToggle, data, events, now, nameOf, globalF
       <DaySummary summary={summarizeDay(k, data, now)} />
       {open && (
         <div className="mt-3 space-y-2 border-t border-line pt-3">
-          {globalFilter === 'all' && <FilterChips small value={localFilter} onChange={setLocalFilter} events={allDayEvents} />}
+          {globalFilter === 'all' && <FilterMenu small value={localFilter} onChange={setLocalFilter} events={allDayEvents} />}
           {shown.length
             ? <EventList events={shown} nameOf={nameOf} />
             : <p className="py-4 text-center text-sm text-mute">{filter === 'all' ? 'אין רישומים ביום הזה' : `אין ${filterLabel(filter)} ביום הזה`}</p>}
@@ -82,7 +82,7 @@ function DayCard({ dayKey: k, open, onToggle, data, events, now, nameOf, globalF
 }
 
 // Everything, grouped by day (06:00 → 06:00), newest first. On top: search by date and/or by record type.
-// Loads the last 30 days; "ימים קודמים" shows more of them, then loads 30 more days at a time.
+// Loads the last 7 days; "תצוגה מורחבת" loads 30 more days at a time ("ימים קודמים" pages through loaded days).
 export default function JournalPage() {
   const [windowDays, setWindowDays] = useState(RECENT_DAYS);
   const [loadedBefore, setLoadedBefore] = useState(null); // day count before the last "load older", to know when there's no more
@@ -104,7 +104,7 @@ export default function JournalPage() {
   const cardProps = { data, events, now, nameOf, globalFilter: filter };
   const dataDays = daysWithData(data).length;
   const noOlder = !data.loading && loadedBefore !== null && dataDays === loadedBefore;
-  const loadOlder = () => { setLoadedBefore(dataDays); setWindowDays((d) => d + RECENT_DAYS); setLimit((l) => l + 14); };
+  const loadOlder = () => { setLoadedBefore(dataDays); setWindowDays((d) => d + MORE_DAYS); setLimit((l) => l + 14); };
 
   return (
     <div className="space-y-3">
@@ -116,7 +116,7 @@ export default function JournalPage() {
         </div>
         <div className="flex items-start gap-2">
           <span className="w-20 flex-none pt-1.5 text-sm font-medium text-mute">סוג רשומה</span>
-          <div className="min-w-0 flex-1"><FilterChips value={filter} onChange={setFilter} events={events} /></div>
+          <div className="min-w-0 flex-1"><FilterMenu value={filter} onChange={setFilter} events={events} /></div>
         </div>
         {filter !== 'all' && !search && (
           <p className="text-xs text-mute">{matching.length} {filterLabel(filter)} ב-{days.length} ימים</p>
@@ -128,12 +128,12 @@ export default function JournalPage() {
       ) : (
         <>
           {days.slice(0, limit).map((k) => <DayCard key={`${k}-${filter}`} dayKey={k} open={isOpen(k)} onToggle={() => toggle(k)} {...cardProps} />)}
-          {!days.length && <p className="py-8 text-center text-sm text-mute">אין {filterLabel(filter)} עדיין</p>}
+          {!days.length && <p className="py-8 text-center text-sm text-mute">{filter === 'all' ? 'אין רישומים עדיין' : `אין ${filterLabel(filter)} עדיין`}</p>}
           {days.length > limit
             ? <Button variant="outline" className="w-full" onClick={() => setLimit((l) => l + 14)}>ימים קודמים</Button>
             : !noOlder && (
               <Button variant="outline" className="w-full" onClick={loadOlder} disabled={data.loading}>
-                {data.loading ? 'טוען...' : `טעינת ימים לפני ${dm(dayKey(data.since))}`}
+                {data.loading ? 'טוען...' : `תצוגה מורחבת · ימים לפני ${dm(dayKey(data.since))}`}
               </Button>
             )}
         </>

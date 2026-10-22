@@ -28,7 +28,7 @@ export default function VaccineSheet({ vaccine, onClose }) {
       persist={persist}
       canSave={!!name.trim() && (!given || !!date)}
     >
-      <Field label="שם החיסון"><Input autoFocus={isNew} value={name} onChange={(e) => setName(e.target.value)} /></Field>
+      <Field label="שם החיסון"><Input value={name} onChange={(e) => setName(e.target.value)} /></Field>
       <Field label={<>מועד מתוכנן<Optional /></>}><Input type="date" className="h-12" value={due} onChange={(e) => setDue(e.target.value)} /></Field>
       <Switch label="בוצע" checked={given} onChange={setGiven} />
       {given && <Field label="תאריך החיסון"><Input type="date" className="h-12" value={date} onChange={(e) => setDate(e.target.value)} /></Field>}

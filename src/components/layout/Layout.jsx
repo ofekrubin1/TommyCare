@@ -3,9 +3,9 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { isLocalBackend } from '@/data';
 import { BottomNav } from './BottomNav';
 import { ErrorBoundary } from './ErrorBoundary';
+import { BottleLoader } from '@/components/ui/BottleLoader';
 import { useRole } from '@/hooks/useCanEdit';
 
-const Loading = () => <div className="flex min-h-[50vh] items-center justify-center"><div className="h-7 w-7 animate-spin rounded-full border-2 border-accent/30 border-t-accent" /></div>;
 
 export function Layout() {
   const role = useRole();
@@ -18,7 +18,7 @@ export function Layout() {
       <main className="mx-auto max-w-lg px-4 pb-28 pt-4" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
         {/* A crash in one screen keeps the bottom bar; moving to another screen clears it. */}
         <ErrorBoundary key={pathname}>
-          <Suspense fallback={<Loading />}>
+          <Suspense fallback={<BottleLoader />}>
             <Outlet />
           </Suspense>
         </ErrorBoundary>

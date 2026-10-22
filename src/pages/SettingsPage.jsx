@@ -77,7 +77,7 @@ export default function SettingsPage() {
           <Field label="תאריך לידה"><Input type="date" className="h-[46px] text-center" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} /></Field>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <Field label="סוג האכלה">
+          <Field label="סוג האכלה ברירת מחדל">
             <Select className="h-[46px]" value={form.default_feeding_type} onChange={(e) => setForm({ ...form, default_feeding_type: e.target.value })}>
               {FEEDING_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </Select>

@@ -65,7 +65,7 @@ export default function TaskSheet({ record, onClose }) {
       values={values} newDefaults={{ done: false }} canSave={!!title.trim()}
       beforeSave={beforeSave} afterSave={afterSave}
     >
-      <Field label="מה צריך לעשות"><Input autoFocus={!record} placeholder="לדוגמה: להזמין תור לטיפת חלב" value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
+      <Field label="מה צריך לעשות"><Input placeholder="לדוגמה: להזמין תור לטיפת חלב" value={title} onChange={(e) => setTitle(e.target.value)} /></Field>
       <Field label={<>הערה<Optional /></>}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></Field>
       <Switch label="תזכורת" checked={remind} onChange={setRemind} />
       {remind && (

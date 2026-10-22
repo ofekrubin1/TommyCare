@@ -1,0 +1,59 @@
+import { useEffect, useRef, useState } from 'react';
+import { Check, ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { EVENT_FILTERS } from './eventFilters';
+
+// Record-type filter as a dropdown: the button shows the chosen type; the list offers only types that exist in
+// `events` (plus "all" and the current one).
+export function FilterMenu({ value, onChange, events, small = false }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const options = EVENT_FILTERS.filter((f) => f.value === 'all' || f.value === value || events.some(f.match));
+  const current = EVENT_FILTERS.find((f) => f.value === value) || EVENT_FILTERS[0];
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e) => { if (!ref.current?.contains(e.target)) setOpen(false); };
+    const esc = (e) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', esc); };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={cn('flex items-center gap-2 rounded-xl border bg-card font-medium transition',
+          value !== 'all' ? 'border-accent text-accent' : 'border-line text-ink',
+          small ? 'px-2.5 py-1.5 text-sm' : 'px-3 py-2')}
+      >
+        <span aria-hidden="true">{current.icon}</span>
+        {current.label}
+        <ChevronDown className={cn('h-4 w-4 text-mute transition', open && 'rotate-180')} />
+      </button>
+      {open && (
+        <ul role="listbox" className="absolute right-0 top-full z-30 mt-1.5 max-h-[60vh] min-w-[13rem] overflow-y-auto rounded-2xl border border-line bg-card py-1 shadow-lg">
+          {options.map((f) => (
+            <li key={f.value}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={f.value === value}
+                onClick={() => { onChange(f.value); setOpen(false); }}
+                className={cn('flex w-full items-center gap-3 px-4 py-2.5 text-right', f.value === value ? 'bg-accent/10 font-semibold text-accent' : 'active:bg-line/60')}
+              >
+                <span className="text-lg" aria-hidden="true">{f.icon}</span>
+                <span className="flex-1">{f.label}</span>
+                {f.value === value && <Check className="h-4 w-4" />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

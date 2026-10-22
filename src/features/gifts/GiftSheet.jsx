@@ -17,7 +17,7 @@ export default function GiftSheet({ record, onClose }) {
       values={() => ({ name: name.trim(), from: from.trim(), value: value === '' ? null : Number(value), note: note.trim(), used })}
       canSave={!!name.trim()}
     >
-      <Field label="מה קיבלנו"><Input autoFocus={!record} placeholder="לדוגמה: שובר BuyMe" value={name} onChange={(e) => setName(e.target.value)} /></Field>
+      <Field label="מה קיבלנו"><Input placeholder="לדוגמה: שובר BuyMe" value={name} onChange={(e) => setName(e.target.value)} /></Field>
       <Field label={<>ממי<Optional /></>}><Input placeholder="לדוגמה: סבתא רינה" value={from} onChange={(e) => setFrom(e.target.value)} /></Field>
       <Field label={<>שווי (₪)<Optional /></>}><Input type="number" inputMode="decimal" min="0" value={value} onChange={(e) => setValue(e.target.value)} /></Field>
       <Field label={<>הערה<Optional /></>}><Textarea placeholder="קוד שובר, תוקף, איפה מממשים" value={note} onChange={(e) => setNote(e.target.value)} /></Field>

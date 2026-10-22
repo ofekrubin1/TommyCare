@@ -29,7 +29,7 @@ export default function AppointmentSheet({ record, mode, onClose }) {
     return (
       <RecordSheet collection={C.appointments} record={record} onClose={onClose} title={`${record.doctor_type} · מה היה בתור?`} values={values} saveText="סימון כבוצע">
         <Field label={<>מה היה בתור<Optional /></>}>
-          <Textarea rows={5} autoFocus placeholder="מה נאמר, המלצות, מרשמים, משקל" value={summary} onChange={(e) => setSummary(e.target.value)} />
+          <Textarea rows={5} placeholder="מה נאמר, המלצות, מרשמים, משקל" value={summary} onChange={(e) => setSummary(e.target.value)} />
         </Field>
       </RecordSheet>
     );

@@ -20,7 +20,7 @@ export function Sheet({ open, onClose, title, children }) {
       <div
         role="dialog"
         aria-label={title}
-        className="relative w-full max-w-lg max-h-[92vh] overflow-y-auto bg-card rounded-t-3xl shadow-2xl animate-[sheet_.18s_ease-out]"
+        className="relative w-full max-w-lg max-h-[92dvh] overflow-y-auto bg-card rounded-t-3xl shadow-2xl animate-[sheet_.18s_ease-out]"
         style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
       >
         <div className="sticky top-0 bg-card z-10 px-5 pt-3 pb-2">
