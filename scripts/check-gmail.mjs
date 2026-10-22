@@ -1,4 +1,4 @@
-// Checks Gmail credentials locally before putting them in Netlify (no deploy needed).
+// Checks Gmail credentials locally before putting them in Cloudflare (no deploy needed).
 // Usage: npm run check-gmail   → asks for the Gmail address and app password, logs in, and sends a short test email to yourself.
 // Nothing is saved or sent anywhere except to Gmail.
 import readline from 'node:readline/promises';
@@ -14,9 +14,9 @@ if (pass.length !== 16) console.log(`\n⚠️  The app password has ${pass.lengt
 const transport = nodemailer.createTransport({ service: 'gmail', auth: { user, pass } });
 try {
   await transport.verify();
-  await transport.sendMail({ from: `"TommyCare" <${user}>`, to: user, subject: 'TommyCare · בדיקת Gmail', text: 'הפרטים תקינים. אפשר להכניס אותם ל-Netlify.' });
+  await transport.sendMail({ from: `"TommyCare" <${user}>`, to: user, subject: 'TommyCare · בדיקת Gmail', text: 'הפרטים תקינים. אפשר להכניס אותם ל-Cloudflare.' });
   console.log(`\n✅ Login OK and a test email was sent to ${user}.`);
-  console.log('   Put these exact values in Netlify → tommycare → Environment variables:');
+  console.log('   Put these exact values in .dev.vars, then upload them as Cloudflare secrets (wrangler secret bulk / pages secret bulk):');
   console.log(`   GMAIL_USER = ${user}`);
   console.log('   GMAIL_APP_PASSWORD = the same 16 letters (mark as secret)');
 } catch (err) {
