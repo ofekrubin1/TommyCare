@@ -7,6 +7,10 @@ export function LocalTools() {
     const [{ buildSampleData }, { replaceAll }] = await Promise.all([import('@/data/local/seed'), import('@/data/local/localBackend')]);
     replaceAll(buildSampleData());
   };
+  const loadLegacy = async () => {
+    const [{ buildLegacySampleData }, { replaceAll }] = await Promise.all([import('@/data/local/seed'), import('@/data/local/localBackend')]);
+    replaceAll(buildLegacySampleData());
+  };
   const clear = async () => (await import('@/data/local/localBackend')).replaceAll({});
   return (
     <Card className="space-y-3 border-dashed border-accent/50">
@@ -16,6 +20,7 @@ export function LocalTools() {
         <Button variant="soft" onClick={load}>טעינת נתוני דוגמה</Button>
         <Button variant="danger" onClick={clear}>מחיקת הכל</Button>
       </div>
+      <Button variant="outline" className="w-full text-sm" onClick={loadLegacy}>נתונים במבנה הישן (לבדיקת המעבר החד-פעמי)</Button>
     </Card>
   );
 }

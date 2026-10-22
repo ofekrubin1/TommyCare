@@ -12,6 +12,7 @@ import { useAuth, useProfiles } from '@/features/auth/AuthProvider';
 import { displayUser } from '@/features/auth/username';
 import { useCanEdit } from '@/hooks/useCanEdit';
 import { UsersCard } from '@/features/settings/UsersCard';
+import { ChildrenCard } from '@/features/settings/ChildrenCard';
 import { SummaryEmailCard } from '@/features/settings/SummaryEmailCard';
 import { ExportCard } from '@/features/settings/ExportCard';
 import { PushCard } from '@/features/settings/PushCard';
@@ -33,7 +34,9 @@ export default function SettingsPage() {
   useEffect(() => setMyName(nameOf(user?.uid)), [nameOf(user?.uid)]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const submit = async () => {
-    await save({ ...form, feeding_alert_hours: Number(form.feeding_alert_hours) || 3 });
+    // The current child's details (the family's settings have their own cards).
+    const { baby_name, birth_date, default_feeding_type } = form;
+    await save({ baby_name, birth_date, default_feeding_type, feeding_alert_hours: Number(form.feeding_alert_hours) || 3 });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -71,7 +74,7 @@ export default function SettingsPage() {
     <div className="space-y-4">
       <PageHeader title="הגדרות" />
       <Card className="space-y-4">
-        <SectionTitle>התינוקת</SectionTitle>
+        <SectionTitle>{settings.baby_name}</SectionTitle>
         <div className="grid grid-cols-2 gap-2">
           <Field label="שם"><Input className="h-[46px]" value={form.baby_name} onChange={(e) => setForm({ ...form, baby_name: e.target.value })} /></Field>
           <Field label="תאריך לידה"><Input type="date" className="h-[46px] text-center" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} /></Field>
@@ -89,6 +92,8 @@ export default function SettingsPage() {
         <p className="text-xs text-mute">ההתראה במסך הבית קופצת אחרי כך וכך שעות בלי האכלה.</p>
         <Button className="w-full" onClick={submit}>{saved ? 'נשמר ✓' : 'שמירה'}</Button>
       </Card>
+
+      <ChildrenCard />
 
       <PushCard />
 

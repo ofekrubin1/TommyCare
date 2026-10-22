@@ -38,6 +38,19 @@ export function firestore(idToken) {
       } while (token);
       return docs;
     },
+    // Records of `parent`/`name` whose `field` >= `from` (newest first, up to `limit`). Paths may be nested,
+    // e.g. parent "families/main/children/child1", name "feedings".
+    async since(parent, name, field, from, { limit } = {}) {
+      const structuredQuery = {
+        from: [{ collectionId: name }],
+        where: { fieldFilter: { field: { fieldPath: field }, op: 'GREATER_THAN_OR_EQUAL', value: { stringValue: from } } },
+        orderBy: [{ field: { fieldPath: field }, direction: 'DESCENDING' }],
+        ...(limit && { limit }),
+      };
+      const res = await fetch(`${BASE}/${parent}:runQuery`, { method: 'POST', headers, body: JSON.stringify({ structuredQuery }) });
+      if (!res.ok) throw new Error(`Firestore query ${parent}/${name}: ${res.status} ${await res.text()}`);
+      return (await res.json()).filter((r) => r.document).map(({ document: d }) => ({ ...decodeFields(d.fields || {}), id: d.name.split('/').pop() }));
+    },
     async get(name, id) {
       const res = await fetch(`${BASE}/${name}/${id}`, { headers });
       if (res.status === 404) return null;

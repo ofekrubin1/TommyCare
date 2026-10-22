@@ -6,6 +6,13 @@ service cloud.firestore {
     //   editor — adds, edits and deletes the family's records
     //   viewer — reads everything (also anyone signed in without a role: new users wait for an owner)
     // Accounts are created by the owner in Firebase Console → Authentication → Users; public sign-up is off.
+    //
+    // Data layout (src/data/index.js):
+    //   families/{family}                                  the family
+    //   families/{family}/{shopping|gifts|tasks|settings}/{id}           shared by the family
+    //   families/{family}/children/{child}                 a child
+    //   families/{family}/children/{child}/{feedings|...}/{id}           that child's records
+    //   profiles, roles, push_subs                         per user
 
     function signedIn() {
       return request.auth != null && request.auth.token.firebase.sign_in_provider == 'password';
@@ -30,14 +37,9 @@ service cloud.firestore {
       return signedIn() && (isFixedOwner() || role() in ['owner', 'editor']);
     }
 
-    // The family's records. A new record can only be stamped with its real author.
-    function dataCollections() {
-      return ['feedings', 'diapers', 'sleeps', 'notes', 'pumping', 'fever', 'med_doses', 'meds', 'growth',
-        'vaccinations', 'appointments', 'shopping', 'gifts', 'tasks', 'settings'];
-    }
-
+    // A new record is stamped with its real author — except by an owner (moving or restoring others' records).
     function honestAuthor() {
-      return !('created_by' in request.resource.data) || request.resource.data.created_by == request.auth.uid;
+      return !('created_by' in request.resource.data) || request.resource.data.created_by == request.auth.uid || isOwner();
     }
 
     // Only these fields change (used by the scheduled jobs' system account, which has no role).
@@ -45,13 +47,39 @@ service cloud.firestore {
       return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
     }
 
+    match /families/{family} {
+      allow read: if signedIn();
+      allow write: if canEdit();
+
+      // Shared by the family.
+      match /{col}/{id} {
+        allow read: if signedIn() && col in ['shopping', 'gifts', 'tasks', 'settings'];
+        allow create: if canEdit() && col in ['shopping', 'gifts', 'tasks', 'settings'] && honestAuthor();
+        allow update, delete: if canEdit() && col in ['shopping', 'gifts', 'tasks', 'settings'];
+        // Scheduled jobs: "reminder sent" on a task, "summary sent" date in the settings.
+        allow update: if signedIn() && col == 'tasks' && onlyChanges(['reminded_at']);
+        allow update: if signedIn() && col == 'settings' && id == 'app' && onlyChanges(['last_summary_date']);
+      }
+
+      match /children/{child} {
+        allow read: if signedIn();
+        allow write: if canEdit();
+        // Scheduled job: "feeding alert sent for this feeding".
+        allow update: if signedIn() && onlyChanges(['feeding_alert_for']);
+
+        // The child's records.
+        match /{col}/{id} {
+          allow read: if signedIn();
+          allow create: if canEdit() && honestAuthor();
+          allow update, delete: if canEdit();
+        }
+      }
+    }
+
+    // The layout before families (all collections at the top level): read-only, kept as a backup after the move.
     match /{col}/{id} {
-      allow read: if signedIn() && col in dataCollections();
-      allow create: if canEdit() && col in dataCollections() && honestAuthor();
-      allow update, delete: if canEdit() && col in dataCollections();
-      // Scheduled jobs: "reminder sent" on a task, "summary sent" date in the settings.
-      allow update: if signedIn() && col == 'tasks' && onlyChanges(['reminded_at']);
-      allow update: if signedIn() && col == 'settings' && id == 'app' && onlyChanges(['last_summary_date']);
+      allow read: if signedIn() && col in ['feedings', 'diapers', 'sleeps', 'notes', 'pumping', 'fever', 'med_doses', 'meds',
+        'growth', 'vaccinations', 'appointments', 'shopping', 'gifts', 'tasks', 'settings'];
     }
 
     // Display names: your own, or anyone's by an owner.

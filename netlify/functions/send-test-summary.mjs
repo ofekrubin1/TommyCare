@@ -3,7 +3,8 @@
 process.env.TZ = 'Asia/Jerusalem';
 
 import { firestore, robotToken } from '../lib/firestore.mjs';
-import { buildSummaryEmail, loadDayData, recipientsOf } from '../lib/dailySummary.mjs';
+import { buildSummaryEmail, loadChildrenDays, recipientsOf } from '../lib/dailySummary.mjs';
+import { loadFamilySettings } from '../lib/family.mjs';
 import { sendMail } from '../lib/mailer.mjs';
 
 export default async (req) => {
@@ -13,10 +14,10 @@ export default async (req) => {
 
   try {
     const db = firestore(token);
-    const settings = (await db.get('settings', 'app')) || {};
+    const settings = await loadFamilySettings(db);
     const to = recipientsOf(settings);
     if (!to.length) return Response.json({ ok: false, error: 'no_email' }, { status: 400 });
-    const email = buildSummaryEmail({ babyName: settings.baby_name, data: await loadDayData(db), appUrl: process.env.URL, test: true });
+    const email = buildSummaryEmail({ children: await loadChildrenDays(db), appUrl: process.env.URL, test: true });
     await sendMail({ to: to.join(', '), ...email });
     return Response.json({ ok: true, to: to.join(', '), robot: await checkRobot() });
   } catch (err) {
@@ -29,7 +30,7 @@ export default async (req) => {
 // Can the 06:00 job sign in and read the data? Returns 'ok' or the reason it can't.
 async function checkRobot() {
   try {
-    await firestore(await robotToken()).get('settings', 'app');
+    await loadFamilySettings(firestore(await robotToken()));
     return 'ok';
   } catch (err) {
     return err.message.includes('TC_ROBOT') ? 'missing' : /INVALID|PASSWORD|EMAIL_NOT_FOUND|400/.test(err.message) ? 'bad_login' : 'error';

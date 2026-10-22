@@ -3,6 +3,7 @@
 import { addDays, addMinutes, format, subDays } from 'date-fns';
 import { DAY_START_HOUR } from '@/config/appConfig';
 import { localUid } from './localBackend';
+import { CHILD_COLLECTIONS, FAMILY_COLLECTIONS } from '../index.js';
 
 let n = 0;
 const id = () => `seed${++n}`;
@@ -78,5 +79,49 @@ export function buildSampleData(now = new Date()) {
   for (const [name, quantity, status, note] of [['חיתולים מידה 1', '2 חבילות', 'open', 'רק Pampers'], ['מגבונים', '', 'open'], ['משחת החתלה', '', 'bought'], ['בגד גוף 3-6', '4', 'archived']]) {
     put('shopping', { name, quantity, status, note: note || '' });
   }
-  return db;
+  return toFamilyLayout(db, now);
+}
+
+// The flat sample (one child) → the family layout: Tommy's records under families/main/children/child1, shared
+// lists under families/main, plus a second child (איתי, a few days old) with a couple of entries of their own.
+function toFamilyLayout(flat, now) {
+  const out = {};
+  const F = 'families/main';
+  for (const [name, docs] of Object.entries(flat)) {
+    if (CHILD_COLLECTIONS.includes(name)) out[`${F}/children/child1/${name}`] = docs;
+    else if (name === 'settings') continue;
+    else if (FAMILY_COLLECTIONS.includes(name)) out[`${F}/${name}`] = docs;
+    else out[name] = docs;
+  }
+  const app = flat.settings.app;
+  out.families = { main: { name: 'המשפחה' } };
+  out[`${F}/settings`] = { app: { summary_enabled: false, roles_v2: true } };
+  const itai = format(subDays(now, 3), 'yyyy-MM-dd');
+  out[`${F}/children`] = {
+    child1: { name: app.baby_name, birth_date: app.birth_date, photo: '', default_feeding_type: 'breast', feeding_alert_hours: 3, order: 1 },
+    child2: { name: 'איתי', birth_date: itai, photo: '', default_feeding_type: 'formula', feeding_alert_hours: 3, order: 2 },
+  };
+  const by = { created_at: iso(now), updated_at: iso(now), created_by: localUid('ofek') };
+  out[`${F}/children/child2/feedings`] = {
+    itai1: { ...by, type: 'formula', time: iso(addMinutes(now, -200)), amount_ml: 60, sides: null, note: 'בקבוק ראשון של איתי' },
+    itai2: { ...by, type: 'formula', time: iso(addMinutes(now, -40)), amount_ml: 70, sides: null, note: '' },
+  };
+  out[`${F}/children/child2/diapers`] = { itai3: { ...by, time: iso(addMinutes(now, -30)), pee: true, poop: false, rash: false, note: '' } };
+  return out;
+}
+
+// The same sample in the layout before families (all collections at the top level), to try the one-time move.
+export function buildLegacySampleData(now = new Date()) {
+  n = 0;
+  const flat = {};
+  const fam = buildSampleData(now);
+  for (const [path, docs] of Object.entries(fam)) {
+    const parts = path.split('/');
+    if (parts[0] !== 'families' || parts.length === 1) { if (parts[0] !== 'families') flat[path] = docs; continue; }
+    if (parts[2] === 'children' && parts.length === 5 && parts[3] === 'child1') flat[parts[4]] = docs;
+    else if (parts.length === 3 && parts[2] !== 'children' && parts[2] !== 'settings') flat[parts[2]] = docs;
+  }
+  const c = fam['families/main/children'].child1;
+  flat.settings = { app: { baby_name: c.name, birth_date: c.birth_date, default_feeding_type: 'breast', feeding_alert_hours: 3, roles_v2: true } };
+  return flat;
 }

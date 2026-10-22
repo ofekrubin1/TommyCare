@@ -34,10 +34,11 @@ function mutate(name, fn) {
 
 const list = (name) => Object.entries(read()[name] || {}).map(([id, v]) => ({ ...v, id }));
 
+// `name` is a full path, e.g. "families/main/children/<id>/feedings" (stored under that key).
 export function collection(name) {
   return {
     subscribe(onData, onError, { since } = {}) {
-      const field = since && TIME_FIELD[name];
+      const field = since && TIME_FIELD[name.split('/').pop()];
       const fn = () => onData(field ? list(name).filter((r) => r[field] >= since) : list(name));
       if (!listeners.has(name)) listeners.set(name, new Set());
       listeners.get(name).add(fn);

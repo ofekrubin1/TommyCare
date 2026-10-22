@@ -2,7 +2,8 @@ import { useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { Camera, ImagePlus, Trash2, X } from 'lucide-react';
+import { Camera, ChevronDown, ImagePlus, Trash2, X } from 'lucide-react';
+import { ChildSwitcher } from '@/features/children/ChildSwitcher';
 import { ageText } from '@/lib/time';
 import { Button } from '@/components/ui/Button';
 import { PhotoCropper } from '@/components/ui/PhotoCropper';
@@ -30,12 +31,13 @@ function PhotoViewer({ src, name, canEdit, onReplace, onRemove, onClose }) {
   );
 }
 
-// Centered header: photo (tap → view full screen, replace, remove), name, age and today's date.
+// Centered header: photo (tap → view full screen, replace, remove), name (tap → switch child), age and today's date.
 // The photo is a small cropped JPEG kept in settings/app in Firestore, so it syncs to every phone.
 export function BabyHeader({ settings, save, now }) {
   const fileRef = useRef(null);
   const canEdit = useCanEdit();
   const [viewing, setViewing] = useState(false);
+  const [switching, setSwitching] = useState(false);
   const [file, setFile] = useState(null);
 
   const pick = () => { setViewing(false); fileRef.current?.click(); };
@@ -65,7 +67,10 @@ export function BabyHeader({ settings, save, now }) {
       </button>
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={onFile} />
 
-      <h1 className="mt-2 text-2xl font-bold tracking-tight">{settings.baby_name}</h1>
+      <button type="button" onClick={() => setSwitching(true)} className="mx-auto mt-2 flex items-center gap-1" aria-label="מעבר בין הילדים">
+        <h1 className="text-2xl font-bold tracking-tight">{settings.baby_name}</h1>
+        <ChevronDown className="h-5 w-5 text-mute" />
+      </button>
       <p className="text-sm text-mute">יום {HE_DAYS[now.getDay()]} · {format(now, 'dd/MM')}</p>
       <p className="text-sm">
         {age
@@ -79,6 +84,7 @@ export function BabyHeader({ settings, save, now }) {
           onRemove={() => { save({ baby_photo: '' }); setViewing(false); }} onClose={() => setViewing(false)}
         />
       )}
+      {switching && <ChildSwitcher onClose={() => setSwitching(false)} />}
       {file && (
         <PhotoCropper size={640} file={file} onCancel={() => setFile(null)} onSave={(dataUrl) => { save({ baby_photo: dataUrl }); setFile(null); }} />
       )}

@@ -4,7 +4,8 @@ import { Layout } from '@/components/layout/Layout';
 import { ErrorBoundary } from '@/components/layout/ErrorBoundary';
 import { Toaster } from '@/components/ui/Toaster';
 import { BottleLoader } from '@/components/ui/BottleLoader';
-import { AuthProvider, EnsureProfile, MigrateRoles, useAuth } from '@/features/auth/AuthProvider';
+import { AuthProvider, EnsureProfile, useAuth } from '@/features/auth/AuthProvider';
+import { ChildGate } from '@/features/children/ChildGate';
 import LoginPage from '@/features/auth/LoginPage';
 import { QuickAddProvider } from '@/features/timeline/QuickAddProvider';
 import HomePage from '@/pages/HomePage';
@@ -27,7 +28,7 @@ function Gate() {
   return (
     <QuickAddProvider>
       <EnsureProfile />
-      <MigrateRoles />
+      <ChildGate>
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />
@@ -41,6 +42,7 @@ function Gate() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
+      </ChildGate>
     </QuickAddProvider>
   );
 }

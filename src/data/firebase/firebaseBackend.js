@@ -30,12 +30,14 @@ const by = () => fbAuth.currentUser?.uid ?? null;
 const background = (promise, what) => { promise.catch((err) => reportError(err, what)); };
 const docs = (snap) => snap.docs.map((d) => ({ ...d.data(), id: d.id }));
 
+// `name` is a full path, e.g. "families/main/children/<id>/feedings".
 export function collection(name) {
   const col = fsCollection(db, name);
+  const timeField = TIME_FIELD[name.split('/').pop()];
   return {
     // `since` (ISO): only records from then on, by the collection's time field (see timeWindow.js).
     subscribe(onData, onError, { since } = {}) {
-      const q = since && TIME_FIELD[name] ? query(col, where(TIME_FIELD[name], '>=', since)) : col;
+      const q = since && timeField ? query(col, where(timeField, '>=', since)) : col;
       return onSnapshot(q, (snap) => onData(docs(snap)), onError);
     },
     // Every record, once (backup export).
